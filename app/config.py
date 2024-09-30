@@ -5,7 +5,7 @@ class Config:
     """Base configuration class."""
     LOGGING_LEVEL = logging.DEBUG
     LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    LOGGING_LOCATION = os.path.join(os.path.dirname(__file__), 'app.log')  # Log file location
+    LOGGING_LOCATION = os.path.join(os.path.dirname(__file__), '../app.log')  # Log file location
 
     @staticmethod
     def init_app(app):
