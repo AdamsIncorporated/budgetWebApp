@@ -76,6 +76,7 @@
     </div>
     <div class="my-3 flex items-center">
       <button
+        id="adminLoginBtn"
         class="bg-teal-600 text-white font-semibold py-2 px-4 rounded transition duration-300 hover:bg-teal-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
       >
         <i class="fas fa-sign-in-alt mr-2"></i>
@@ -98,5 +99,11 @@
         dropdown.classList.add("hidden"); // Hide the dropdown
       }
     });
+
+    document
+      .getElementById("adminLoginBtn")
+      .addEventListener("click", function () {
+        window.location.href = "/login";
+      });
   </script>
 </nav>

@@ -21,18 +21,25 @@ def login():
             flash("Email must end with @centralhealth.net", "error")
             return redirect(url_for("login"))
 
-        conn = get_db_connection()
-        user = conn.execute(
-            "SELECT * FROM users WHERE email = ? AND password = ?", (email, password)
-        ).fetchone()
-        conn.close()
+        dummy_user = "samuel.adams@centralhealth.net"
+        dummy_password = "1234"
+        # conn = get_db_connection()
+        # user = conn.execute(
+        #     "SELECT * FROM users WHERE email = ? AND password = ?", (email, password)
+        # ).fetchone()
+        # conn.close()
 
         # If user exists and credentials are correct
-        if user:
-            flash("Login successful!", "success")
-            return redirect(url_for("dashboard"))  # redirect to a dashboard page
+        if dummy_user:
+            flash("Login successful!", "dashboard")
+            return redirect(url_for("success_login"))  # redirect to a dashboard page
         else:
             flash("Invalid email or password", "error")
             return redirect(url_for("login"))
 
     return render_template("login.html")
+
+
+@main.route("/success_login")
+def success_login():
+    return render_template("dashboard.html")

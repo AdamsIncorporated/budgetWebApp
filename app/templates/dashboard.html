@@ -1,0 +1,32 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Welcome to Your Dashboard!</h1>
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          <!-- Link to a logout route -->
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <h2>Your Profile</h2>
+      <!-- Add dashboard content here -->
+      <p>Here you can see your profile information, statistics, etc.</p>
+    </main>
+    <footer>
+      <p>&copy; 2024 Central Health</p>
+    </footer>
+  </body>
+</html>

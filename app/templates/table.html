@@ -1,12 +1,23 @@
-<div class="overflow-auto">
+<div class="overflow-auto h-min">
   <table
     class="min-w-full bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
   >
     <thead
       class="text-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
     >
+      <tr class="border-b-2 border-teal-500 bg-teal-900 text-stone-50">
+        <th colspan="3" class="border-b-2 border-teal-600 px-4 py-2"></th>
+        <th colspan="3" class="border-b-2 border-teal-600 px-4 py-2">FY - 2</th>
+        <th class="border-b-2 border-teal-600 px-4 py-2"></th>
+        <th colspan="3" class="border-b-2 border-teal-600 px-4 py-2">FY - 1</th>
+        <th class="border-b-2 border-teal-600 px-4 py-2"></th>
+        <th colspan="2" class="border-b-2 border-teal-600 px-4 py-2">MO, FY</th>
+        <th colspan="10" class="border-b-2 border-teal-600 px-4 py-2"></th>
+      </tr>
       <tr class="text-stone-50">
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Account</th>
+        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
+          Account
+        </th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
           RAD Description
         </th>
@@ -15,12 +26,20 @@
         </th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Actual</th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Budget</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Variance</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Percent</th>
+        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
+          Variance
+        </th>
+        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
+          Percent
+        </th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Actual</th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Budget</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Variance</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Percent</th>
+        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
+          Variance
+        </th>
+        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
+          Percent
+        </th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
           Actual to Date
         </th>
@@ -50,18 +69,19 @@
           Total FY Budget
         </th>
       </tr>
-      <tr class="border-b-2 border-teal-500 bg-teal-900 text-stone-50">
-        <th colspan="3" class="border px-4 py-2"></th>
-        <th colspan="3" class="border px-4 py-2">FY - 2</th>
-        <th class="border px-4 py-2"></th>
-        <th colspan="3" class="border px-4 py-2">FY - 1</th>
-        <th class="border px-4 py-2"></th>
-        <th colspan="2" class="border px-4 py-2">MO, FY</th>
-      </tr>
     </thead>
     <tbody class="text-gray-600 text-nowrap">
       <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
         <td class="p-1 font-bold">SALARIES WAGES CONTRACT LABOR</td>
+      </tr>
+      <tr>
+        {% for i in range(5) %}
+        <tr class="even:bg-teal-50 odd:bg-white">
+            {% for j in range(21) %}
+            <td>{{ random_three_digit() }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
       </tr>
       <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
         <td class="p-1 font-bold">TOTAL LABOR COST</td>
