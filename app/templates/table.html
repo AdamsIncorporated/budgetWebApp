@@ -1,3 +1,16 @@
+{% macro create_table_body(data) %}
+    <tbody>
+    {% for header, numbers in data.items() %}
+        <tr class="text-stone-600 border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
+            <td class="text-nowrap p-1 font-bold">{{ header }}</td>
+            {% for number in numbers %}
+                <td class="p-1">{{ number }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+{% endmacro %}
+
 <div class="overflow-auto h-min">
   <table
     id="budgetTable"
@@ -60,51 +73,7 @@
       
     </thead>
     <tbody class="text-gray-600 text-nowrap">
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">SALARIES WAGES CONTRACT LABOR</td>
-      </tr>
-      <tr class="even:bg-teal-50 odd:bg-white">
-        {% for i in range(5) %}
-        <tr>
-          {% for j in range(21) %}
-          <td>{{ random_three_digit() }}</td>
-          {% endfor %}
-        </tr>
-        {% endfor %}
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">TOTAL LABOR COST</td>
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">PHYSICIAN SERVICES</td>
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">Purchased Services subtotal</td>
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">Public Relations Subtotal</td>
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">PURCHASED SERVICES TOTAL</td>
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">SUPPLIES TOTAL</td>
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">Facility Services Subtotal</td>
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">Rent/Lease Subtotal</td>
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">Professional Development Subtotal</td>
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">OTHER GOODS AND SERVICES</td>
-      </tr>
-      <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
-        <td class="p-1 font-bold">TOTAL OPERATING EXPENSE</td>
-      </tr>
+      {{create_table_body(data)}}
     </tbody>
   </table>
 </div>
