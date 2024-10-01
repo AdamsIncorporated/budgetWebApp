@@ -1,6 +1,6 @@
 <nav>
   <div class="flex justify-between items-bottom mb-10">
-    <h1 class="font-bold text-teal-800 text-6xl mb-5">Budget Entry</h1>
+    <h1 class="font-bold text-teal-800 text-6xl mb-5">FY {{ fiscal_year }} Budget Entry</h1>
     <img
       src="{{ url_for('static', filename='assets/logo.jpg') }}"
       alt="Central Health Logo"
@@ -17,7 +17,7 @@
           aria-expanded="true"
           aria-haspopup="true"
         >
-          Select Department
+          Select Fiscal Year
           <svg
             class="-mr-1 ml-2 h-5 w-5"
             xmlns="http://www.w3.org/2000/svg"
@@ -45,31 +45,31 @@
             href="#"
             class="text-stone-500 block px-4 py-2 text-sm hover:bg-gray-100"
             role="menuitem"
-            >Sales</a
+            >FY21</a
           >
           <a
             href="#"
             class="text-stone-500 block px-4 py-2 text-sm hover:bg-gray-100"
             role="menuitem"
-            >Marketing</a
+            >FY22</a
           >
           <a
             href="#"
             class="text-stone-500 block px-4 py-2 text-sm hover:bg-gray-100"
             role="menuitem"
-            >Engineering</a
+            >FY23</a
           >
           <a
             href="#"
             class="text-stone-500 block px-4 py-2 text-sm hover:bg-gray-100"
             role="menuitem"
-            >HR</a
+            >FY24</a
           >
           <a
             href="#"
             class="text-stone-500 block px-4 py-2 text-sm hover:bg-gray-100"
             role="menuitem"
-            >Finance</a
+            >FY25</a
           >
         </div>
       </div>

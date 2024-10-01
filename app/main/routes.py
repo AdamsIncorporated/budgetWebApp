@@ -20,12 +20,12 @@ data = [
 ]
 
 data = {header: [random.randint(100, 999) for _ in range(20)] for header in data}
-
+fiscal_year = 2024
 
 @main.route("/")
 @main.route("/budget-entry")
 def home():
-    return render_template("index.html", data=data)
+    return render_template("index.html", data=data, fiscal_year=fiscal_year)
 
 
 @main.route("/login", methods=["GET", "POST"])
