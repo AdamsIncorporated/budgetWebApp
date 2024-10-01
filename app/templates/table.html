@@ -1,85 +1,74 @@
 <div class="overflow-auto h-min">
   <table
+    id="budgetTable"
     class="min-w-full bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
   >
-    <thead
-      class="text-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-    >
-      <tr class="border-b-2 border-teal-500 bg-teal-900 text-stone-50">
-        <th colspan="3" class="border-b-2 border-teal-600 px-4 py-2"></th>
-        <th colspan="3" class="border-b-2 border-teal-600 px-4 py-2">FY - 2</th>
-        <th class="border-b-2 border-teal-600 px-4 py-2"></th>
-        <th colspan="3" class="border-b-2 border-teal-600 px-4 py-2">FY - 1</th>
-        <th class="border-b-2 border-teal-600 px-4 py-2"></th>
-        <th colspan="2" class="border-b-2 border-teal-600 px-4 py-2">MO, FY</th>
-        <th colspan="10" class="border-b-2 border-teal-600 px-4 py-2"></th>
+    <thead class="text-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+      <tr class="border-b-2 border-cyan-800 bg-cyan-700 text-stone-50">
+        <th colspan="3" class="px-4 py-2"></th>
+        <th colspan="4" class="border-l-2 border-r-2 border-cyan-800 px-4 py-2">
+          <div class="text-left flex items-center">
+            FY - 2
+            <button 
+              id="collapseButton1" 
+              class="bg-white rounded-full h-6 w-6 flex items-center justify-center ml-2"
+              onclick="collaspeColumns(this, 4, 7)"
+            >
+              <i class="fas fa-minus text-cyan-500 text-xs"></i>
+            </button>
+          </div>
+        </th>
+        <th colspan="4" class="border-l-2 border-r-2 border-cyan-800 px-4 py-2">
+          <div class="text-left flex items-center">
+            FY - 1
+            <button 
+              id="collapseButton2" 
+              class="bg-white rounded-full h-6 w-6 flex items-center justify-center ml-2"
+              onclick="collaspeColumns(this, 8, 11)"
+            >
+              <i class="fas fa-minus text-cyan-500 text-xs"></i>
+            </button>
+          </div>
+        </th>
+        <th class="px-4 py-2"></th>
+        <th colspan="2" class="px-4 py-2">MO, FY</th>
+        <th colspan="10" class="px-4 py-2"></th>
       </tr>
       <tr class="text-stone-50">
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Account
-        </th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          RAD Description
-        </th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Account Code
-        </th>
+        <th class="border-b-2 border-teal-400 bg-teal-300 px-4 py-2">Account</th>
+        <th class="border-b-2 border-teal-400 bg-teal-300 px-4 py-2">RAD Description</th>
+        <th class="border-b-2 border-teal-400 bg-teal-300 px-4 py-2">Account Code</th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Actual</th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Budget</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Variance
-        </th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Percent
-        </th>
+        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Variance</th>
+        <th class="border-b-2 border-r-2 border-teal-500 bg-teal-400 px-4 py-2">Percent</th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Actual</th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Budget</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Variance
-        </th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Percent
-        </th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Actual to Date
-        </th>
+        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Variance</th>
+        <th class="border-b-2 border-r-2 border-teal-500 bg-teal-400 px-4 py-2">Percent</th>
+        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Actual to Date</th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Budget</th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          FY Proposed Budget
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Includes One Time Cost
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          YOY Change
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Comments
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Business Name/ID
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Comments
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Business Case Amount
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Total FY Budget
-        </th>
+        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">FY Proposed Budget</th>
+        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">Includes One Time Cost</th>
+        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">YOY Change</th>
+        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">Comments</th>
+        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">Business Name/ID</th>
+        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">Comments</th>
+        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">Business Case Amount</th>
+        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">Total FY Budget</th>
       </tr>
+      
     </thead>
     <tbody class="text-gray-600 text-nowrap">
       <tr class="border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white">
         <td class="p-1 font-bold">SALARIES WAGES CONTRACT LABOR</td>
       </tr>
-      <tr>
+      <tr class="even:bg-teal-50 odd:bg-white">
         {% for i in range(5) %}
-        <tr class="even:bg-teal-50 odd:bg-white">
-            {% for j in range(21) %}
-            <td>{{ random_three_digit() }}</td>
-            {% endfor %}
+        <tr>
+          {% for j in range(21) %}
+          <td>{{ random_three_digit() }}</td>
+          {% endfor %}
         </tr>
         {% endfor %}
       </tr>
@@ -119,3 +108,50 @@
     </tbody>
   </table>
 </div>
+
+<script>
+  function collaspeColumns(button, startColumn, endColumn) {
+    const table = document.getElementById('budgetTable');
+    const toggleIcon = button.querySelector('i');
+    
+    let isCollapsed = false;
+
+    for (let col = startColumn; col <= endColumn; col++) {
+      // Hide/show cells in the second header row
+      var secondHeaderRowCells = table.querySelectorAll('thead tr:nth-child(2) > *:nth-child(' + col + ')');
+      secondHeaderRowCells.forEach(function(cell) {
+        if (cell.style.display === 'none') {
+          cell.style.display = '';
+          isCollapsed = false; // Columns are expanded
+        } else {
+          cell.style.display = 'none';
+          isCollapsed = true; // Columns are collapsed
+        }
+      });
+
+      // Hide/show cells in the <tbody> under this column
+      var bodyCells = table.querySelectorAll('tbody tr > *:nth-child(' + col + ')');
+      bodyCells.forEach(function(cell) {
+        if (cell.style.display === 'none') {
+          cell.style.display = '';
+          isCollapsed = false; // Columns are expanded
+        } else {
+          cell.style.display = 'none';
+          isCollapsed = true; // Columns are collapsed
+        }
+      });
+    }
+
+    // Change the icon class based on the isCollapsed state
+    if (isCollapsed) {
+      toggleIcon.classList.remove('fa-minus');
+      toggleIcon.classList.add('fa-plus');
+    } else {
+      toggleIcon.classList.remove('fa-plus');
+      toggleIcon.classList.add('fa-minus');
+    }
+  }
+</script>
+
+
+
