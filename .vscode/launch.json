@@ -11,7 +11,7 @@
         "FLASK_ENV": "development"
       },
       "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-      "args": ["run", "--no-debugger", "--no-reload", "--port", "3000"],
+      "args": ["run", "--debug", "--port", "3000"],
       "jinja": true,
       "justMyCode": false
     }

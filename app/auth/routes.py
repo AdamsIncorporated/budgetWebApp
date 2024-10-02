@@ -28,13 +28,13 @@ def login():
     if request.method == "POST":
 
         if form.validate_on_submit():
-            email = request.form["email"]
-            password = request.form["password"]
+            email = form.email.data
+            password = form.password.data
             sha_512_password = hashlib.sha512(password.encode()).hexdigest()
 
             db = DatabaseManager("data/main.db", logger=current_app.logger)
-            user = db.execute(
-                query="SELECT * FROM User WHERE email = ? AND password = ?",
+            user = db.execute_query(
+                query="SELECT * FROM User WHERE LoginName = ? AND PasswordHash = ?",
                 params=(email, sha_512_password),
             )
             db.close_connection()
@@ -44,9 +44,13 @@ def login():
                 flash("Login successful!", "dashboard")
                 return redirect(
                     url_for("success_login")
-                )  # redirect to a dashboard page
+                )
             else:
                 flash("Invalid email or password", "error")
-                return redirect(url_for("login"))
+                return redirect(url_for("auth.login"))
+        else: 
+            message = '. '.join(form.errors['email'])
+            flash(message, 'error')
+            return redirect(url_for("auth.login"))
 
     return render_template("login.html", form=form)

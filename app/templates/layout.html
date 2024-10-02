@@ -4,13 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.png') }}">
     <title>FY {{ fiscal_year }} Budget Entry</title>
   </head>
+  
+  <!-- flashed messages -->
+  <div id="flashMessagesContainer">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      <div>
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flashes {{ category }}">
+        <ul>
+            <li>{{ message }}</li>
+          </ul>
+        </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+      {% endwith %}
+    </div>
+  </div>
   <body class="shadow m-10 p-6">
     <main role="main">
         {% block content %}{% endblock %}

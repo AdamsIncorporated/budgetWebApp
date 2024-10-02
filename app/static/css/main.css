@@ -1,0 +1,94 @@
+:root {
+  font-family: "Roboto", sans-serif;
+}
+
+@keyframes swoopDown {
+  0% {
+    transform: translate(50%, -50%);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(50%, 20%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(50%, 20%);
+    opacity: 1; /* Holds position */
+  }
+}
+
+@keyframes swoopUp {
+  0% {
+    transform: translate(50%, 20%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(50%, -50%);
+    opacity: 0;
+    display: none; /* Hide after swooping up */
+  }
+}
+
+.error {
+  background: linear-gradient(217deg, #f43f5e, #f34d69, #f6193d);
+  background-size: 600% 600%;
+
+  -webkit-animation: MessageBackgroundSwirl 50s ease infinite;
+  -moz-animation: MessageBackgroundSwirl 50s ease infinite;
+  animation: MessageBackgroundSwirl 50s ease infinite;
+}
+F @-webkit-keyframes MessageBackgroundSwirl {
+  0% {
+    background-position: 91% 0%;
+  }
+  50% {
+    background-position: 10% 100%;
+  }
+  100% {
+    background-position: 91% 0%;
+  }
+}
+@-moz-keyframes MessageBackgroundSwirl {
+  0% {
+    background-position: 91% 0%;
+  }
+  50% {
+    background-position: 10% 100%;
+  }
+  100% {
+    background-position: 91% 0%;
+  }
+}
+@keyframes MessageBackgroundSwirl {
+  0% {
+    background-position: 91% 0%;
+  }
+  50% {
+    background-position: 10% 100%;
+  }
+  100% {
+    background-position: 91% 0%;
+  }
+}
+
+.flashes {
+  color: white;
+  position: fixed;
+  top: 7.5%;
+  right: 15%;
+  width: fit-content;
+  z-index: 999;
+  opacity: 1;
+  animation: swoopDown 2s ease forwards, swoopUp 1s ease forwards 5s;
+  padding: 1%;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.flashes ul {
+  padding-left: 10px;
+}
+
+.flashes li {
+  text-align: left;
+  list-style-type: disc;
+}
