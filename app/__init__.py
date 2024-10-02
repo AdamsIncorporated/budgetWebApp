@@ -16,7 +16,7 @@ def create_app():
     @app.context_processor
     def inject_global_variables():
         return {"random_three_digit": lambda: random.randint(100, 999)}
-
+    
     with app.app_context():
         from app.main.routes import main
 

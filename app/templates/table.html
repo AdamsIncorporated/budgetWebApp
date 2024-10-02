@@ -4,47 +4,64 @@
   <tr
     class="text-stone-600 border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white"
   >
-    <td class="text-nowrap p-1 font-bold">{{ header }}</td>
-    {% for number in numbers %}
+    <td class="text-nowrap p-1 font-bold">
+      {{ header }}</td>
+      {% for number in numbers %} {% if loop.index in [3, 7] %}
+      <div class="border-l-2 border-red-500">
+        <td class="p-1">{{ number }}</td>
+      </div>
+    {% else %}
     <td class="p-1">{{ number }}</td>
-    {% endfor %}
+    {% endif %} {% endfor %}
   </tr>
   {% endfor %}
 </tbody>
 {% endmacro %}
 
+<div class="flex justify-start my-2">
+  <div class="mx-2 text-stone-600">FY {{ fiscal_year - 2 }}</div>
+  <button
+    id="collapseButton1"
+    class="bg-cyan-900 rounded-full h-6 w-6 ml-2 transition ease-out duration-300 hover:bg-cyan-950"
+    onclick="collaspeColumns(this, 4, 7)"
+  >
+    <i class="fas fa-minus text-white text-xs"></i>
+  </button>
+  <div class="mx-2 text-stone-600">FY {{ fiscal_year - 1 }}</div>
+  <button
+    id="collapseButton2"
+    class="bg-cyan-900 rounded-full h-6 w-6 ml-2 transition ease-out duration-300 hover:bg-cyan-950"
+    onclick="collaspeColumns(this, 8, 11)"
+  >
+    <i class="fas fa-minus text-white text-xs"></i>
+  </button>
+</div>
 <div class="overflow-auto h-min">
   <table
     id="budgetTable"
-    class="min-w-full bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+    class="border-collapse min-w-full bg-white"
   >
     <thead
-      class="text-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+      class="text-nowrap focus:outline-none"
     >
       <tr class="border-b-2 border-cyan-800 bg-cyan-700 text-stone-50">
         <th colspan="3" class="px-4 py-2"></th>
-        <th colspan="4" class="border-l-2 border-r-2 border-cyan-800 px-4 py-2">
+        <th
+          colspan="4"
+          class="border-l-2 border-r-2 border-cyan-800 px-4 py-2"
+          data-collapsible-col
+        >
           <div class="text-left flex items-center">
             FY {{ fiscal_year - 2 }}
-            <button
-              id="collapseButton1"
-              class="bg-white rounded-full h-6 w-6 flex items-center justify-center ml-2"
-              onclick="collaspeColumns(this, 4, 7)"
-            >
-              <i class="fas fa-minus text-cyan-500 text-xs"></i>
-            </button>
           </div>
         </th>
-        <th colspan="4" class="border-l-2 border-r-2 border-cyan-800 px-4 py-2">
+        <th
+          colspan="4"
+          class="border-l-2 border-r-2 border-cyan-800 px-4 py-2"
+          data-collapsible-col
+        >
           <div class="text-left flex items-center">
             FY {{ fiscal_year - 1 }}
-            <button
-              id="collapseButton2"
-              class="bg-white rounded-full h-6 w-6 flex items-center justify-center ml-2"
-              onclick="collaspeColumns(this, 8, 11)"
-            >
-              <i class="fas fa-minus text-cyan-500 text-xs"></i>
-            </button>
           </div>
         </th>
         <th class="px-4 py-2"></th>
@@ -81,6 +98,12 @@
           Actual to Date
         </th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Budget</th>
+        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
+          Variance
+        </th>
+        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
+          Percent
+        </th>
         <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
           FY Proposed Budget
         </th>
@@ -114,7 +137,7 @@
 </div>
 <div class="my-3 flex items-center justify-end">
   <button
-    id="adminLoginBtn"
+    id="submitBtn"
     class="bg-cyan-600 text-white font-semibold py-2 px-4 rounded transition duration-300 hover:bg-cyan-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
   >
     <i class="far fa-check-square mr-2"></i>
@@ -123,37 +146,41 @@
 </div>
 
 <script>
+  // function to collaspe specific columns
   function collaspeColumns(button, startColumn, endColumn) {
     const table = document.getElementById("budgetTable");
     const toggleIcon = button.querySelector("i");
+    const groupedColumn = table.querySelector(
+      "thead tr:nth-child(1) > th[data-collapsible-col]"
+    );
 
     let isCollapsed = false;
 
     for (let col = startColumn; col <= endColumn; col++) {
       // Hide/show cells in the second header row
-      var secondHeaderRowCells = table.querySelectorAll(
+      const secondHeaderRowCells = table.querySelectorAll(
         "thead tr:nth-child(2) > *:nth-child(" + col + ")"
       );
       secondHeaderRowCells.forEach(function (cell) {
         if (cell.style.display === "none") {
-          cell.style.display = "";
+          cell.style.display = ""; // Show cell
           isCollapsed = false; // Columns are expanded
         } else {
-          cell.style.display = "none";
+          cell.style.display = "none"; // Hide cell
           isCollapsed = true; // Columns are collapsed
         }
       });
 
       // Hide/show cells in the <tbody> under this column
-      var bodyCells = table.querySelectorAll(
+      const bodyCells = table.querySelectorAll(
         "tbody tr > *:nth-child(" + col + ")"
       );
       bodyCells.forEach(function (cell) {
         if (cell.style.display === "none") {
-          cell.style.display = "";
+          cell.style.display = ""; // Show cell
           isCollapsed = false; // Columns are expanded
         } else {
-          cell.style.display = "none";
+          cell.style.display = "none"; // Hide cell
           isCollapsed = true; // Columns are collapsed
         }
       });
@@ -161,11 +188,40 @@
 
     // Change the icon class based on the isCollapsed state
     if (isCollapsed) {
+      groupedColumn.style.display = "none"; // Use style.display
       toggleIcon.classList.remove("fa-minus");
       toggleIcon.classList.add("fa-plus");
     } else {
+      groupedColumn.style.display = ""; // Show the grouped column
       toggleIcon.classList.remove("fa-plus");
       toggleIcon.classList.add("fa-minus");
     }
   }
+
+  // Column highlighting event listener
+  document.addEventListener("DOMContentLoaded", () => {
+    const headers = document.querySelectorAll("thead tr:nth-child(2) > th");
+
+    headers.forEach((header, index) => {
+      header.addEventListener("mouseover", () =>
+        toggleCellHighlight(index, true)
+      );
+      header.addEventListener("mouseout", () =>
+        toggleCellHighlight(index, false)
+      );
+    });
+
+    function toggleCellHighlight(index, highlight) {
+      const cells = document.querySelectorAll(
+        `tbody tr td:nth-child(${index + 1})`
+      );
+      cells.forEach((cell) => {
+        const isEvenRow = cell.parentElement.rowIndex % 2 === 0;
+        const classToAdd = isEvenRow ? "bg-stone-100" : "bg-teal-200";
+        highlight
+          ? cell.classList.add(classToAdd)
+          : cell.classList.remove(classToAdd);
+      });
+    }
+  });
 </script>

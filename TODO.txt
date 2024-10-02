@@ -1,8 +1,4 @@
 Frontend 
-
-- Make the collaspe column into one column same with cells 
-- Add highlighting of column when hover over collaspe button
-- Make the form submittable
 - Create flashes that contain user error and sucess statements
 - Create vertical divider borders figure that out somehow
 - Number formatting - fml

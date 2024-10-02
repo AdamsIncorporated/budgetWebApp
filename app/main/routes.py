@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, request, redirect, flash, url_for
-from repositories.db_manager import get_db_connection
 import random
 
 main = Blueprint("main", __name__, template_folder="templates", static_folder="static")
@@ -19,7 +18,7 @@ data = [
     "TOTAL OPERATING EXPENSE",
 ]
 
-data = {header: [random.randint(100, 999) for _ in range(20)] for header in data}
+data = {header: [random.randint(100, 999) for _ in range(22)] for header in data}
 fiscal_year = 2024
 
 @main.route("/")
