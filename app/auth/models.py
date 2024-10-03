@@ -1,4 +1,3 @@
-from datetime import datetime
 from itsdangerous import (
     URLSafeTimedSerializer as Serializer,
     BadSignature,
@@ -15,12 +14,24 @@ def load_user(user_id):
 
 
 class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False, default="default.jpg")
-    password = db.Column(db.String(60), nullable=False)
-    posts = db.relationship("Post", backref="author", lazy=True)
+    __tablename__ = "User"
+
+    id = db.Column("Id", db.Integer, primary_key=True)
+    username = db.Column("Username", db.String(20), unique=True, nullable=False)
+    email = db.Column("Email", db.String(120), unique=True, nullable=False)
+    password = db.Column("Password", db.String(60), nullable=False)
+    image_file = db.Column("ImageFile", db.LargeBinary, nullable=True)
+    first_name = db.Column("FirstName", db.String(20), nullable=True)
+    last_name = db.Column("LastName", db.String(20), nullable=True)
+    date_created = db.Column(
+        "DateCreated",
+        db.DateTime,
+        nullable=False,
+        default=db.func.current_timestamp(),
+    )
+    is_root_user = db.Column(
+        "IsRootUser", db.LargeBinary, nullable=False, default=False
+    )
 
     def get_reset_token(self, expires_sec=1800):
         s = Serializer(current_app.config["SECRET_KEY"], expires_sec)
@@ -37,14 +48,3 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
-
-
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    content = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-
-    def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"

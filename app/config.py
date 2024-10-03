@@ -1,6 +1,9 @@
 import logging
 import os
 import secrets
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
     """Base configuration class."""
@@ -13,7 +16,7 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('EMAIL_USER')
     MAIL_PASSWORD = os.environ.get('EMAIL_PASS')
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///data/main.db'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///C:/Projects/budgetWebApp/data/main.db'
 
     @staticmethod
     def init_app(app):

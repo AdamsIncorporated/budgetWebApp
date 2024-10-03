@@ -2,7 +2,11 @@ from flask import Blueprint, render_template
 import random
 
 budget = Blueprint(
-    "budget", __name__, template_folder="templates/budget", static_folder="static"
+    "budget",
+    __name__,
+    template_folder="templates/budget",
+    static_folder="static",
+    url_prefix="/budget",
 )
 
 data = [
@@ -26,4 +30,4 @@ fiscal_year = 2024
 
 @budget.route("/budget-entry")
 def home():
-    return render_template("index.html", data=data, fiscal_year=fiscal_year)
+    return render_template("home.html", data=data, fiscal_year=fiscal_year)
