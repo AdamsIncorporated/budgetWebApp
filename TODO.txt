@@ -1,11 +1,15 @@
 Frontend 
-- Create flashes that contain user error and sucess statements
 - Create vertical divider borders figure that out somehow
 - Number formatting - fml
+- create a dropdown list for fiscal year and department for them to pick from a main menu landing page
+- move admin login to landing page essentially
+- landing page needs instructions
+
 
 Backend
-- suffer
-
-Account Registraion Stuff
-- Figure out the root user issue
-- Account recovery, creation, and deletion
+- create validation for hashes
+- login with session to dashboard
+- create new root users
+- figure out way to make root users only available to finance department
+- create multiview download template
+- create user input per department
