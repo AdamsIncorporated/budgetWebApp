@@ -1,11 +1,8 @@
-from itsdangerous import (
-    URLSafeTimedSerializer as Serializer,
-    BadSignature,
-    SignatureExpired,
-)
 from app import db, login_manager
 from flask import current_app
 from flask_login import UserMixin
+import jwt
+from datetime import datetime, timedelta
 
 
 @login_manager.user_loader
@@ -29,20 +26,26 @@ class User(db.Model, UserMixin):
         nullable=False,
         default=db.func.current_timestamp(),
     )
-    is_root_user = db.Column(
-        "IsRootUser", db.LargeBinary, nullable=False, default=False
-    )
+    is_root_user = db.Column("IsRootUser", db.Boolean, nullable=False, default=False)
 
     def get_reset_token(self, expires_sec=1800):
-        s = Serializer(current_app.config["SECRET_KEY"], expires_sec)
-        return s.dumps({"user_id": self.id}).decode("utf-8")
+        # Create a payload with the user ID and expiration time
+        payload = {
+            "user_id": self.id,
+            "exp": datetime.utcnow() + timedelta(seconds=expires_sec),
+        }
+        # Encode the payload using the secret key
+        return jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
 
     @staticmethod
     def verify_reset_token(token):
-        s = Serializer(current_app.config["SECRET_KEY"])
         try:
-            user_id = s.loads(token)["user_id"]
-        except (BadSignature, SignatureExpired):
+            # Decode the token using the secret key
+            payload = jwt.decode(
+                token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+            )
+            user_id = payload["user_id"]
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
             return None
         return User.query.get(user_id)
 

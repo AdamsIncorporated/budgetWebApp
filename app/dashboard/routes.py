@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, render_template
 
 dashboard = Blueprint(
     "dashboard",
@@ -11,4 +11,4 @@ dashboard = Blueprint(
 
 @dashboard.route("/home", methods=["GET", "POST"])
 def home():
-    return "Hello World!"
+    return render_template("dashboard.html")

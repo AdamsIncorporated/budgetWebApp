@@ -1,5 +1,5 @@
 from flask import Flask
-from .config import Config
+from app.config import Config
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
@@ -31,10 +31,12 @@ def create_app():
         from app.auth.routes import auth
         from app.budget.routes import budget
         from app.dashboard.routes import dashboard
+        from app.errors.handlers import errors
 
         app.register_blueprint(auth)
         app.register_blueprint(main)
         app.register_blueprint(budget)
         app.register_blueprint(dashboard)
+        app.register_blueprint(errors)
 
     return app
