@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 import random
+from app import db
 
 budget = Blueprint(
     "budget",
@@ -28,6 +29,10 @@ data = {header: [random.randint(100, 999) for _ in range(22)] for header in data
 fiscal_year = 2024
 
 
-@budget.route("/budget-entry")
-def home():
+@budget.route("/budget-entry/<int:fiscal_year>/<string:department>", methods=['POST', 'GET'])
+def home(fiscal_year: int, department: str):
+    
+    if request == 'GET':
+        pass
+    
     return render_template("home.html", data=data, fiscal_year=fiscal_year)
