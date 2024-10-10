@@ -2,14 +2,11 @@ import logging
 import os
 import secrets
 from dotenv import load_dotenv
-import ssl
 
 load_dotenv()
 
 
 class Config:
-    """Base configuration class."""
-
     LOGGING_LEVEL = logging.DEBUG
     LOGGING_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     LOGGING_LOCATION = os.path.join(os.path.dirname(__file__), "../app.log")
@@ -19,21 +16,15 @@ class Config:
     MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get("EMAIL_USER")
     MAIL_PASSWORD = os.environ.get("EMAIL_PASS")
-    SQLALCHEMY_DATABASE_URI = "sqlite:///C:/Projects/budgetWebApp/data/main.db"
-    # context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-    # context.load_cert_chain(
-    #     certfile="path/to/your/certificate.crt", keyfile="path/to/your/private.key"
-    # )
-    # app.run(ssl_context=context, host="0.0.0.0", port=443)
+    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.environ.get('DB_PATH')
 
     @staticmethod
     def init_app(app):
-        """Initialize logging."""
         logging.basicConfig(
             level=Config.LOGGING_LEVEL,
             format=Config.LOGGING_FORMAT,
             handlers=[
-                logging.FileHandler(Config.LOGGING_LOCATION),  # Log to file
-                logging.StreamHandler(),  # Log to console
+                logging.FileHandler(Config.LOGGING_LOCATION),
+                logging.StreamHandler(),
             ],
         )

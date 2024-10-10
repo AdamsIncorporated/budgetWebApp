@@ -1,20 +1,20 @@
 import sqlite3
 import logging
 from sqlite3 import Error
-
+import os
+from dotenv import load_dotenv
 
 class DatabaseManager:
-    def __init__(self, db_file, logger=None):
-        """Initialize the DatabaseManager with a database file and a logger."""
-        self.logger = logger or logging.getLogger(__name__)
-        self.connection = self.create_connection(db_file)
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
 
-    def create_connection(self, db_file):
-        """Create a database connection to the SQLite database."""
+    def create_connection(self):
         conn = None
         try:
-            conn = sqlite3.connect(db_file)
-            self.logger.info(f"Connection to SQLite DB '{db_file}' successful.")
+            load_dotenv()
+            path = os.environ.get("DB_PATH")
+            conn = sqlite3.connect(path)
+            self.logger.info(f"Connection to SQLite DB '{path}' successful.")
         except Error as e:
             self.logger.error(f"Error '{e}' occurred while connecting to the database.")
             raise Exception(f"Error '{e}' occurred while connecting to the database.")
@@ -22,60 +22,60 @@ class DatabaseManager:
         return conn
 
     def execute_query(self, query, params=None):
-        """Execute a single query with optional parameters."""
-        cursor = self.connection.cursor()
         try:
+            connection = self.create_connection()  # Create a new connection
+            cursor = connection.cursor()
             if params:
                 cursor.execute(query, params)
             else:
                 cursor.execute(query)
-            self.connection.commit()
+            connection.commit()
             self.logger.info("Query executed successfully.")
         except Error as e:
             self.logger.error(
                 f"Error '{e}' occurred while executing the query: {query} with params: {params}"
             )
             raise Exception(f"Error '{e}' occurred while executing the query.")
+        finally:
+            if connection:
+                connection.close()  # Ensure the connection is closed
 
     def fetch_all(self, query, params=None):
-        """Fetch all results from a query."""
-        cursor = self.connection.cursor()
         try:
+            connection = self.create_connection()  # Create a new connection
+            cursor = connection.cursor()
             if params:
                 cursor.execute(query, params)
             else:
                 cursor.execute(query)
+
+            column_headers = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
+            combined_results = [dict(zip(column_headers, row)) for row in results]
             self.logger.info(f"Fetched {len(results)} records successfully.")
-            return results
+            return combined_results
         except Error as e:
             self.logger.error(
                 f"Error '{e}' occurred while fetching data with query: {query} and params: {params}"
             )
             raise Exception(f"Error '{e}' occurred while fetching data.")
+        finally:
+            if connection:
+                connection.close()  # Ensure the connection is closed
 
     def insert(self, table_name, data):
-        """Insert a new record into the specified table."""
         placeholders = ", ".join("?" * len(data))
         insert_query = f"INSERT INTO {table_name} VALUES ({placeholders});"
         self.execute_query(insert_query, data)
         self.logger.info(f"Inserted data into {table_name}: {data}")
 
     def update(self, table_name, data, condition):
-        """Update records in the specified table based on the condition."""
         set_clause = ", ".join(f"{k} = ?" for k in data.keys())
         update_query = f"UPDATE {table_name} SET {set_clause} WHERE {condition};"
         self.execute_query(update_query, list(data.values()))
         self.logger.info(f"Updated {table_name} set {data} where {condition}")
 
     def delete(self, table_name, condition):
-        """Delete records from the specified table based on the condition."""
         delete_query = f"DELETE FROM {table_name} WHERE {condition};"
         self.execute_query(delete_query)
         self.logger.info(f"Deleted from {table_name} where {condition}")
-
-    def close_connection(self):
-        """Close the database connection."""
-        if self.connection:
-            self.connection.close()
-            self.logger.info("Connection to SQLite DB closed.")

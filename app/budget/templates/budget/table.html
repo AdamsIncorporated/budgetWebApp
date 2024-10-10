@@ -1,83 +1,11 @@
-{% macro create_table_body(data) %}
-<tbody>
-  {% for header, numbers in data.items() %}
-  <tr
-    class="text-stone-600 border-b-2 border-teal-900 even:bg-teal-100 odd:bg-white"
-  >
-    <td class="text-nowrap p-1 font-bold">
-      {{ header }}</td>
-      {% for number in numbers %} {% if loop.index in [3, 7] %}
-      <div class="border-l-2 border-red-500">
-        <td class="p-1">{{ number }}</td>
-      </div>
-    {% else %}
-    <td class="p-1">{{ number }}</td>
-    {% endif %} {% endfor %}
-  </tr>
-  {% endfor %}
-</tbody>
-{% endmacro %}
-
-<div class="flex justify-start my-2">
-  <div class="mx-2 text-stone-600">FY {{ fiscal_year - 2 }}</div>
-  <button
-    id="collapseButton1"
-    class="bg-cyan-900 rounded-full h-6 w-6 ml-2 transition ease-out duration-300 hover:bg-cyan-950"
-    onclick="collaspeColumns(this, 4, 7)"
-  >
-    <i class="fas fa-minus text-white text-xs"></i>
-  </button>
-  <div class="mx-2 text-stone-600">FY {{ fiscal_year - 1 }}</div>
-  <button
-    id="collapseButton2"
-    class="bg-cyan-900 rounded-full h-6 w-6 ml-2 transition ease-out duration-300 hover:bg-cyan-950"
-    onclick="collaspeColumns(this, 8, 11)"
-  >
-    <i class="fas fa-minus text-white text-xs"></i>
-  </button>
-</div>
-<div class="overflow-auto h-min">
-  <table
-    id="budgetTable"
-    class="border-collapse min-w-full bg-white"
-  >
-    <thead
-      class="text-nowrap focus:outline-none"
-    >
-      <tr class="border-b-2 border-cyan-800 bg-cyan-700 text-stone-50">
-        <th colspan="3" class="px-4 py-2"></th>
-        <th
-          colspan="4"
-          class="border-l-2 border-r-2 border-cyan-800 px-4 py-2"
-          data-collapsible-col
-        >
-          <div class="text-left flex items-center">
-            FY {{ fiscal_year - 2 }}
-          </div>
-        </th>
-        <th
-          colspan="4"
-          class="border-l-2 border-r-2 border-cyan-800 px-4 py-2"
-          data-collapsible-col
-        >
-          <div class="text-left flex items-center">
-            FY {{ fiscal_year - 1 }}
-          </div>
-        </th>
-        <th class="px-4 py-2"></th>
-        <th colspan="2" class="px-4 py-2">MO, FY {{ fiscal_year }}</th>
-        <th colspan="10" class="px-4 py-2"></th>
-      </tr>
+<div class="overflow-auto h-min w-content">
+  <table id="budgetTable" class="border-collapse min-w-full bg-white">
+    <thead class="text-nowrap focus:outline-none">
+      <tr class="border-b-2 border-cyan-800 bg-cyan-700 text-stone-50"></tr>
       <tr class="text-stone-50">
         <th class="border-b-2 border-teal-400 bg-teal-300 px-4 py-2">
           Account
         </th>
-        <th class="border-b-2 border-teal-400 bg-teal-300 px-4 py-2">
-          RAD Description
-        </th>
-        <th class="border-b-2 border-teal-400 bg-teal-300 px-4 py-2">
-          Account Code
-        </th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Actual</th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Budget</th>
         <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
@@ -86,44 +14,20 @@
         <th class="border-b-2 border-r-2 border-teal-500 bg-teal-400 px-4 py-2">
           Percent
         </th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Actual</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Budget</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Variance
-        </th>
-        <th class="border-b-2 border-r-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Percent
-        </th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Actual to Date
-        </th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Budget</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Variance
-        </th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Percent
+        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
+          Forecasted Amount
         </th>
         <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          FY Proposed Budget
+          Proposed Budget
         </th>
         <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Includes One Time Cost
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          YOY Change
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Comments
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Business Name/ID
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Comments
+          Business Case Name
         </th>
         <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
           Business Case Amount
+        </th>
+        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
+          Comments
         </th>
         <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
           Total FY Budget
@@ -131,7 +35,15 @@
       </tr>
     </thead>
     <tbody class="text-gray-600 text-nowrap">
-      {{create_table_body(data)}}
+      {% for budget_form in form.budgets %}
+      <tr class="">
+        {% for field in budget_form %} {% if not (field.type in ['HiddenField', 'CSRFTokenField']) %}
+        <td class="px-4 py-2">
+          {{ field(class="p-1") }}
+        </td>
+        {% endif %} {% endfor %}
+      </tr>
+      {% endfor %}
     </tbody>
   </table>
 </div>
@@ -146,58 +58,6 @@
 </div>
 
 <script>
-  // function to collaspe specific columns
-  function collaspeColumns(button, startColumn, endColumn) {
-    const table = document.getElementById("budgetTable");
-    const toggleIcon = button.querySelector("i");
-    const groupedColumn = table.querySelector(
-      "thead tr:nth-child(1) > th[data-collapsible-col]"
-    );
-
-    let isCollapsed = false;
-
-    for (let col = startColumn; col <= endColumn; col++) {
-      // Hide/show cells in the second header row
-      const secondHeaderRowCells = table.querySelectorAll(
-        "thead tr:nth-child(2) > *:nth-child(" + col + ")"
-      );
-      secondHeaderRowCells.forEach(function (cell) {
-        if (cell.style.display === "none") {
-          cell.style.display = ""; // Show cell
-          isCollapsed = false; // Columns are expanded
-        } else {
-          cell.style.display = "none"; // Hide cell
-          isCollapsed = true; // Columns are collapsed
-        }
-      });
-
-      // Hide/show cells in the <tbody> under this column
-      const bodyCells = table.querySelectorAll(
-        "tbody tr > *:nth-child(" + col + ")"
-      );
-      bodyCells.forEach(function (cell) {
-        if (cell.style.display === "none") {
-          cell.style.display = ""; // Show cell
-          isCollapsed = false; // Columns are expanded
-        } else {
-          cell.style.display = "none"; // Hide cell
-          isCollapsed = true; // Columns are collapsed
-        }
-      });
-    }
-
-    // Change the icon class based on the isCollapsed state
-    if (isCollapsed) {
-      groupedColumn.style.display = "none"; // Use style.display
-      toggleIcon.classList.remove("fa-minus");
-      toggleIcon.classList.add("fa-plus");
-    } else {
-      groupedColumn.style.display = ""; // Show the grouped column
-      toggleIcon.classList.remove("fa-plus");
-      toggleIcon.classList.add("fa-minus");
-    }
-  }
-
   // Column highlighting event listener
   document.addEventListener("DOMContentLoaded", () => {
     const headers = document.querySelectorAll("thead tr:nth-child(2) > th");
