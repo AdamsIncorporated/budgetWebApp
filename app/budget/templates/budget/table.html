@@ -1,87 +1,38 @@
-<div class="overflow-auto h-min w-content">
-  <table id="budgetTable" class="border-collapse min-w-full bg-white">
+<div class="overflow-auto h-[calc(100vh-8rem)] w-full text-xs">
+  <table id="budgetTable" class="border-collapse w-full bg-white">
     <thead class="text-nowrap focus:outline-none">
-      <tr class="border-b-2 border-cyan-800 bg-cyan-700 text-stone-50"></tr>
-      <tr class="text-stone-50">
-        <th class="border-b-2 border-teal-400 bg-teal-300 px-4 py-2">
-          Account
-        </th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Actual</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">Budget</th>
-        <th class="border-b-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Variance
-        </th>
-        <th class="border-b-2 border-r-2 border-teal-500 bg-teal-400 px-4 py-2">
-          Percent
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Forecasted Amount
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Proposed Budget
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Business Case Name
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Business Case Amount
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Comments
-        </th>
-        <th class="border-b-2 border-teal-900 bg-teal-800 border px-4 py-2">
-          Total FY Budget
-        </th>
+      <tr class="text-stone-50 sticky top-0">
+        <th class="bg-teal-300 px-2 py-2 whitespace-nowrap">Account</th>
+        <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Actual</th>
+        <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Budget</th>
+        <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Variance</th>
+        <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Percent</th>
+        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Forecasted Amount</th>
+        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Proposed Budget</th>
+        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Business Case Name</th>
+        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Business Case Amount</th>
+        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Comments</th>
+        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Total FY Budget</th>
       </tr>
     </thead>
-    <tbody class="text-gray-600 text-nowrap">
+    <tbody class="text-gray-600">
       {% for budget_form in form.budgets %}
-      <tr class="">
-        {% for field in budget_form %} {% if not (field.type in ['HiddenField', 'CSRFTokenField']) %}
-        <td class="px-4 py-2">
-          {{ field(class="p-1") }}
+      <tr class="even:bg-gray-50 odd:bg-white">
+        {% for field in budget_form %}
+        {% if not (field.type in ['HiddenField', 'CSRFTokenField']) %}
+        {% if 'Account' in field.name %}
+        <td class="z-99 sticky left-0 px-2 py-2 transition-colors duration-150 ease-in-out">
+          {{ field(class="overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0 focus:border-transparent") }}
         </td>
-        {% endif %} {% endfor %}
+        {% else %} 
+        <td class="px-2 py-2 transition-colors duration-150 ease-in-out">
+          {{ field(class="overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0 focus:border-transparent") }}
+        </td>
+        {% endif %} 
+        {% endif %}
+        {% endfor %}
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
-<div class="my-3 flex items-center justify-end">
-  <button
-    id="submitBtn"
-    class="bg-cyan-600 text-white font-semibold py-2 px-4 rounded transition duration-300 hover:bg-cyan-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
-  >
-    <i class="far fa-check-square mr-2"></i>
-    Submit
-  </button>
-</div>
-
-<script>
-  // Column highlighting event listener
-  document.addEventListener("DOMContentLoaded", () => {
-    const headers = document.querySelectorAll("thead tr:nth-child(2) > th");
-
-    headers.forEach((header, index) => {
-      header.addEventListener("mouseover", () =>
-        toggleCellHighlight(index, true)
-      );
-      header.addEventListener("mouseout", () =>
-        toggleCellHighlight(index, false)
-      );
-    });
-
-    function toggleCellHighlight(index, highlight) {
-      const cells = document.querySelectorAll(
-        `tbody tr td:nth-child(${index + 1})`
-      );
-      cells.forEach((cell) => {
-        const isEvenRow = cell.parentElement.rowIndex % 2 === 0;
-        const classToAdd = isEvenRow ? "bg-stone-100" : "bg-teal-200";
-        highlight
-          ? cell.classList.add(classToAdd)
-          : cell.classList.remove(classToAdd);
-      });
-    }
-  });
-</script>

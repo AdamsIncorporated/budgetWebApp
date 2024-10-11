@@ -1,36 +1,29 @@
 <nav>
-  <div class="flex justify-between items-bottom mb-10">
-    <h1 class="font-bold text-teal-800 text-6xl mb-5">FY {{ fiscal_year }} Budget Entry</h1>
-    <img
-      src="{{ url_for('static', filename='assets/logo.jpg') }}"
-      alt="Central Health Logo"
-      class="h-1/3 w-1/5 object-contain"
-    />
+  <div class="flex justify-end">
+    <button
+      class="flex items-center justify-center bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75"
+    >
+      <i class="fas fa-paper-plane mr-2"></i>
+      Submit
+    </button>
   </div>
-  <div class="flex-col justify-between items-center w-1/5 my-5">
-    <div class="text-teal-900">Select Fiscal Year</div>
-      {{ form.fiscal_year_picklist(class="inline-flex justify-between w-full rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-stone-500 hover:bg-stone-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500") }}
+  <div class="overflow-auto flex flex-row gap-4 justify-bottom items-center my-5">
+    <div class="flex flex-col text-teal-700">
+      <div class="p-2 text-sm text-nowrap">Fiscal Year</div>
+      {{ form.fiscal_year_picklist(class="inline-flex justify-between w-full
+      rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-sm
+      font-medium text-cyan-800 hover:bg-white hover:text-cyan-950
+      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500")
+      }}
+    </div>
+
+    <div class="flex flex-col text-teal-700 p-2">
+      <div class="p-2 text-sm text-nowrap">Department</div>
+      {{ form.business_unit_picklist(class="inline-flex justify-between w-full
+      rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-sm
+      font-medium text-cyan-800 hover:bg-white hover:text-cyan-950
+      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500")
+      }}
     </div>
   </div>
-  <div class="flex-col justify-between items-center w-1/5 my-5">
-      <div class="text-teal-900">Select Department</div>
-      {{ form.business_unit_picklist(class="inline-flex justify-between w-full rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-stone-500 hover:bg-stone-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500") }}
-    </div>
-  </div>
-  <script>
-    const button = document.getElementById("menu-button");
-    const dropdown = document.querySelector(".hidden");
-
-    button.addEventListener("click", (event) => {
-      event.stopPropagation(); // Prevent the click event from bubbling up
-      dropdown.classList.toggle("hidden");
-    });
-
-    document.addEventListener("click", (event) => {
-      // Check if the click was outside the dropdown and button
-      if (!button.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.classList.add("hidden"); // Hide the dropdown
-      }
-    });
-  </script>
 </nav>

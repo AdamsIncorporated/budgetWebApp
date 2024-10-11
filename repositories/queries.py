@@ -68,17 +68,31 @@ queries = {
         SELECT DISTINCT
             ba."AccountNo",
             ba."Account",
-            COALESCE(a.Actual, 0) AS Actual,
-            COALESCE(b.Budget, 0) AS Budget,
-            COALESCE(b.Budget, 0) - COALESCE(a.Actual, 0) AS Variance,
-            ROUND(
-                CASE
-                    WHEN COALESCE(a.Actual, 0) = 0 THEN 0
-                    ELSE (
-                        COALESCE(b.Budget, 0) - COALESCE(a.Actual, 0)
-                    ) / COALESCE(a.Actual, 0)
-                END,
-                2
+            printf(
+                '%,.2f',
+                COALESCE(a.Actual, 0)
+            ) AS Actual,
+            printf(
+                '%,.2f',
+                COALESCE(b.Budget, 0)
+            ) AS Budget,
+            printf(
+                '%,.2f',
+                COALESCE(b.Budget, 0) - COALESCE(a.Actual, 0)
+            ) AS Variance,
+            printf(
+                '%.2f%%',
+                ROUND(
+                    CASE
+                        WHEN COALESCE(a.Actual, 0) = 0 THEN 0
+                        ELSE (
+                            (
+                                COALESCE(b.Budget, 0) - COALESCE(a.Actual, 0)
+                            ) / COALESCE(a.Actual, 0)
+                        )
+                    END * 100,
+                    2
+                )
             ) AS Percent,
             f."ForecastAmount",
             p."ProposedBudget",

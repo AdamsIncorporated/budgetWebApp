@@ -1,5 +1,10 @@
 :root {
-  font-family: "Roboto", sans-serif;
+  font-family: "Baskerville", sans-serif;
+}
+
+*::selection {
+  background-color: #0e7490;
+  color: #ffffff;
 }
 
 @keyframes swoopDown {
@@ -37,7 +42,26 @@
   -moz-animation: MessageBackgroundSwirl 50s ease infinite;
   animation: MessageBackgroundSwirl 50s ease infinite;
 }
-F @-webkit-keyframes MessageBackgroundSwirl {
+
+.success {
+  background: linear-gradient(217deg, #2abb06, #5ee951, #106804);
+  background-size: 600% 600%;
+
+  -webkit-animation: MessageBackgroundSwirl 50s ease infinite;
+  -moz-animation: MessageBackgroundSwirl 50s ease infinite;
+  animation: MessageBackgroundSwirl 50s ease infinite;
+}
+
+.warning {
+  background: linear-gradient(217deg, #d8ca0b, #d4e20d, #d3c504);
+  background-size: 600% 600%;
+
+  -webkit-animation: MessageBackgroundSwirl 50s ease infinite;
+  -moz-animation: MessageBackgroundSwirl 50s ease infinite;
+  animation: MessageBackgroundSwirl 50s ease infinite;
+}
+
+@-webkit-keyframes MessageBackgroundSwirl {
   0% {
     background-position: 91% 0%;
   }

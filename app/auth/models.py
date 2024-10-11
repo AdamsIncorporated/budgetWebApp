@@ -18,15 +18,15 @@ class User(db.Model, UserMixin):
     email = db.Column("Email", db.String(120), unique=True, nullable=False)
     password = db.Column("Password", db.String(60), nullable=False)
     image_file = db.Column("ImageFile", db.LargeBinary, nullable=True)
-    first_name = db.Column("FirstName", db.String(20), nullable=True)
-    last_name = db.Column("LastName", db.String(20), nullable=True)
+    first_name = db.Column("FirstName", db.String(20), nullable=False)
+    last_name = db.Column("LastName", db.String(20), nullable=False)
     date_created = db.Column(
         "DateCreated",
         db.DateTime,
         nullable=False,
         default=db.func.current_timestamp(),
     )
-    is_root_user = db.Column("IsRootUser", db.Boolean, nullable=False, default=False)
+    is_root_user = db.Column("IsRootUser", db.Integer, nullable=False, default=0)
 
     def get_reset_token(self, expires_sec=1800):
         # Create a payload with the user ID and expiration time

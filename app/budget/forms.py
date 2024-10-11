@@ -3,7 +3,6 @@ from wtforms import (
     StringField,
     SubmitField,
     FormField,
-    DecimalField,
     FieldList,
     HiddenField,
     SelectField
@@ -14,29 +13,32 @@ from repositories.db_manager import DatabaseManager
 def get_fiscal_year_picklist():
         query = queries['fetch_all_fiscal_years']
         records = DatabaseManager().fetch_all(query)
-        return records
+        data = [entry['FiscalYear'] for entry in records]
+        return data
 
 def get_business_unit_picklist():
         query  = queries['fetch_all_business_units']
         records = DatabaseManager().fetch_all(query)
-        return records
+        data = [entry['BusinessUnitId'] for entry in records]
+        return data
 
 FISCAL_YEAR_PICKLIST_CHOICES = get_fiscal_year_picklist()
 BUSINESS_UNIT_PICKLIST_CHOICES = get_business_unit_picklist()
 
 class Budget(FlaskForm):
+    Id = HiddenField()
     AccountNo = HiddenField()
-    Account = StringField()
-    Actual = DecimalField()
-    Budget = DecimalField()
-    Variance = DecimalField()
-    Percent = StringField()
-    ForecastAmount = DecimalField()
-    ProposedBudget = DecimalField()
+    Account = StringField(render_kw={'disabled': True})
+    Actual = StringField(render_kw={'disabled': True})
+    Budget = StringField(render_kw={'disabled': True})
+    Variance = StringField(render_kw={'disabled': True})
+    Percent = StringField(render_kw={'disabled': True})
+    ForecastAmount = StringField(render_kw={'masknumber': True})
+    ProposedBudget = StringField(render_kw={'masknumber': True})
     BusinessCaseName = StringField()
-    BusinessCaseAmount = DecimalField()
+    BusinessCaseAmount = StringField(render_kw={'masknumber': True})
     Comments = StringField()
-    TotalBudget = DecimalField()
+    TotalBudget = StringField(render_kw={'masknumber': True})
 
 
 class Budgets(FlaskForm):
@@ -46,9 +48,12 @@ class Budgets(FlaskForm):
     submit = SubmitField("Submit Budget")
 
     def read(self, fiscal_year: int, business_unit_id: int):
-        current_fiscal_year = f"FY{str(fiscal_year - 1)[:2]}"
-        proposed_fiscal_year = f"FY{str(fiscal_year)[:2]}"
+        current_fiscal_year = f"FY{str(fiscal_year)[-2:]}"
+        proposed_fiscal_year = f"FY{str(fiscal_year + 1)[-2:]}"
         query = queries['budget'](proposed_fiscal_year, current_fiscal_year, business_unit_id)
         records = DatabaseManager().fetch_all(query)
         data = {'budgets': records}
         self.process(data=data)
+
+    def write(self, fiscal_year: int, business_unit_id: int):
+        pass

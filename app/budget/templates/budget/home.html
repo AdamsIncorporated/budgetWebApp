@@ -1,5 +1,14 @@
 {% extends "layout.html" %} {% block content %}
-<script defer src="{{ url_for('static', filename='js/table.js')}}" defer></script>
+<script
+  defer
+  src="{{ url_for('static', filename='js/table.js')}}"
+  defer
+></script>
+<script
+  defer
+  src="{{ url_for('static', filename='js/inputMasking.js')}}"
+  defer
+></script>
 <div>{% include 'header.html' %}</div>
 <div>{% include 'table.html' %}</div>
 {% endblock content %}

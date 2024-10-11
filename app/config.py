@@ -2,6 +2,7 @@ import logging
 import os
 import secrets
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -17,6 +18,7 @@ class Config:
     MAIL_USERNAME = os.environ.get("EMAIL_USER")
     MAIL_PASSWORD = os.environ.get("EMAIL_PASS")
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.environ.get('DB_PATH')
+    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
 
     @staticmethod
     def init_app(app):
