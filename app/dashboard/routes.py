@@ -1,10 +1,14 @@
 from flask import Blueprint, render_template, redirect, flash, url_for, request
 from flask_login import login_required, current_user
 import base64
+import json
 from app import db
 from repositories.models import MasterEmail, BusinessUnit
 from .forms import MasterEmailForm
 from sqlalchemy.orm import joinedload, aliased
+from flask import jsonify
+from sqlalchemy import text
+from repositories.queries import queries
 
 
 dashboard = Blueprint(
@@ -26,6 +30,23 @@ def home():
     return render_template("dashboard.html", image_file=image_file)
 
 
+@dashboard.route("/account-actuals-timeline")
+def account_actuals_timeline():
+    result = (
+        db.session.execute(text(queries["account_actuals_timeline"])).mappings().all()
+    )
+    result_dicts = [dict(row) for row in result]
+    return jsonify(records=result_dicts)
+
+@dashboard.route("/budget-pie-chart")
+def budget_pie_chart():
+    result = (
+        db.session.execute(text(queries["budget_pie_chart"])).mappings().all()
+    )
+    result_dicts = [dict(row) for row in result]
+    return jsonify(records=result_dicts)
+
+
 @dashboard.route("/add-users", methods=["GET", "POST"])
 @login_required
 def add_users():
@@ -38,6 +59,7 @@ def add_users():
     )
 
     return render_template("add_users.html", master_emails=master_emails)
+
 
 @dashboard.route("/create", methods=["GET", "POST"])
 @login_required
@@ -78,18 +100,19 @@ def edit():
             .first()
         )
         form = MasterEmailForm(obj=data)
-        
-    if request.method == 'POST' and form.validate_on_submit():
+
+    if request.method == "POST" and form.validate_on_submit():
         id = form.id.data
         data = MasterEmail.query.get(id)
         data.email = form.email.data
         data.user_creator_id = current_user.id
         data.business_unit_table_id = form.business_unit_table_id.data
         db.session.commit()
-        flash('Successfully updated user!', 'success')
-        return redirect(url_for('dashboard.add_users'))
+        flash("Successfully updated user!", "success")
+        return redirect(url_for("dashboard.add_users"))
 
     return render_template("editModal.html", form=form), 200
+
 
 @dashboard.route("/delete", methods=["GET", "POST"])
 @login_required
@@ -111,18 +134,18 @@ def delete():
             .first()
         )
         form = MasterEmailForm(obj=data)
-        
-    if request.method == 'POST' and form.validate_on_submit():
+
+    if request.method == "POST" and form.validate_on_submit():
         id = form.id.data
         data = MasterEmail.query.get(id)
-        
+
         if data:
             db.session.delete(data)
             db.session.commit()
-            flash('Successfully deleted user!', 'success')
+            flash("Successfully deleted user!", "success")
         else:
-            flash('User not found!', 'error')
-        
-        return redirect(url_for('dashboard.add_users'))
+            flash("User not found!", "error")
+
+        return redirect(url_for("dashboard.add_users"))
 
     return render_template("deleteModal.html", form=form), 200

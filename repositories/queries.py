@@ -114,5 +114,27 @@ queries = {
             ba."IsActiveTemplate" = 1
             AND ba."IsTotalAccount" = 0
         ORDER BY ba."DisplayOrder" ASC;
+    """,
+    "account_actuals_timeline": """
+        SELECT 
+            j."AccountNo",
+            a."Account",
+            j."AccountingDate",
+            SUM(j."Amount") AS ActualTotal
+        FROM "JournalEntry" j JOIN "Account" a ON a."AccountNo" = j."AccountNo"
+        WHERE
+            "Amount" != 0
+        GROUP BY 
+            j."AccountNo",
+            j."AccountingDate"
+    """,
+    "budget_pie_chart": """
+        SELECT 
+            "BusinessUnit",
+            SUM(ABS(b."Amount")) AS TotalBudgetByDepartment
+        FROM "Budget" b JOIN "BusinessUnit" bu ON bu."BusinessUnitId" = b."BusinessUnitId"
+        WHERE "FiscalYear" = 'FY24'
+        GROUP BY 
+            bu."BusinessUnit"
     """
 }
