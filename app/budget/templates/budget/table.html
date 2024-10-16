@@ -7,7 +7,7 @@
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Budget</th>
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Variance</th>
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Percent</th>
-        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Forecasted Amount</th>
+        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">Forecasted Amount</th>
         <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Proposed Budget</th>
         <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Business Case Name</th>
         <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Business Case Amount</th>
@@ -15,24 +15,27 @@
         <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Total FY Budget</th>
       </tr>
     </thead>
+    <form id="budgetsForm" action="{{ request.path }}", method="POST">
+      {{ form.hidden_tag() }}
     <tbody class="text-gray-600">
-      {% for budget_form in form.budgets %}
-      <tr class="even:bg-gray-50 odd:bg-white">
-        {% for field in budget_form %}
-        {% if not (field.type in ['HiddenField', 'CSRFTokenField']) %}
-        {% if 'Account' in field.name %}
-        <td class="z-99 sticky left-0 px-2 py-2 transition-colors duration-150 ease-in-out">
-          {{ field(class="overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0 focus:border-transparent") }}
-        </td>
-        {% else %} 
-        <td class="px-2 py-2 transition-colors duration-150 ease-in-out">
-          {{ field(class="overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0 focus:border-transparent") }}
-        </td>
-        {% endif %} 
-        {% endif %}
+        {% for budget_form in form.budgets %}
+        <tr class="even:bg-gray-50 odd:bg-white">
+          {% for field in budget_form %}
+          {% if not (field.type in ['HiddenField', 'CSRFTokenField']) %}
+          {% if 'Account' in field.name %}
+          <td class="z-99 sticky left-0 px-2 py-2 transition-colors duration-150 ease-in-out">
+            {{ field(class="overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0 focus:border-transparent") }}
+          </td>
+          {% else %} 
+          <td class="px-2 py-2 transition-colors duration-150 ease-in-out">
+            {{ field(class="overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0 focus:border-transparent") }}
+          </td>
+          {% endif %} 
+          {% endif %}
+          {% endfor %}
+        </tr>
         {% endfor %}
-      </tr>
-      {% endfor %}
-    </tbody>
+      </tbody>
+    </form>
   </table>
 </div>
