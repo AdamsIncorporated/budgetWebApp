@@ -8,8 +8,8 @@ from app.auth.forms import (
     RequestResetForm,
     ResetPasswordForm,
 )
-from app.auth.models import User
-from flask_login import login_user, current_user, logout_user, login_required, login_manager
+from repositories.models import User
+from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 from app import db
 

@@ -1,4 +1,12 @@
 <nav>
+  <div class="mb-3 hover:underline text-teal-700 flex justify-between">
+    <a href="{{ url_for('main.home') }}">
+      <i class="fas fa-arrow-left"></i> Home
+    </a>
+    <h1 class="text-stone-300">
+      {{ form.budgets[0].FiscalYear.data }} for Business Unit ID {{ form.budgets[0].BusinessUnitId.data }}
+    </h1>
+  </div>
   <div class="overflow-auto flex flex-row justify-between items-end my-5">
     <div class="flex flex-row items-end gap-3 p-2">
       <div class="flex flex-col text-teal-700">

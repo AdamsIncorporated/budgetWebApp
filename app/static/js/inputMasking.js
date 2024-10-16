@@ -11,6 +11,7 @@ $(document).ready(function () {
         digitsOptional: false,
         clearIncomplete: true,
         placeholder: "0.00",
+        showMaskOnHover: false,
         max: 1000000000,
         onblur: function () {
             const value = parseFloat($(this).val().replace(/,/g, ''));

@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, flash, url_for, request
 from flask_login import login_required, current_user
 import base64
 from app import db
-from .models import MasterEmail, BusinessUnit
+from repositories.models import MasterEmail, BusinessUnit
 from .forms import MasterEmailForm
 from sqlalchemy.orm import joinedload, aliased
 

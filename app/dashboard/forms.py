@@ -8,7 +8,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Email, Length
 from app import db
-from .models import BusinessUnit
+from repositories.models import BusinessUnit
 
 
 class MasterEmailForm(FlaskForm):

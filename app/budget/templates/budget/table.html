@@ -2,38 +2,51 @@
   <table id="budgetTable" class="border-collapse w-full bg-white">
     <thead class="text-nowrap focus:outline-none">
       <tr class="text-stone-50 sticky top-0">
-        <th class="bg-teal-300 px-2 py-2 whitespace-nowrap">Account</th>
+        <th class="sticky left-0 bg-teal-300 px-2 py-2 whitespace-nowrap">
+          Account
+        </th>
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Actual</th>
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Budget</th>
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Variance</th>
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Percent</th>
-        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">Forecasted Amount</th>
-        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Proposed Budget</th>
-        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Business Case Name</th>
-        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Business Case Amount</th>
+        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
+          Forecasted Amount
+        </th>
+        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">
+          Proposed Budget
+        </th>
+        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">
+          Business Case Name
+        </th>
+        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">
+          Business Case Amount
+        </th>
         <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Comments</th>
-        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Total FY Budget</th>
+        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">
+          Total FY Budget
+        </th>
       </tr>
     </thead>
-    <form id="budgetsForm" action="{{ request.path }}", method="POST">
+    <form id="budgetsForm" action="{{ request.path }}" , method="POST">
       {{ form.hidden_tag() }}
-    <tbody class="text-gray-600">
+      <tbody class="text-gray-600">
         {% for budget_form in form.budgets %}
         <tr class="even:bg-gray-50 odd:bg-white">
-          {{ budget_form.hidden_tag() }}
-          {% for field in budget_form %}
-          {% if not (field.type in ['HiddenField', 'CSRFTokenField']) %}
-          {% if 'Account' in field.name %}
-          <td class="z-99 sticky left-0 px-2 py-2 transition-colors duration-150 ease-in-out">
-            {{ field(class="overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0 focus:border-transparent") }}
+          {{ budget_form.hidden_tag() }} {% for field in budget_form %} {% if
+          not (field.type in ['HiddenField', 'CSRFTokenField']) %} {% if
+          'Account' in field.name %}
+          <td
+            class="z-10 sticky top-[calc(2.25rem)] left-0 bg-inherit px-2 py-2 transition-colors duration-150 ease-in-out text-nowrap"
+          >
+          {{ budget_form.AccountNo.data }} - {{ field.data }}
+          <span class="absolute right-0 top-0 h-full border-r-4 border-teal-300"></span>
           </td>
-          {% else %} 
+          {% else %}
           <td class="px-2 py-2 transition-colors duration-150 ease-in-out">
-            {{ field(class="overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0 focus:border-transparent") }}
+            {{ field(class="overflow-none bg-inherit whitespace-nowrap
+            focus:outline-none focus:ring-0 focus:border-transparent") }}
           </td>
-          {% endif %} 
-          {% endif %}
-          {% endfor %}
+          {% endif %} {% endif %} {% endfor %}
         </tr>
         {% endfor %}
       </tbody>
