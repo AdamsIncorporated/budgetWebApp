@@ -1,33 +1,34 @@
 <nav>
-  <div class="flex justify-end">
-    <button
-      form="budgetsForm"
-      type="submit"
-      class="flex items-center justify-center bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75"
-    >
-      <i class="fas fa-paper-plane mr-2"></i>
-      Submit
-    </button>
-  </div>
-  <div
-    class="overflow-auto flex flex-row gap-4 justify-bottom items-center my-5"
-  >
-    <div class="flex flex-col text-teal-700">
-      <div class="p-2 text-sm text-nowrap">Fiscal Year</div>
-      {{ form.fiscal_year_picklist(class="inline-flex justify-between w-full
-      rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-sm
-      font-medium text-cyan-800 hover:bg-white hover:text-cyan-950
-      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500")
-      }}
+  <div class="overflow-auto flex flex-row justify-between items-end my-5">
+    <div class="flex flex-row items-end gap-3 p-2">
+      <div class="flex flex-col text-teal-700">
+        <div class="p-2 text-sm text-nowrap">Fiscal Year</div>
+        {{ form.fiscal_year_picklist(class="inline-flex justify-between w-full
+        rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-sm
+        font-medium text-cyan-800 hover:bg-white hover:text-cyan-950
+        focus:outline-none focus:ring-2 focus:ring-offset-2
+        focus:ring-teal-500") }}
+      </div>
+
+      <div class="flex flex-col text-teal-700">
+        <div class="p-2 text-sm text-nowrap">Department</div>
+        {{ form.business_unit_picklist(class="inline-flex justify-between w-full
+        rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-sm
+        font-medium text-cyan-800 hover:bg-white hover:text-cyan-950
+        focus:outline-none focus:ring-2 focus:ring-offset-2
+        focus:ring-teal-500") }}
+      </div>
     </div>
 
-    <div class="flex flex-col text-teal-700 p-2">
-      <div class="p-2 text-sm text-nowrap">Department</div>
-      {{ form.business_unit_picklist(class="inline-flex justify-between w-full
-      rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-sm
-      font-medium text-cyan-800 hover:bg-white hover:text-cyan-950
-      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500")
-      }}
+    <div class="flex flex-col justify-end p-2">
+      <button
+        form="budgetsForm"
+        type="submit"
+        class="flex items-center justify-center bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75"
+      >
+        <i class="fas fa-paper-plane mr-2"></i>
+        Submit
+      </button>
     </div>
   </div>
 </nav>

@@ -7,25 +7,31 @@ from wtforms import (
     HiddenField,
     SelectField
 )
+from wtforms.validators import Optional
 from repositories.queries import queries
+from app import db
+from sqlalchemy import text
 
-# def get_fiscal_year_picklist():
-#         query = queries['fetch_all_fiscal_years']
-#         records = DatabaseManager().fetch_all(query)
-#         data = [entry['FiscalYear'] for entry in records]
-#         return data
 
-# def get_business_unit_picklist():
-#         query  = queries['fetch_all_business_units']
-#         records = DatabaseManager().fetch_all(query)
-#         data = [entry['BusinessUnitId'] for entry in records]
-#         return data
+def get_fiscal_year_picklist():
+        query = queries['fetch_all_fiscal_years']
+        data = db.session.execute(text(query))
+        
+        return [(item[0]) for item in data]
 
-# FISCAL_YEAR_PICKLIST_CHOICES = get_fiscal_year_picklist()
-# BUSINESS_UNIT_PICKLIST_CHOICES = get_business_unit_picklist()
+def get_business_unit_picklist():
+        query  = queries['fetch_all_business_units']
+        data = db.session.execute(text(query))
+        
+        return [(item[0], item[1]) for item in data]
+
+FISCAL_YEAR_PICKLIST_CHOICES = get_fiscal_year_picklist()
+BUSINESS_UNIT_PICKLIST_CHOICES = get_business_unit_picklist()
 
 class Budget(FlaskForm):
     Id = HiddenField()
+    FiscalYear = HiddenField()
+    BusinessUnitId = HiddenField()
     AccountNo = HiddenField()
     Account = StringField(render_kw={'readonly': True})
     Actual = StringField(render_kw={'readonly': True})
@@ -42,6 +48,6 @@ class Budget(FlaskForm):
 
 class Budgets(FlaskForm):
     budgets = FieldList(FormField(Budget), min_entries=1)
-    fiscal_year_picklist = SelectField()
-    business_unit_picklist = SelectField()
+    fiscal_year_picklist = SelectField(validators=[Optional()], choices=FISCAL_YEAR_PICKLIST_CHOICES)
+    business_unit_picklist = SelectField(validators=[Optional()], choices=BUSINESS_UNIT_PICKLIST_CHOICES)
     submit = SubmitField("Submit Budget")

@@ -20,6 +20,7 @@
     <tbody class="text-gray-600">
         {% for budget_form in form.budgets %}
         <tr class="even:bg-gray-50 odd:bg-white">
+          {{ budget_form.hidden_tag() }}
           {% for field in budget_form %}
           {% if not (field.type in ['HiddenField', 'CSRFTokenField']) %}
           {% if 'Account' in field.name %}

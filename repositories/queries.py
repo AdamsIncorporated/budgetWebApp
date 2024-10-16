@@ -43,6 +43,7 @@ queries = {
             ),
             ProposedData AS (
                 SELECT
+                    "Id",
                     "AccountNo",
                     "ProposedBudget",
                     "BusinessCaseName",
@@ -66,6 +67,9 @@ queries = {
                     )
             )
         SELECT DISTINCT
+            p."Id",
+            (SELECT ProposedFy FROM Variables) AS "FiscalYear",
+            (SELECT BusinessUnitId FROM Variables) AS "BusinessUnitId",
             ba."AccountNo",
             ba."Account",
             printf(
