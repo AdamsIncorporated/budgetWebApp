@@ -1,10 +1,11 @@
 <nav>
-  <div class="mb-3 hover:underline text-teal-700 flex justify-between">
-    <a href="{{ url_for('main.home') }}">
+  <div class="mb-3 flex justify-between border-b-2 border-stone-100 py-3">
+    <a class="hover:underline text-teal-700" href="{{ url_for('main.home') }}">
       <i class="fas fa-arrow-left"></i> Home
     </a>
     <h1 class="text-stone-300">
-      {{ form.budgets[0].FiscalYear.data }} for Business Unit ID {{ form.budgets[0].BusinessUnitId.data }}
+      {{ form.budgets[0].FiscalYear.data }} for Business Unit ID {{
+      form.budgets[0].BusinessUnitId.data }}
     </h1>
   </div>
   <div class="overflow-auto flex flex-row justify-between items-end my-5">
@@ -27,16 +28,27 @@
         focus:ring-teal-500") }}
       </div>
     </div>
-
-    <div class="flex flex-col justify-end p-2">
-      <button
-        form="budgetsForm"
-        type="submit"
-        class="flex items-center justify-center bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75"
-      >
-        <i class="fas fa-paper-plane mr-2"></i>
-        Submit
-      </button>
+    <div class="flex flex-col justify-between gap-4">
+      <div class="flex flex-row">
+        <button
+          id="queryBtn"
+          type="button"
+          class="flex items-center justify-center bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75 mr-4"
+        >
+          <i class="fas fa-server mr-2"></i> 
+          Query
+        </button>
+        <button
+          form="budgetsForm"
+          type="submit"
+          class="flex items-center justify-center bg-teal-500 text-white font-bold py-2 px-4 rounded hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75"
+        >
+          <i class="fas fa-paper-plane mr-2"></i>
+          Submit
+        </button>
+      </div>
+    </div>
+    
     </div>
   </div>
 </nav>

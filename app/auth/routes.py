@@ -60,7 +60,11 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get("next")
-            return redirect(next_page) if next_page else redirect(url_for("dashboard.home"))
+            return (
+                redirect(next_page)
+                if next_page
+                else redirect(url_for("dashboard.home"))
+            )
         else:
             flash("Login Unsuccessful. Please check email and password", "error")
     return render_template("login.html", title="Login", form=form)
@@ -77,18 +81,18 @@ def logout():
 def account():
     form = UpdateAccountForm()
 
-    if request.method == 'POST':
+    if request.method == "POST":
         if form.validate_on_submit():
             if form.picture.data:
                 picture = form.picture.data
                 binary_data = picture.read()
-                
+
                 if len(binary_data) > 1 * 1024 * 1024:
                     flash("File size exceeds the 1MB limit", "error")
                     return redirect(url_for("auth.account"))
-                
+
                 current_user.image_file = binary_data
-                
+
             current_user.username = form.username.data
             current_user.email = form.email.data
             current_user.first_name = form.first_name.data
@@ -105,7 +109,7 @@ def account():
 
     image_file = None
     if current_user.image_file:
-        image_file = base64.b64encode(current_user.image_file).decode('utf-8')
+        image_file = base64.b64encode(current_user.image_file).decode("utf-8")
 
     return render_template(
         "account.html", title="Account", image_file=image_file, form=form
@@ -115,7 +119,9 @@ def account():
 def send_reset_email(user):
     token = user.get_reset_token()
     msg = Message(
-        "Password Reset Request", sender="samuel.grant.adams@gmail.com", recipients=[user.email]
+        "Password Reset Request",
+        sender="samuel.grant.adams@gmail.com",
+        recipients=[user.email],
     )
     msg.body = f"""To reset your password, visit the following link:
     {url_for('auth.reset_token', token=token, _external=True)}
@@ -136,7 +142,8 @@ def reset_request():
         user = User.query.filter_by(email=form.email.data).first()
         send_reset_email(user)
         flash(
-            "An email has been sent with instructions to reset your password.", "success"
+            "An email has been sent with instructions to reset your password.",
+            "success",
         )
 
         return redirect(url_for("auth.login"))

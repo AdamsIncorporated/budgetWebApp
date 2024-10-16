@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from app import db, login_manager
-from app.auth.models import User
 from datetime import datetime, timedelta
-from flask_login import jwt
+from flask_login import UserMixin
 from flask import current_app
+import jwt
 
 
 class Account(db.Model):
@@ -58,11 +58,6 @@ class ProposedBudget(db.Model):
     def __repr__(self):
         attributes = ", ".join(f"{key}={value}" for key, value in self.__dict__.items())
         return f"<ProposedBudget({attributes})>"
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
 
 class BusinessUnit(db.Model):

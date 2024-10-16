@@ -1,5 +1,6 @@
 // Column highlighting event listener
 document.addEventListener("DOMContentLoaded", () => {
+    
     const headers = document.querySelectorAll("thead th");
 
     headers.forEach((header, index) => {
@@ -13,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function toggleCellHighlight(index, highlight) {
         const cells = document.querySelectorAll(
-            `tbody tr td:nth-child(${index + 1})`
+            `tbody tr td:nth-child(${index + 6})`
         );
         cells.forEach((cell) => {
             const isEvenRow = cell.parentElement.rowIndex % 2 === 0;
@@ -50,5 +51,14 @@ document.addEventListener("DOMContentLoaded", () => {
             field.style.color = fontColor;
             field.style.fontStyle = 'italic';
         }
+    });
+
+    // add event listner for query button
+    document.getElementById('queryBtn').addEventListener('click', () => {
+        const fiscalYear = document.getElementById('fiscal_year_picklist').value;
+        const businessUnitId = document.getElementById('business_unit_picklist').value;
+        const fiscalYearInt = String(fiscalYear).replace('FY', '20');
+        const uri = `/budget/budget-entry/${fiscalYearInt}/${businessUnitId}`;
+        window.location.href = uri;
     });
 });

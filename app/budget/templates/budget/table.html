@@ -36,13 +36,13 @@
           not (field.type in ['HiddenField', 'CSRFTokenField']) %} {% if
           'Account' in field.name %}
           <td
-            class="z-10 sticky top-[calc(2.25rem)] left-0 bg-inherit px-2 py-2 transition-colors duration-150 ease-in-out text-nowrap"
+            class="z-10 sticky top-[calc(2.25rem)] left-0 bg-inherit px-2 py-2 transition-colors text-nowrap"
           >
           {{ budget_form.AccountNo.data }} - {{ field.data }}
           <span class="absolute right-0 top-0 h-full border-r-4 border-teal-300"></span>
           </td>
           {% else %}
-          <td class="px-2 py-2 transition-colors duration-150 ease-in-out">
+          <td class="px-2 py-2 transition-colors">
             {{ field(class="overflow-none bg-inherit whitespace-nowrap
             focus:outline-none focus:ring-0 focus:border-transparent") }}
           </td>

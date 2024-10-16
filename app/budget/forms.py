@@ -11,8 +11,7 @@ from wtforms.validators import Optional
 from repositories.queries import queries
 from app import db
 from sqlalchemy import text
-from app.dashboard.models import BusinessUnit
-
+from repositories.models import BusinessUnit
 
 def get_fiscal_year_picklist():
         query = queries['fetch_all_fiscal_years']
@@ -52,16 +51,3 @@ class Budgets(FlaskForm):
     fiscal_year_picklist = SelectField(validators=[Optional()], choices=FISCAL_YEAR_PICKLIST_CHOICES)
     business_unit_picklist = SelectField(validators=[Optional()], choices=BUSINESS_UNIT_PICKLIST_CHOICES)
     submit = SubmitField("Submit Budget")
-    
-    def __init__(self, *args, **kwargs):
-        super(Budgets, self).__init__(*args, **kwargs)
-        business_units = (
-            BusinessUnit.query.with_entities(
-                BusinessUnit.id, BusinessUnit.business_unit
-            )
-            .distinct()
-            .all()
-        )
-        self.business_unit_picklist.choices = [
-            (bu.id, bu.business_unit) for bu in business_units
-        ]

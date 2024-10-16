@@ -21,6 +21,8 @@ def home(fiscal_year: int, business_unit_id: str):
     form = Budgets()
     current_fiscal_year = f"FY{str(fiscal_year)[-2:]}"
     proposed_fiscal_year = f"FY{str(fiscal_year + 1)[-2:]}"
+    form.business_unit_picklist.default = business_unit_id
+    form.fiscal_year_picklist.default = proposed_fiscal_year
 
     if request.method == "GET":
         query = queries['budget'](proposed_fiscal_year, current_fiscal_year, business_unit_id)
