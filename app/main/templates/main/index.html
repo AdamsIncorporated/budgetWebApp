@@ -1,4 +1,5 @@
 {% extends "layout.html" %} {% block content %}
+<script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 <!-- Navbar -->
 <header class="bg-cyan-500 text-white p-4 shadow-lg">
@@ -16,13 +17,6 @@
           <i class="fas fa-sign-in-alt mr-2"></i>
           Admin Login
         </button>
-        <script>
-          document
-            .getElementById("adminLoginBtn")
-            .addEventListener("click", function () {
-              window.location.href = "/auth/login";
-            });
-        </script>
       </ul>
     </nav>
   </div>
@@ -37,11 +31,42 @@
     Take control of your health expenses with our smart budgeting tools and stay
     on top of your finances effortlessly.
   </p>
-  <a
-    href="{{ url_for('budget.home', fiscal_year=2024, business_unit_id=3000) }}"
-    class="bg-cyan-500 text-white py-3 px-6 rounded-full shadow-md hover:bg-cyan-600"
-    >Get Started</a
-  >
+  <div class="w-1/4 flex flex-col justify-center items-center mx-auto gap-3">
+    <label for="businessUnit">Department:</label>
+    <select
+      id="businessUnit"
+      name="businessUnit"
+      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-white"
+    >
+      <option value="" disabled selected>--Select Business Unit--</option>
+      {% for unit in picklist.BUSINESS_UNIT_IDS %}
+      <option class="hover:bg-teal-100" value="{{ unit[0] }}">
+        {{ unit[1] }}
+      </option>
+      {% endfor %}
+    </select>
+
+    <label for="fiscalYear">Fiscal Year:</label>
+    <select
+      id="fiscalYear"
+      name="fiscalYear"
+      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-white"
+    >
+      <option value="" disabled selected>--Select Fiscal Year--</option>
+      {% for year in picklist.FISCAL_YEARS %}
+      <option class="hover:bg-teal-100" value="{{ year[0] }}">
+        {{ year[0] }}
+      </option>
+      {% endfor %}
+    </select>
+    <button
+      id="getStarted"
+      type="button"
+      class="bg-cyan-500 text-white py-3 px-6 rounded-full shadow-md hover:bg-cyan-600"
+    >
+      Get Started
+    </button>
+  </div>
 </main>
 
 <!-- Features Section -->

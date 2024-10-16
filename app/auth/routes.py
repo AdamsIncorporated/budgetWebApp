@@ -88,6 +88,7 @@ def account():
                     return redirect(url_for("auth.account"))
                 
                 current_user.image_file = binary_data
+                
             current_user.username = form.username.data
             current_user.email = form.email.data
             current_user.first_name = form.first_name.data
