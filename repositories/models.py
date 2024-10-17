@@ -84,20 +84,12 @@ class MasterEmail(db.Model):
     user_creator_id = db.Column(
         "UserCreatorId", db.Integer, ForeignKey("User.Id"), nullable=False
     )
-    business_unit_table_id = db.Column(
-        "BusinessUnitTableId", db.Integer, ForeignKey("BusinessUnit.Id"), nullable=False
-    )
     date_created = db.Column(
         "DateCreated",
         db.DateTime,
         nullable=False,
         default=db.func.current_timestamp(),
     )
-
-    master_email_business_unit = db.relationship(
-        "BusinessUnit", backref="master_emails"
-    )
-
     master_email_user = db.relationship("User", backref="master_user")
 
     def __repr__(self):
@@ -147,3 +139,16 @@ class User(db.Model, UserMixin):
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
             return None
         return User.query.get(user_id)
+
+
+class UserBusinessUnit(db.Model):
+    __tablename__ = "User_BusinessUnit"
+
+    id = db.Column("Id", db.Integer, primary_key=True)
+    business_unit_id = db.Column(
+        "BusinessUnitId", db.Integer, db.ForeignKey("BusinessUnit.BusinessUnitId"), nullable=False
+    )
+    user_id = db.Column("UserId", db.Integer, db.ForeignKey("User.Id"), nullable=False)
+
+    business_unit = db.relationship("BusinessUnit", backref="user_business_units")
+    user = db.relationship("User", backref="user_business_units")

@@ -136,5 +136,23 @@ queries = {
         WHERE "FiscalYear" = 'FY24'
         GROUP BY 
             bu."BusinessUnit"
-    """
+    """,
+    "user_business_units": lambda user_id: f"""
+        SELECT 
+            bu."BusinessUnitId",
+            bu."BusinessUnit",
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM "MasterEmail" me
+                    JOIN "User_BusinessUnit" ub ON me."Id" = ub."UserId"
+                    WHERE 
+                        bu."BusinessUnitId" = ub."BusinessUnitId"
+                        AND "UserId" = {user_id}
+                ) 
+                THEN 1
+                ELSE 0
+            END AS IsSelected
+        FROM "BusinessUnit" bu;
+    """,
 }

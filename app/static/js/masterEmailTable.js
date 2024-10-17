@@ -1,3 +1,28 @@
+function filterTable() {
+    // Get the input value and convert it to lower case
+    const filter = document.getElementById("filterInput").value.toLowerCase();
+    const table = document.getElementById("businessUnitsTable");
+    const rows = table.getElementsByTagName("tr");
+
+    // Loop through all table rows (except the first, which is the header)
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        let rowVisible = false;
+
+        // Loop through the cells in the current row
+        for (let j = 0; j < cells.length; j++) {
+            // Check if the cell contains the filter text
+            if (cells[j].textContent.toLowerCase().includes(filter)) {
+                rowVisible = true; // Mark the row as visible if a match is found
+                break; // Exit the inner loop if a match is found
+            }
+        }
+
+        // Show or hide the row based on whether it matched the filter
+        rows[i].style.display = rowVisible ? "" : "none";
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const containers = {
         delete: document.getElementById('deleteModalContainer'),

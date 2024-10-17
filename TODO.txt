@@ -1,15 +1,10 @@
-Frontend 
-- Create vertical divider borders figure that out somehow
-- Number formatting - fml
-- create a dropdown list for fiscal year and department for them to pick from a main menu landing page
-- move admin login to landing page essentially
-- landing page needs instructions
-
-
-Backend
-- create validation for hashes
-- login with session to dashboard
-- create new root users
-- figure out way to make root users only available to finance department
-- create multiview download template
-- create user input per department
+- Divide by RAD, SubAccount, TotalMegaAccount
+- Labels FY's above
+- remove percents
+- color variances
+- download button to excel
+- admin locking tool for certain departments and fiscal year
+- clarify fiscal years with Labels- fix data for actuals
+- totals and counts row at bottom
+- child users by department
+- login for budgent entry do this last!!!

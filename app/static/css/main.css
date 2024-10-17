@@ -100,12 +100,13 @@
   position: fixed;
   top: 7.5%;
   right: 15%;
-  width: fit-content;
+  width: 500px;
   z-index: 999;
   opacity: 1;
   animation: swoopDown 2s ease forwards, swoopUp 1s ease forwards 5s;
   padding: 1%;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  word-wrap: break-word;
 }
 
 .flashes ul {
