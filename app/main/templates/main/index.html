@@ -1,74 +1,105 @@
 {% extends "layout.html" %} {% block content %}
 <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
 
-<!-- Navbar -->
-<header class="bg-cyan-500 text-white p-4 shadow-lg">
-  <div class="container mx-auto flex justify-between items-center">
-    <h1 class="text-2xl font-bold">Central Health Budgeting</h1>
-    <nav>
-      <ul class="flex items-end space-x-6">
-        <!-- Change items-bottom to items-end -->
-        <li><a href="#" class="hover:underline">Tutorial</a></li>
-        <li><a href="#" class="hover:underline">Contact Support</a></li>
-        {% if current_user.is_authenticated %}
-        <a href="{{ url_for('auth.logout') }}" class="hover:underline"
-          >Logout</a
+<!-- Nav Bar -->
+<header
+  id="navbar"
+  class="overflow-hidden fixed h-fit top-0 left-0 w-full bg-gradient-to-r from-cyan-700 to-indigo-600 text-white p-4 shadow-lg transform translate-y-0"
+>
+  <div class="container mx-auto flex justify-between">
+    <div class="flex-col">
+      <h1 class="text-2xl font-bold items-start mb-4">
+        Central Health Budgeting
+      </h1>
+      <ul
+        class="flex items-end space-x-6 border-b border-stone-white pb-2 w-fit"
+      >
+        <li
+          class="transition-transform duration-300 transform hover:translate-y-1"
         >
-        <a href="{{ url_for('auth.account') }}" class="hover:underline"
-          >Account</a
-        >
-        <div class="flex items-end border-4 border-white rounded-md p-4">
-          <div
-            class="flex justify-center items-center rounded-full w-10 h-10 object-cover mr-4 border-4 border-white bg-cyan-900 text-gray-white"
+          <a href="#" class="hover:underline"
+            ><i class="fas fa-book"></i> Tutorial</a
           >
-            <img
-              class="rounded-full w-full h-full object-cover text-xs"
-              src="data:image/jpeg;base64,{{ image_file }}"
-              alt="User Image"
-              onerror="this.style.display='none'; this.parentElement.style.fontSize = '8px'; this.parentElement.textContent = 'User';"
-            />
-          </div>
-          <div class="flex-col">
-            <h2 class="truncate text-lg font-bold whitespace-nowrap">
-              {% if current_user.is_root_user == 1 %}
-              <span class="text-amber-400"
-                ><i class="fas fa-crown"></i> Admin
-              </span>
-              <div>{{ current_user.username }}</div>
-              {% else %}
-              <span class="text-emerald-800"
-                ><i class="fas fa-key"></i> User
-              </span>
-              <div>{{ current_user.username }}</div>
-              {% endif %}
-            </h2>
-            <p class="truncate break-words">{{ current_user.email }}</p>
-          </div>
-        </div>
-        {% else %}
-        <button
-          id="adminLoginBtn"
-          class="bg-teal-600 text-white font-semibold py-2 px-4 rounded transition duration-300 hover:bg-teal-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+        </li>
+        <li
+          class="transition-transform duration-300 transform hover:translate-y-1"
         >
-          <i class="fas fa-sign-in-alt mr-2"></i>
-          Login
-        </button>
+          <a href="#" class="hover:underline"
+            ><i class="fas fa-phone"></i> Contact Support</a
+          >
+        </li>
+        {% if current_user.is_authenticated %}
+        <li
+          class="transition-transform duration-300 transform hover:translate-y-1"
+        >
+          <a href="{{ url_for('auth.logout') }}" class="hover:underline"
+            ><i class="fas fa-sign-out-alt"></i> Logout</a
+          >
+        </li>
+        <li
+          class="transition-transform duration-300 transform hover:translate-y-1"
+        >
+          <a href="{{ url_for('auth.account') }}" class="hover:underline"
+            ><i class="fas fa-user-circle"></i> Account</a
+          >
+        </li>
         {% endif %}
       </ul>
-    </nav>
+    </div>
+    <div class="flex-col">
+      {% if current_user.is_authenticated %}
+
+      <div class="flex items-end shadow-md rounded-md p-4">
+        <div
+          class="flex justify-center items-center rounded-full w-10 h-10 object-cover mr-4 border-4 border-white bg-cyan-900 text-gray-white"
+        >
+          <img
+            class="rounded-full w-full h-full object-cover text-xs"
+            src="data:image/jpeg;base64,{{ image_file }}"
+            alt="User Image"
+            onerror="this.style.display='none'; this.parentElement.style.fontSize = '8px'; this.parentElement.textContent = 'User';"
+          />
+        </div>
+        <div class="flex-col">
+          <h2 class="truncate text-lg font-bold whitespace-nowrap">
+            {% if current_user.is_root_user == 1 %}
+            <span class="text-amber-400"
+              ><i class="fas fa-crown"></i> {{ current_user.username }}
+            </span>
+            {% else %}
+            <span class="text-emerald-400"
+              ><i class="fas fa-key"></i> {{ current_user.username }}
+            </span>
+            {% endif %}
+          </h2>
+          <p class="truncate break-words">{{ current_user.email }}</p>
+        </div>
+      </div>
+      {% else %}
+      <button
+        id="loginBtn"
+        class="bg-cyan-600 text-white font-semibold py-2 px-4 rounded transition duration-300 hover:bg-cyan-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+        onclick="getLogin()"
+      >
+        <i class="fas fa-sign-in-alt mr-2"></i>
+        Login
+      </button>
+      {% endif %}
+    </div>
   </div>
 </header>
 
 <!-- Main Section -->
-<main class="container mx-auto py-16 text-center">
-  <h2 class="text-4xl font-bold text-teal-900 mb-4">
+<main class="mt-10 container mx-auto py-16 text-center">
+  <h2 class="text-4xl font-bold bg-gradient-to-r from-teal-300 to-cyan-800 bg-clip-text text-transparent">
     Efficient Budgeting Made Easy
   </h2>
   <p class="text-lg text-gray-700 mb-8">
     Take control of your health expenses with our smart budgeting tools and stay
     on top of your finances effortlessly.
   </p>
-  <div class="w-1/4 flex flex-col justify-center items-center mx-auto gap-3">
+  {% if current_user.is_authenticated %}
+  <div class="w-1/4 flex flex-col justify-center items-center mx-auto gap-3 border-2 border-stone-50 rounded-md p-4">
     <label for="businessUnit">Department:</label>
     <select
       id="businessUnit"
@@ -97,19 +128,35 @@
       {% endfor %}
     </select>
     <button
-      id="getStarted"
       type="button"
       class="bg-cyan-500 text-white py-3 px-6 rounded-full shadow-md hover:bg-cyan-600"
+      onclick="getBudgetEntry()"
     >
-      Get Started
+      <i class="fas fa-pencil-alt mr-2"></i> Start Budget
     </button>
   </div>
+  {% else %}
+  <div>
+    <h1
+      class="font-bold text-5xl bg-gradient-to-r from-teal-900 to-cyan-600 bg-clip-text text-transparent"
+    >
+      Need and account?
+    </h1>
+    <a
+      href="{{url_for('auth.register')}}"
+      class="text-3xl bg-gradient-to-r from-teal-900 to-cyan-600 bg-clip-text text-transparent"
+      >register</a
+    >
+  </div>
+  {% endif %}
 </main>
 
 <!-- Features Section -->
-<section class="bg-teal-200 py-12">
+<section
+  class="bg-gradient-to-tr from-cyan-100 to-teal-100 to-indigo-600 py-12 rounded-md"
+>
   <div class="container mx-auto text-center">
-    <h3 class="text-3xl text-teal-800 font-semibold mb-8">Why Choose Us?</h3>
+    <h3 class="text-3xl text-teal-800 font-semibold mb-8">Why Choose This?</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <div class="p-6 bg-white shadow-lg rounded-lg">
         <h4 class="text-xl font-bold text-teal-700 mb-4">Track Expenses</h4>
@@ -132,10 +179,5 @@
     </div>
   </div>
 </section>
-
-<!-- Footer -->
-<footer class="bg-cyan-500 text-white p-6 text-center">
-  <p>&copy; 2024 Central Health Budgeting. All rights reserved.</p>
-</footer>
 
 {% endblock content %}

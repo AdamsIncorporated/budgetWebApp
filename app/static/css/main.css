@@ -7,6 +7,10 @@
   color: #ffffff;
 }
 
+#navbar {
+  transition: transform 0.3s ease;
+}
+
 @keyframes swoopDown {
   0% {
     transform: translate(50%, -50%);
