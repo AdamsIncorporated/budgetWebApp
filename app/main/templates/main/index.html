@@ -4,15 +4,15 @@
 <!-- Nav Bar -->
 <header
   id="navbar"
-  class="overflow-hidden fixed h-fit top-0 left-0 w-full bg-gradient-to-r from-cyan-700 to-indigo-600 text-white p-4 shadow-lg transform translate-y-0"
+  class="overflow-hidden fixed h-fit top-0 left-0 w-full bg-gradient-to-r from-cyan-500 to-teal-700 text-white p-4 shadow-lg transform translate-y-0"
 >
   <div class="container mx-auto flex justify-between">
-    <div class="flex-col">
+    <div class="flex-col shadow-lg rounded-md p-2">
       <h1 class="text-2xl font-bold items-start mb-4">
-        Central Health Budgeting
+        Budget App
       </h1>
       <ul
-        class="flex items-end space-x-6 border-b border-stone-white pb-2 w-fit"
+        class="flex items-end space-x-6 w-fit"
       >
         <li
           class="transition-transform duration-300 transform hover:translate-y-1"
@@ -90,7 +90,7 @@
 </header>
 
 <!-- Main Section -->
-<main class="mt-10 container mx-auto py-16 text-center">
+<main class="mt-20 container mx-auto py-16 text-center">
   <h2 class="text-4xl font-bold bg-gradient-to-r from-teal-300 to-cyan-800 bg-clip-text text-transparent">
     Efficient Budgeting Made Easy
   </h2>
@@ -99,7 +99,7 @@
     on top of your finances effortlessly.
   </p>
   {% if current_user.is_authenticated %}
-  <div class="w-1/4 flex flex-col justify-center items-center mx-auto gap-3 border-2 border-stone-50 rounded-md p-4">
+  <div class="w-1/4 flex flex-col justify-center items-center mx-auto gap-3 border-2 border-stone-50 rounded-md p-4 shadow-md">
     <label for="businessUnit">Department:</label>
     <select
       id="businessUnit"
@@ -144,7 +144,7 @@
     </h1>
     <a
       href="{{url_for('auth.register')}}"
-      class="text-3xl bg-gradient-to-r from-teal-900 to-cyan-600 bg-clip-text text-transparent"
+      class="text-3xl bg-gradient-to-r from-amber-300 to-amber-600 bg-clip-text text-transparent hover:animate-pulse"
       >register</a
     >
   </div>
@@ -157,7 +157,7 @@
 >
   <div class="container mx-auto text-center">
     <h3 class="text-3xl text-teal-800 font-semibold mb-8">Why Choose This?</h3>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 p-2">
       <div class="p-6 bg-white shadow-lg rounded-lg">
         <h4 class="text-xl font-bold text-teal-700 mb-4">Track Expenses</h4>
         <p class="text-gray-700">
