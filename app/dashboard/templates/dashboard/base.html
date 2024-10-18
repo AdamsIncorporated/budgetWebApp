@@ -45,11 +45,16 @@
       </nav>
     </div>
     <div class="flex items-center mb-6">
-      <img
-        class="rounded-full w-10 h-10 object-cover mr-4"
-        src="data:image/jpeg;base64,{{ image_file }}"
-        alt="User Image"
-      />
+      <div
+        class="flex justify-center items-center rounded-full w-20 h-20 object-cover mr-4 border-4 border-white bg-cyan-900 text-gray-white"
+      >
+        <img
+          class="rounded-full w-full h-full object-cover"
+          src="data:image/jpeg;base64,{{ image_file }}"
+          alt="User Image"
+          onerror="this.style.display='none'; this.parentElement.textContent = 'User';"
+        />
+      </div>
       <div class="flex-col">
         <h2 class="truncate text-2xl font-bold whitespace-nowrap">
           {% if current_user.is_root_user == 1 %}

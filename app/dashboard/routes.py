@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, flash, url_for, request
 from flask_login import login_required, current_user
 import base64
 from app import db
-from repositories.models import MasterEmail, BusinessUnit, UserBusinessUnit
+from repositories.models import MasterEmail, BusinessUnit, UserBusinessUnit, User
 from .forms import MasterEmailForm, UserBusinessUnits
 from flask import jsonify
 from sqlalchemy import text
@@ -80,13 +80,15 @@ def create():
             )
             db.session.add(new_email)
             db.session.commit()
-            new_email_id = new_email.id
+            
+            # query users to get id
+            user_id = User.query.filter_by(email=form.email.data).first_or_404().id
 
             for row in form.user_business_units.data:
                 if row.get("is_business_unit_selected"):
                     business_unit_id = int(row.get("business_unit_id"))
                     new_user_business_unit = UserBusinessUnit(
-                        user_id=new_email_id, business_unit_id=business_unit_id
+                        user_id=user_id, business_unit_id=business_unit_id
                     )
                     db.session.add(new_user_business_unit)
             db.session.commit()

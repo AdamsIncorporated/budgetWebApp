@@ -7,10 +7,11 @@ from wtforms import (
     FieldList,
     FormField,
     BooleanField,
+    SelectField
 )
 from wtforms.validators import DataRequired, Email, Length, ValidationError
 from app import db
-from repositories.models import MasterEmail
+from repositories.models import MasterEmail, User
 
 
 class UserBusinessUnit(FlaskForm):
@@ -39,7 +40,7 @@ class UserBusinessUnits(FlaskForm):
 
 class MasterEmailForm(FlaskForm):
     id = HiddenField()
-    email = StringField("Email", validators=[DataRequired(), Email(), Length(max=120)])
+    email = SelectField("Email", validators=[DataRequired(), Email(), Length(max=120)])
     date_created = DateTimeField(
         "Date Created", format="%Y-%m-%d %H:%M:%S", default=db.func.current_timestamp()
     )
@@ -49,6 +50,14 @@ class MasterEmailForm(FlaskForm):
         validators=[DataRequired()],
     )
     submit = SubmitField("Submit")
+
+    def __init__(self, *args, **kwargs):
+        super(MasterEmailForm, self).__init__(*args, **kwargs)
+        self.populate_email_choices()
+
+    def populate_email_choices(self):
+        emails = User.query.with_entities(User.email).filter_by(is_root_user=0).all()
+        self.email.choices = [(email[0]) for email in emails]
 
     def validate_email(self, field):
         # Check if the email already exists in the User table

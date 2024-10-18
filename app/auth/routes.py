@@ -22,6 +22,16 @@ auth = Blueprint(
 )
 
 
+@auth.route("/not-allowed")
+def not_allowed():
+    return render_template("notAllowed.html")
+
+
+@auth.route("/not-an-authoirzed-user")
+def not_an_authorized_user():
+    return render_template("notAnAuthorizedUser.html")
+
+
 @auth.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
@@ -39,7 +49,7 @@ def register():
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             password=hashed_password,
-            is_root_user=1,
+            is_root_user=1 if form.is_root_user.data else 0,
         )
         db.session.add(user)
         db.session.commit()
@@ -50,7 +60,7 @@ def register():
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and current_user.is_root_user:
         return redirect(url_for("dashboard.home"))
 
     form = LoginForm()
@@ -60,11 +70,17 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get("next")
-            return (
-                redirect(next_page)
-                if next_page
-                else redirect(url_for("dashboard.home"))
-            )
+
+            if user.is_root_user:  # login in as admin login
+                return (
+                    redirect(next_page)
+                    if next_page
+                    else redirect(url_for("dashboard.home"))
+                )
+            else:  # return to next page as normal user
+                return (
+                    redirect(next_page) if next_page else redirect(url_for("main.home"))
+                )
         else:
             flash("Login Unsuccessful. Please check email and password", "error")
     return render_template("login.html", title="Login", form=form)

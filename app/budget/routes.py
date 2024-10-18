@@ -4,6 +4,7 @@ from repositories.models import ProposedBudget
 from repositories.queries import queries
 from app import db
 from sqlalchemy import text
+from flask_login import login_required
 
 budget = Blueprint(
     "budget",
@@ -17,6 +18,7 @@ def sanitize(value: str, type_func):
     return type_func(value.replace(',', '')) if value else None
 
 @budget.route("/budget-entry/<int:fiscal_year>/<string:business_unit_id>", methods=["POST", "GET"])
+@login_required
 def home(fiscal_year: int, business_unit_id: str):
     form = Budgets()
     current_fiscal_year = f"FY{str(fiscal_year)[-2:]}"

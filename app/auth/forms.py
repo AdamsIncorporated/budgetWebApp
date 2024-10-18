@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, HiddenField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
 from repositories.models import User
 
 
@@ -17,6 +17,7 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField(
         "Confirm Password", validators=[DataRequired(), EqualTo("password")]
     )
+    is_root_user = BooleanField("Admin Role", validators=[Optional()], default=0)
     submit = SubmitField("Sign Up")
 
     def validate_username(self, username):

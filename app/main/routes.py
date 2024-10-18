@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template
 from app import db
 from sqlalchemy import text
+import base64
+from flask_login import current_user
 
 main = Blueprint(
     "main",
@@ -18,10 +20,9 @@ def get_all_business_units():
     result = db.session.execute(query).fetchall()
     return result
 
+
 def get_all_fiscal_years():
-    query = text(
-        "SELECT DISTINCT FiscalYear FROM JournalEntry ORDER BY FiscalYear;"
-    )
+    query = text("SELECT DISTINCT FiscalYear FROM JournalEntry ORDER BY FiscalYear;")
     result = db.session.execute(query).fetchall()
     return result
 
@@ -35,4 +36,8 @@ picklist = {
 @main.route("/")
 @main.route("/home")
 def home():
-    return render_template("index.html", picklist=picklist)
+    image_file = None
+    if current_user.is_authenticated and current_user.image_file:
+        image_file = base64.b64encode(current_user.image_file).decode("utf-8")
+
+    return render_template("index.html", picklist=picklist, image_file=image_file)
