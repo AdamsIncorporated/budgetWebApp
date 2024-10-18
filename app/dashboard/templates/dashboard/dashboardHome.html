@@ -1,0 +1,13 @@
+{% extends 'base.html' %} {% block section %}
+
+<div class="p-6 mx-4 my-10">
+  <h1 class="text-teal-700 text-5xl font-bold mb-4">
+    Welcome {{ current_user.first_name }} to your dashboard!
+  </h1>
+  <p class="text-gray-600 text-lg mb-6">
+    Here you can manage your activities, view your progress, and stay updated
+    with the latest information.
+  </p>
+</div>
+
+{% endblock section %}

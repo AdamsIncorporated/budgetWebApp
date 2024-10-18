@@ -139,6 +139,14 @@ queries = {
     """,
     "user_business_units": lambda user_id: f"""
         SELECT 
+            (
+                SELECT ub.Id
+                FROM "MasterEmail" me
+                JOIN "User_BusinessUnit" ub ON me."Id" = ub."UserId"
+                WHERE 
+                    bu."BusinessUnitId" = ub."BusinessUnitId"
+                    AND "UserId" = {user_id}
+            ) AS Id,
             bu."BusinessUnitId",
             bu."BusinessUnit",
             CASE 

@@ -1,0 +1,27 @@
+<div class="relative overflow-hidden w-full my-5 p-6">
+  <div
+    id="canvasSlider"
+    class="flex transition-transform duration-500 ease-in-out"
+  >
+    <div class="flex-shrink-0 w-full">
+      <canvas id="budgetPieChart" width="400" height="400"></canvas>
+    </div>
+    <div class="flex-shrink-0 w-full">
+      <canvas id="anotherChart" width="200" height="200"></canvas>
+    </div>
+    <!-- Add more canvases as needed -->
+  </div>
+
+  <button
+    id="prevBtn"
+    class="absolute left-0 bottom-0 transform -translate-y-1/2 bg-cyan-500 text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:bg-cyan-600"
+  >
+    <i class="fas fa-arrow-left"></i>
+  </button>
+  <button
+    id="nextBtn"
+    class="absolute right-0 bottom-0 transform -translate-y-1/2 bg-cyan-500 text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:bg-cyan-600"
+  >
+    <i class="fas fa-arrow-right"></i>
+  </button>
+</div>

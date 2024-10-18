@@ -4,7 +4,6 @@ import base64
 from app import db
 from repositories.models import MasterEmail, BusinessUnit, UserBusinessUnit
 from .forms import MasterEmailForm, UserBusinessUnits
-from sqlalchemy.orm import joinedload, aliased
 from flask import jsonify
 from sqlalchemy import text
 from repositories.queries import queries
@@ -19,14 +18,14 @@ dashboard = Blueprint(
 )
 
 
-@dashboard.route("/home", methods=["GET", "POST"])
+@dashboard.route("/home")
 @login_required
 def home():
     image_file = None
     if current_user.image_file:
         image_file = base64.b64encode(current_user.image_file).decode("utf-8")
 
-    return render_template("dashboard.html", image_file=image_file)
+    return render_template("dashboardHome.html", image_file=image_file)
 
 
 @dashboard.route("/account-actuals-timeline")
@@ -45,12 +44,17 @@ def budget_pie_chart():
     return jsonify(records=result_dicts)
 
 
-@dashboard.route("/add-users", methods=["GET", "POST"])
+@dashboard.route("/add-users")
 @login_required
 def add_users():
     master_emails = MasterEmail.query.all()
+    image_file = None
+    if current_user.image_file:
+        image_file = base64.b64encode(current_user.image_file).decode("utf-8")
 
-    return render_template("add_users.html", master_emails=master_emails)
+    return render_template(
+        "addUsers.html", master_emails=master_emails, image_file=image_file
+    )
 
 
 @dashboard.route("/create", methods=["GET", "POST"])
@@ -100,53 +104,68 @@ def create():
             flash(errors, "error")
             return redirect(url_for("dashboard.add_users"))
 
-    return render_template("createModal.html", form=form)
+    return render_template("modal/createModal.html", form=form)
 
 
 @dashboard.route("/edit", methods=["GET", "POST"])
+@login_required
 def edit():
     form = UserBusinessUnits()
 
     if request.method == "GET":
-        id = int(request.args.get("id"))
-        master_email = MasterEmail.query.filter_by(id=id).first()
+        user_id = int(request.args.get("id"))
+        master_email = MasterEmail.query.filter_by(id=user_id).first()
 
-        query = queries["user_business_units"](user_id=id)
+        query = queries["user_business_units"](user_id=user_id)
         user_business_units = db.session.execute(text(query)).fetchall()
 
         data = {
+            "user_id": user_id,
             "email": master_email.email,
             "date_created": master_email.date_created,
             "user_business_units": [
                 {
-                    "id": ub_id,
-                    "business_unit_id": bu_id,
-                    "business_unit": bu_name,
+                    "id": id,
+                    "business_unit_id": business_unit_id,
+                    "business_unit": business_unit,
+                    "is_business_unit_selected": is_business_unit_selected,
                 }
-                for business_unit_id, business_unit, bu_name in user_business_units
+                for id, business_unit_id, business_unit, is_business_unit_selected in user_business_units
             ],
         }
         form.process(data=data)
 
     if request.method == "POST":
         if form.validate_on_submit():
-            id = form.id.data
-            data = MasterEmail.query.get(id)
-            data.email = form.email.data
-            data.user_creator_id = current_user.id
+            user_id = int(form.user_id.data)
+            current_units = UserBusinessUnit.query.filter_by(user_id=user_id).all()
+            current_unit_ids = {(ub.id, ub.business_unit_id) for ub in current_units}
 
-            # delete all current user business rows by user_id
-            db.session.query(UserBusinessUnit).filter_by(user_id=id).delete()
-            for row in form.user_business_units.data:
-                if row.get("is_business_unit_selected"):
-                    new_user_business_unit = UserBusinessUnit(
-                        user_id=id,
-                        business_unit_id=row.get("business_unit_id"),
-                    )
-                    db.session.add(new_user_business_unit)
+            selected_units = {
+                (row["id"], row["business_unit_id"])
+                for row in form.user_business_units.data
+                if row["is_business_unit_selected"]
+            }
+            units_to_delete = current_unit_ids - selected_units
+            units_to_add = selected_units - current_unit_ids
+
+            # Delete unselected business units
+            if units_to_delete:
+                for unit_id, business_unit_id in units_to_delete:
+                    UserBusinessUnit.query.filter_by(
+                        id=unit_id, user_id=user_id
+                    ).delete(synchronize_session=False)
+
+            # Add new selected business units
+            for unit_id, business_unit_id in units_to_add:
+                new_unit = UserBusinessUnit(
+                    user_id=user_id, business_unit_id=business_unit_id
+                )
+                db.session.add(new_unit)
 
             db.session.commit()
-            flash(f"Successfully updated {form.email} user!", "success")
+
+            flash(f"Successfully updated {form.email.data} user!", "success")
 
             return redirect(url_for("dashboard.add_users"))
         else:
@@ -160,41 +179,28 @@ def edit():
             flash(errors, "error")
             return redirect(url_for("dashboard.add_users"))
 
-    return render_template("editModal.html", form=form)
+    return render_template("modal/editModal.html", form=form)
 
 
 @dashboard.route("/delete", methods=["GET", "POST"])
 @login_required
 def delete():
-    form = MasterEmailForm()
+    id = int(request.args.get("id"))
+    data = MasterEmail.query.filter_by(id=id).first()
 
-    if request.method == "GET":
-        id = int(request.args.get("id"))
-        master_email_alias = aliased(MasterEmail)
-        business_unit_alias = aliased(BusinessUnit)
-
-        data = (
-            db.session.query(master_email_alias)  # Start from the MasterEmail model
-            .join(business_unit_alias)
-            .options(joinedload(master_email_alias.master_email_business_unit))
-            .options(joinedload(master_email_alias.master_email_user))
-            .filter(master_email_alias.id == id)  # Explicitly using the MasterEmail ID
-            .order_by(business_unit_alias.business_unit.asc())
-            .first()
-        )
-        form = MasterEmailForm(obj=data)
-
-    if request.method == "POST" and form.validate_on_submit():
-        id = form.id.data
-        data = MasterEmail.query.get(id)
+    if request.method == "POST":
+        master_email = MasterEmail.query.get(id)
 
         if data:
-            db.session.delete(data)
+            db.session.delete(master_email)
             db.session.commit()
             flash("Successfully deleted user!", "success")
+
+            return redirect(url_for("dashboard.add_users"))
+
         else:
             flash("User not found!", "error")
 
-        return redirect(url_for("dashboard.add_users"))
+            return redirect(url_for("dashboard.add_users"))
 
-    return render_template("deleteModal.html", form=form), 200
+    return render_template("modal/deleteModal.html", data=data)

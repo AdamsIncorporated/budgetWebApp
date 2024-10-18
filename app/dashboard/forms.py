@@ -15,12 +15,12 @@ from repositories.models import MasterEmail
 
 class UserBusinessUnit(FlaskForm):
     id = HiddenField()
-    user_id = HiddenField()
     is_business_unit_selected = BooleanField(default=False)
     business_unit = StringField()
     business_unit_id = StringField()
 
 class UserBusinessUnits(FlaskForm):
+    user_id = HiddenField()
     email = StringField("Email")
     date_created = DateTimeField(
         "Date Created", format="%Y-%m-%d %H:%M:%S", default=db.func.current_timestamp()

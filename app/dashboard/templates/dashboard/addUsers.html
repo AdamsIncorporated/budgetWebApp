@@ -1,0 +1,86 @@
+{% extends "base.html" %} {% block section %}
+<script
+  defer
+  src="{{ url_for('static', filename='js/masterEmailTable.js') }}"
+></script>
+<div class="flex items-start justify-center">
+  <div class="container flex flex-row text-teal-700">
+    <div class="flex-col w-full">
+      <div class="h-64 overflow-auto mx-auto p-6">
+        {% if master_emails %}
+        <table
+          id="masterEmailTable"
+          class="top-0 sticky table table-bordered border-collapse"
+        >
+          <thead>
+            <tr>
+              <th class="p-2 bg-cyan-500 text-white border-x-4 border-white">
+                Email
+              </th>
+              <th class="p-2 bg-cyan-500 text-white border-x-4 border-white">
+                Creator
+              </th>
+              <th class="p-2 bg-cyan-500 text-white border-x-4 border-white">
+                Date Created
+              </th>
+              <th class="p-2 bg-cyan-500 text-white border-x-4 border-white">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for email in master_emails %}
+            <tr class="">
+              <td class="whitespace-nowrap px-2 py-1">{{ email.email }}</td>
+              <td class="whitespace-nowrap px-2 py-1">
+                {{ email.master_email_user.first_name + " " +
+                email.master_email_user.last_name }}
+              </td>
+              <td class="whitespace-nowrap px-2 py-1">
+                {{ email.date_created.strftime('%Y-%m-%d %H:%M:%S') }}
+              </td>
+              <td class="whitespace-nowrap px-2 py-1 flex justify-between">
+                <button
+                  edit
+                  rowId="{{ email.id }}"
+                  class="text-blue-500 hover:text-blue-700 focus:outline-none"
+                  title="Edit"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  delete
+                  rowId="{{ email.id }}"
+                  class="text-red-500 hover:text-red-700 focus:outline-none"
+                  title="Delete"
+                >
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <h1 class="text-6xl">No master emails found. 😔</h1>
+        {% endif %}
+      </div>
+      <div class="container mx-auto p-6">
+        <button
+          id="createButton"
+          type="button"
+          class="my-3 flex items-center bg-teal-500 text-white font-semibold py-2 px-4 rounded hover:bg-teal-600 transition duration-300"
+        >
+          <i class="fas fa-plus mr-2"></i>
+          Create New
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="deleteModalContainer" class="hidden"></div>
+<div id="createModalContainer" class="hidden"></div>
+<div id="editModalContainer" class="hidden"></div>
+
+{% endblock section %}
