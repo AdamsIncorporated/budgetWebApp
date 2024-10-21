@@ -7,6 +7,7 @@ from .forms import MasterEmailForm, UserBusinessUnits
 from flask import jsonify
 from sqlalchemy import text
 from repositories.queries import queries
+from services.current_user_image import image_wrapper
 
 
 dashboard = Blueprint(
@@ -20,12 +21,15 @@ dashboard = Blueprint(
 
 @dashboard.route("/home")
 @login_required
-def home():
-    image_file = None
-    if current_user.image_file:
-        image_file = base64.b64encode(current_user.image_file).decode("utf-8")
+@image_wrapper
+def home(image_file=None):
+    return render_template("homeDashboard.html", image_file=image_file)
 
-    return render_template("dashboardHome.html", image_file=image_file)
+@dashboard.route("/template")
+@login_required
+@image_wrapper
+def template(image_file=None):
+    return render_template("template.html", image_file=image_file)
 
 
 @dashboard.route("/account-actuals-timeline")

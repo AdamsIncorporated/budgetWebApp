@@ -11,7 +11,6 @@ from wtforms.validators import Optional
 from repositories.queries import queries
 from app import db
 from sqlalchemy import text
-from repositories.models import BusinessUnit
 
 def get_fiscal_year_picklist():
         query = queries['fetch_all_fiscal_years']
@@ -37,7 +36,6 @@ class Budget(FlaskForm):
     Actual = StringField(render_kw={'readonly': True})
     Budget = StringField(render_kw={'readonly': True})
     Variance = StringField(render_kw={'readonly': True})
-    Percent = StringField(render_kw={'readonly': True})
     ForecastAmount = StringField(render_kw={'readonly': True})
     ProposedBudget = StringField(render_kw={'masknumber': True})
     BusinessCaseName = StringField()

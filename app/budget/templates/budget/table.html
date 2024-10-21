@@ -1,14 +1,24 @@
 <div class="overflow-auto h-[calc(100vh-8rem)] w-full text-xs">
   <table id="budgetTable" class="border-collapse w-full bg-white">
-    <thead class="text-nowrap focus:outline-none">
-      <tr class="text-stone-50 sticky top-0">
-        <th class="sticky left-0 bg-teal-300 px-2 py-2 whitespace-nowrap">
+    <thead class="text-nowrap focus:outline-none sticky top-0">
+      <tr class="text-stone-50">
+        <th class="bg-teal-700 px-2 py-2 whitespace-nowrap" colspan="5">
+          Historical {{ form.budgets[0].FiscalYear.data[:2] + (form.budgets[0].FiscalYear.data[-2:] | int - 1) | string }}
+
+        </th>
+        <th class="bg-teal-900 px-2 py-2 whitespace-nowrap" colspan="5">
+          Proposed {{ form.budgets[0].FiscalYear.data }}
+        </th>
+      </tr>
+      <tr class="text-stone-50">
+        <th class="sticky left-0 top-0 bg-teal-300 px-2 py-2 whitespace-nowrap">
           Account
         </th>
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Actual</th>
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Budget</th>
-        <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Variance</th>
-        <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Percent</th>
+        <th variance class="bg-teal-400 px-2 py-2 whitespace-nowrap">
+          Variance
+        </th>
         <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
           Forecasted Amount
         </th>
@@ -36,10 +46,12 @@
           not (field.type in ['HiddenField', 'CSRFTokenField']) %} {% if
           'Account' in field.name %}
           <td
-            class="z-10 sticky top-[calc(2.25rem)] left-0 bg-inherit px-2 py-2 transition-colors text-nowrap"
+            class="z-10 sticky top-[calc(4.08rem)] left-0 bg-inherit px-2 py-2 transition-colors text-nowrap"
           >
-          {{ budget_form.AccountNo.data }} - {{ field.data }}
-          <span class="absolute right-0 top-0 h-full border-r-4 border-teal-300"></span>
+            {{ budget_form.AccountNo.data }} - {{ field.data }}
+            <span
+              class="absolute right-0 top-0 h-full border-r-4 border-teal-300"
+            ></span>
           </td>
           {% else %}
           <td class="px-2 py-2 transition-colors">

@@ -8,12 +8,8 @@
 >
   <div class="container mx-auto flex justify-between">
     <div class="flex-col shadow-lg rounded-md p-2">
-      <h1 class="text-2xl font-bold items-start mb-4">
-        Budget App
-      </h1>
-      <ul
-        class="flex items-end space-x-6 w-fit"
-      >
+      <h1 class="text-2xl font-bold items-start mb-4">Budget App</h1>
+      <ul class="flex items-end space-x-6 w-fit">
         <li
           class="transition-transform duration-300 transform hover:translate-y-1"
         >
@@ -43,6 +39,17 @@
             ><i class="fas fa-user-circle"></i> Account</a
           >
         </li>
+        <div>
+          {% if current_user.is_root_user %}
+          <li
+            class="transition-transform duration-300 transform hover:translate-y-1"
+          >
+            <a href="{{ url_for('dashboard.home') }}" class="hover:underline"
+              ><i class="fas fa-chart-bar"></i> Dashboard</a
+            >
+          </li>
+          {% endif %}
+        </div>
         {% endif %}
       </ul>
     </div>
@@ -92,7 +99,9 @@
 <!-- Main Section -->
 <main class="mt-20 container mx-auto py-16 text-center">
   {% if current_user.is_authenticated %}
-  <div class="w-1/4 flex flex-col justify-center items-center mx-auto gap-3 border-2 border-stone-50 rounded-md p-4 shadow-md">
+  <div
+    class="w-1/4 flex flex-col justify-center items-center mx-auto gap-3 border-2 border-stone-50 rounded-md p-4 shadow-md"
+  >
     <label for="businessUnit">Department:</label>
     <select
       id="businessUnit"

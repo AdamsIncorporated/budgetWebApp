@@ -1,6 +1,6 @@
 // Column highlighting event listener
 document.addEventListener("DOMContentLoaded", () => {
-    
+
     const headers = document.querySelectorAll("thead th");
 
     headers.forEach((header, index) => {
@@ -25,33 +25,28 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Function to determine color based on percentage
-    function getColorForPercent(percent) {
-        const minValue = -100;
-        const maxValue = 100;
-
-        // Normalize percent value between 0 and 1
-        const normalizedValue = (percent - minValue) / (maxValue - minValue);
-
-        // Map normalized value to a color from red (low) to green (high)
-        const red = Math.round(255 * (1 - normalizedValue));
-        const green = Math.round(255 * normalizedValue);
-
-        return `rgb(${red}, ${green}, 0)`;
+    function getColorForvariance(variance) {
+        // Check if the value is negative or positive
+        if (variance < 0) {
+            return '#be123c'; // Red color for negative values
+        } else {
+            return '#047857'; // Green color for positive or zero values
+        }
     }
 
-    // Find all input fields whose ID contains "Percent"
-    const percentFields = document.querySelectorAll('input[id*="Percent"]');
+    // Find all input fields whose ID contains "variance"
+    const varianceFields = document.querySelectorAll('input[id*="Variance"]');
 
-    percentFields.forEach(function (field) {
-        const percentValue = parseFloat(field.value); // Assuming the value is a number
+    varianceFields.forEach(function (field) {
+        const varianceValue = parseFloat(field.value); // Assuming the value is a number
 
-        if (!isNaN(percentValue)) {
-            const fontColor = getColorForPercent(percentValue);
+        if (!isNaN(varianceValue)) {
+            const fontColor = getColorForvariance(varianceValue);
             field.style.color = fontColor;
-            field.style.fontStyle = 'italic';
+            field.style.fontStyle = 'italic'; // Optional styling for italic text
         }
     });
+
 
     // add event listner for query button
     document.getElementById('queryBtn').addEventListener('click', () => {

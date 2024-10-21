@@ -5,6 +5,7 @@ from repositories.queries import queries
 from app import db
 from sqlalchemy import text
 from flask_login import login_required, current_user
+import base64
 
 budget = Blueprint(
     "budget",
@@ -39,6 +40,10 @@ def home(fiscal_year: int, business_unit_id: str):
         ):  # the wrong business unit has been assigned for user
             return redirect(url_for("auth.not_allowed"))
 
+    # load user picture
+    image_file = None
+    image_file = base64.b64encode(current_user.image_file).decode("utf-8")
+    
     form = Budgets()
     current_fiscal_year = f"FY{str(fiscal_year)[-2:]}"
     proposed_fiscal_year = f"FY{str(fiscal_year + 1)[-2:]}"
@@ -95,4 +100,4 @@ def home(fiscal_year: int, business_unit_id: str):
         else:
             flash("You have form errors!", "error")
 
-    return render_template("home.html", form=form)
+    return render_template("home.html", form=form, image_file=image_file)
