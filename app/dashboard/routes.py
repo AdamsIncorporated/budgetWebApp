@@ -1,13 +1,17 @@
 from flask import Blueprint, render_template, redirect, flash, url_for, request
 from flask_login import login_required, current_user
 import base64
+from io import BytesIO
 from app import db
 from repositories.models import MasterEmail, BusinessUnit, UserBusinessUnit, User
-from .forms import MasterEmailForm, UserBusinessUnits
-from flask import jsonify
+from .forms import MasterEmailForm, UserBusinessUnits, MultiviewTemplate
+from flask import jsonify, current_app, send_file
 from sqlalchemy import text
 from repositories.queries import queries
 from services.current_user_image import image_wrapper
+from services.get_current_fiscal_year import get_fiscal_year
+from openpyxl import load_workbook
+import os
 
 
 dashboard = Blueprint(
@@ -25,11 +29,72 @@ dashboard = Blueprint(
 def home(image_file=None):
     return render_template("homeDashboard.html", image_file=image_file)
 
-@dashboard.route("/template")
+
+@dashboard.route("/download-template/<string:fiscal_year>")
+@login_required
+def download_template(fiscal_year):
+    download_folder = os.path.join(current_app.root_path, "dashboard\download")
+
+    # Ensure the download folder exists
+    if not os.path.exists(download_folder):
+        raise FileNotFoundError(f"The directory '{download_folder}' does not exist.")
+
+    # Define the Excel file path
+    excel_file_path = os.path.join(download_folder, "template.xlsx")
+    workbook = load_workbook(excel_file_path)
+
+    # Get the active sheet
+    sheet = workbook.active
+    sheet['B2'] = fiscal_year
+
+    # get the data from the server
+    query = queries["multiview_download"]
+    data = db.session.execute(text(query), {"proposed_fy": fiscal_year}).all()
+
+    for row_idx, row in enumerate(data, start=9):
+        for col_idx, value in enumerate(row, start=1):
+            sheet.cell(row=row_idx, column=col_idx, value=value)
+
+    # Save the workbook
+    output = BytesIO()
+    workbook.save(output)
+    output.seek(0)
+
+    # Optional: Return the file for download as a response
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name="template.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
+@dashboard.route("/template", methods=["GET", "POST"])
 @login_required
 @image_wrapper
 def template(image_file=None):
-    return render_template("template.html", image_file=image_file)
+    form = MultiviewTemplate()
+    current_fiscal_year = get_fiscal_year()
+
+    if request.method == "GET":
+        query = queries["multiview_download"]
+        form.fiscal_year.data = current_fiscal_year
+        results = db.session.execute(
+            text(query), {"proposed_fy": current_fiscal_year}
+        ).all()
+
+    if request.method == "POST":
+        if form.validate_on_submit():
+            new_fiscal_year = form.fiscal_year.data
+            query = queries["multiview_download"]
+            results = db.session.execute(
+                text(query), {"proposed_fy": new_fiscal_year}
+            ).all()
+            form.fiscal_year.data = new_fiscal_year
+
+    return render_template(
+        "template.html", image_file=image_file, form=form, results=results
+    )
 
 
 @dashboard.route("/account-actuals-timeline")
@@ -84,7 +149,7 @@ def create():
             )
             db.session.add(new_email)
             db.session.commit()
-            
+
             # query users to get id
             user_id = User.query.filter_by(email=form.email.data).first_or_404().id
 
