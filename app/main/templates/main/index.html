@@ -91,13 +91,6 @@
 
 <!-- Main Section -->
 <main class="mt-20 container mx-auto py-16 text-center">
-  <h2 class="text-4xl font-bold bg-gradient-to-r from-teal-300 to-cyan-800 bg-clip-text text-transparent">
-    Efficient Budgeting Made Easy
-  </h2>
-  <p class="text-lg text-gray-700 mb-8">
-    Take control of your health expenses with our smart budgeting tools and stay
-    on top of your finances effortlessly.
-  </p>
   {% if current_user.is_authenticated %}
   <div class="w-1/4 flex flex-col justify-center items-center mx-auto gap-3 border-2 border-stone-50 rounded-md p-4 shadow-md">
     <label for="businessUnit">Department:</label>
@@ -140,7 +133,7 @@
     <h1
       class="font-bold text-5xl bg-gradient-to-r from-teal-900 to-cyan-600 bg-clip-text text-transparent"
     >
-      Need and account?
+      Need an Account?
     </h1>
     <a
       href="{{url_for('auth.register')}}"
