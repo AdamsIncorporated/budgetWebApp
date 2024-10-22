@@ -5,7 +5,7 @@ from repositories.queries import queries
 from app import db
 from sqlalchemy import text
 from flask_login import login_required, current_user
-import base64
+from services.current_user_image import image_wrapper
 
 budget = Blueprint(
     "budget",
@@ -24,7 +24,9 @@ def sanitize(value: str, type_func):
     "/budget-entry/<int:fiscal_year>/<string:business_unit_id>", methods=["POST", "GET"]
 )
 @login_required
-def home(fiscal_year: int, business_unit_id: str):
+@image_wrapper
+def home(fiscal_year: int, business_unit_id: str, image_file=None):
+    
     # authenticate if the regular user has access to this page
     if not current_user.is_root_user:  # user is a normal user and not admin
         user_business_unit_ids = UserBusinessUnit.query.filter_by(
@@ -40,10 +42,6 @@ def home(fiscal_year: int, business_unit_id: str):
         ):  # the wrong business unit has been assigned for user
             return redirect(url_for("auth.not_allowed"))
 
-    # load user picture
-    image_file = None
-    image_file = base64.b64encode(current_user.image_file).decode("utf-8")
-    
     form = Budgets()
     current_fiscal_year = f"FY{str(fiscal_year)[-2:]}"
     proposed_fiscal_year = f"FY{str(fiscal_year + 1)[-2:]}"
@@ -51,53 +49,52 @@ def home(fiscal_year: int, business_unit_id: str):
     form.fiscal_year_picklist.default = proposed_fiscal_year
 
     if request.method == "GET":
-        query = queries["budget"](
-            proposed_fiscal_year, current_fiscal_year, business_unit_id
+        data = queries["budget_entry_view"](
+            current_fiscal_year, proposed_fiscal_year, business_unit_id
         )
-        results = [row._mapping for row in db.session.execute(text(query)).fetchall()]
-        form.process(data={"budgets": results})
+        form.process(data={"budgets": data})
 
-    if request.method == "POST":
-        if form.validate_on_submit():
-            for budget in form.budgets:
-                budget_data = {
-                    "fiscal_year": sanitize(budget.FiscalYear.data, str),
-                    "business_unit_id": sanitize(budget.BusinessUnitId.data, str),
-                    "account_no": sanitize(budget.AccountNo.data, str),
-                    "proposed_budget": sanitize(budget.ProposedBudget.data, float),
-                    "business_case_name": sanitize(budget.BusinessCaseName.data, str),
-                    "business_case_amount": sanitize(
-                        budget.BusinessCaseAmount.data, float
-                    ),
-                    "comments": sanitize(budget.Comments.data, str),
-                    "total_budget": sanitize(budget.TotalBudget.data, float),
-                }
+    # if request.method == "POST":
+    #     if form.validate_on_submit():
+    #         for budget in form.budgets:
+    #             budget_data = {
+    #                 "fiscal_year": sanitize(budget.FiscalYear.data, str),
+    #                 "business_unit_id": sanitize(budget.BusinessUnitId.data, str),
+    #                 "account_no": sanitize(budget.AccountNo.data, str),
+    #                 "proposed_budget": sanitize(budget.ProposedBudget.data, float),
+    #                 "business_case_name": sanitize(budget.BusinessCaseName.data, str),
+    #                 "business_case_amount": sanitize(
+    #                     budget.BusinessCaseAmount.data, float
+    #                 ),
+    #                 "comments": sanitize(budget.Comments.data, str),
+    #                 "total_budget": sanitize(budget.TotalBudget.data, float),
+    #             }
 
-                budget_id = sanitize(budget.Id.data, int)
-                row = (
-                    ProposedBudget.query.get(budget_id)
-                    if budget_id
-                    else ProposedBudget()
-                )
+    #             budget_id = sanitize(budget.ProposedBudgetId.data, int)
+    #             row = (
+    #                 ProposedBudget.query.get(budget_id)
+    #                 if budget_id
+    #                 else ProposedBudget()
+    #             )
 
-                for key, value in budget_data.items():
-                    setattr(row, key, value)
+    #             for key, value in budget_data.items():
+    #                 setattr(row, key, value)
 
-                if not budget_id:
-                    db.session.add(row)
+    #             if not budget_id:
+    #                 db.session.add(row)
 
-            db.session.commit()
+    #         db.session.commit()
 
-            # Reload data after submission
-            query = queries["budget"](
-                proposed_fiscal_year, current_fiscal_year, business_unit_id
-            )
-            results = [
-                row._mapping for row in db.session.execute(text(query)).fetchall()
-            ]
-            form.process(data={"budgets": results})
-            flash("Form submitted!", "success")
-        else:
-            flash("You have form errors!", "error")
+    #         # Reload data after submission
+    #         query = queries["budget"](
+    #             proposed_fiscal_year, current_fiscal_year, business_unit_id
+    #         )
+    #         results = [
+    #             row._mapping for row in db.session.execute(text(query)).fetchall()
+    #         ]
+    #         form.process(data={"budgets": results})
+    #         flash("Form submitted!", "success")
+    #     else:
+    #         flash("You have form errors!", "error")
 
     return render_template("home.html", form=form, image_file=image_file)

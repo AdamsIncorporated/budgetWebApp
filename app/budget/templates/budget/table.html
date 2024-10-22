@@ -3,8 +3,8 @@
     <thead class="text-nowrap focus:outline-none sticky top-0">
       <tr class="text-stone-50">
         <th class="bg-teal-700 px-2 py-2 whitespace-nowrap" colspan="5">
-          Historical {{ form.budgets[0].FiscalYear.data[:2] + (form.budgets[0].FiscalYear.data[-2:] | int - 1) | string }}
-
+          Historical {{ form.budgets[0].FiscalYear.data[:2] +
+          (form.budgets[0].FiscalYear.data[-2:] | int - 1) | string }}
         </th>
         <th class="bg-teal-900 px-2 py-2 whitespace-nowrap" colspan="5">
           Proposed {{ form.budgets[0].FiscalYear.data }}
@@ -42,23 +42,38 @@
       <tbody class="text-gray-600">
         {% for budget_form in form.budgets %}
         <tr class="even:bg-gray-50 odd:bg-white">
-          {{ budget_form.hidden_tag() }} {% for field in budget_form %} {% if
-          not (field.type in ['HiddenField', 'CSRFTokenField']) %} {% if
-          'Account' in field.name %}
+          {{budget_form.hidden_tag()}}
           <td
             class="z-10 sticky top-[calc(4.08rem)] left-0 bg-inherit px-2 py-2 transition-colors text-nowrap"
           >
-            {{ budget_form.AccountNo.data }} - {{ field.data }}
-            <span
-              class="absolute right-0 top-0 h-full border-r-4 border-teal-300"
-            ></span>
+            {{budget_form.AccountNo.data}} - {{budget_form.Account.data}} {% if
+            budget_form.RAD.data != "" %} - {{budget_form.RAD.data}} {% endif %}
           </td>
-          {% else %}
-          <td class="px-2 py-2 transition-colors">
-            {{ field(class="overflow-none bg-inherit whitespace-nowrap
-            focus:outline-none focus:ring-0 focus:border-transparent") }}
+          <td class="p-2">{{budget_form.ActualsTotal.data}}</td>
+          <td class="p-2">{{budget_form.BudgetsTotal.data}}</td>
+          <td class="p-2" variance>{{budget_form.Variance.data}}</td>
+          <td class="p-2">{{budget_form.ForecastAmount.data}}</td>
+          <td proposedBudget class="p-2">
+            {{budget_form.ProposedBudget(class="overflow-none bg-inherit
+            whitespace-nowrap focus:outline-none focus:ring-0
+            focus:border-transparent")}}
           </td>
-          {% endif %} {% endif %} {% endfor %}
+          <td class="p-2">
+            {{budget_form.BusinessCaseName(class="overflow-none bg-inherit
+            whitespace-nowrap focus:outline-none focus:ring-0
+            focus:border-transparent")}}
+          </td>
+          <td businessCase class="p-2">
+            {{budget_form.BusinessCaseAmount(class="overflow-none bg-inherit
+            whitespace-nowrap focus:outline-none focus:ring-0
+            focus:border-transparent")}}
+          </td>
+          <td class="p-2">
+            {{budget_form.Comments(class="overflow-none bg-inherit
+            whitespace-nowrap focus:outline-none focus:ring-0
+            focus:border-transparent")}}
+          </td>
+          <td total class="p-2">{{budget_form.TotalBudget.data}}</td>
         </tr>
         {% endfor %}
       </tbody>
