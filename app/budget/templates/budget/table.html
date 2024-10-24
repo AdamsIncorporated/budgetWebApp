@@ -1,3 +1,103 @@
+<div>
+  {% macro create_cells(form, is_subtotal=False) %}
+
+  <td
+    class="fixed top-0 z-10 sticky left-0 bg-white px-2 py-2 text-nowrap"
+  >
+    {% if is_subtotal %}
+      <i class="mr-3 fas fa-plus-square"></i>{{form.AccountNo.data}} 
+    {% elif form.RAD.data %}
+          <div class="ml-5">{{form.AccountNo.data}} - {{form.Account.data}} - {{form.RAD.data}}</div> 
+    {% else %}
+      {{form.AccountNo.data}} - {{form.Account.data}}
+    {% endif %}
+    <span class="absolute right-0 top-0 h-full border-r-4 border-teal-300"></span>
+  </td>
+
+  {% if is_subtotal%}
+    <td class="p-2">{{form.ActualsTotal.data}}</td>
+    <td class="p-2">{{form.BudgetsTotal.data}}</td>
+    <td 
+      class="p-2 italic {% if '-' in form.Variance.data %}text-rose-400{% else %}text-emerald-400{% endif %}"
+    >
+      {{form.Variance.data}}
+    </td>
+    <td class="p-2">{{form.ForecastAmount.data}}</td>
+    <td proposedBudget class="p-2 text-right">{{form.ProposedBudget.data}}</td>
+    <td class="p-2 text-right">{{form.BusinessCaseName.data}}</td>
+    <td businessCase class="p-2 text-right">{{form.BusinessCaseAmount.data}}</td>
+    <td class="p-2 text-right">{{form.Comments.data}}</td>
+    <td total class="p-2 text-right">{{form.TotalBudget.data}}</td>
+  {% else %}
+    {{form.hidden_tag()}}
+    <td class="p-2">{{form.ActualsTotal.data}}</td>
+    <td class="p-2">{{form.BudgetsTotal.data}}</td>
+    <td 
+      class="p-2 italic {% if '-' in form.Variance.data %}text-rose-400{% else %}text-emerald-400{% endif %}"
+    >
+      {{form.Variance.data}}
+    </td>
+    <td class="p-2">{{form.ForecastAmount.data}}</td>
+    <td proposedBudget class="p-2">
+      {{form.ProposedBudget(class="overflow-none bg-inherit whitespace-nowrap
+      focus:outline-none focus:ring-0 focus:border-transparent")}}
+    </td>
+    <td class="p-2">
+      {{form.BusinessCaseName(class="overflow-none bg-inherit whitespace-nowrap
+      focus:outline-none focus:ring-0 focus:border-transparent")}}
+    </td>
+    <td businessCase class="p-2">
+      {{form.BusinessCaseAmount(class="overflow-none bg-inherit whitespace-nowrap
+      focus:outline-none focus:ring-0 focus:border-transparent")}}
+    </td>
+    <td class="p-2">
+      {{form.Comments(class="overflow-none bg-inherit whitespace-nowrap
+      focus:outline-none focus:ring-0 focus:border-transparent")}}
+    </td>
+    <td total class="p-2  text-right">{{form.TotalBudget.data}}</td>
+  {% endif %}
+  
+
+  {% endmacro %}
+</div>
+
+<div>
+  {% macro generate_budget_rows(form) %} 
+    
+    {% set sub_groups = [] %}
+
+    {% for sub_form in form.budgets %} 
+      {{ form.hidden_tag() }}
+      
+      {% if sub_form.IsSubTotal.data == 1 %}
+        {% set account_group = sub_form.AccountNo.data.replace('SubTotal', '').strip()%}
+        {% set _ = sub_groups.append(account_group) %}
+        
+        <tr
+          class="font-bold cursor-pointer border-b-2 border-stone-200 hover:bg-cyan-200 hover:text-cyan-500 hover:border-cyan-200"
+          onclick="toggleRow('{{ account_group }}')"
+        >
+          {{ create_cells(sub_form, is_subtotal=True) }}
+        </tr>
+
+      {% elif sub_form.AccountNo.data in sub_groups %}
+        <tr 
+          class="hidden bg-white {{sub_form.AccountNo.data}}-hidden-row">
+          {{ create_cells(sub_form) }}
+        </tr>
+
+      {% else %}
+        {% set _ = sub_groups.clear() %}
+        
+        <tr class="border-b-2 border-stone-100 bg-white">
+          {{ create_cells(sub_form) }}
+        </tr>
+
+      {% endif %} 
+    {% endfor %} 
+  {% endmacro %}
+</div>
+
 <div class="overflow-auto h-[calc(100vh-8rem)] w-full text-xs">
   <table id="budgetTable" class="border-collapse w-full bg-white">
     <thead class="text-nowrap focus:outline-none sticky top-0">
@@ -19,20 +119,20 @@
         <th variance class="bg-teal-400 px-2 py-2 whitespace-nowrap">
           Variance
         </th>
-        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
+        <th class="bg-teal-400 border px-2 py-2 whitespace-nowrap">
           Forecasted Amount
         </th>
-        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">
+        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
           Proposed Budget
         </th>
-        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">
+        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
           Business Case Name
         </th>
-        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">
+        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
           Business Case Amount
         </th>
-        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">Comments</th>
-        <th class="bg-teal-800 border px-2 py-2 whitespace-nowrap">
+        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">Comments</th>
+        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
           Total FY Budget
         </th>
       </tr>
@@ -40,42 +140,7 @@
     <form id="budgetsForm" action="{{ request.path }}" , method="POST">
       {{ form.hidden_tag() }}
       <tbody class="text-gray-600">
-        {% for budget_form in form.budgets %}
-        <tr class="even:bg-gray-50 odd:bg-white">
-          {{budget_form.hidden_tag()}}
-          <td
-            class="z-10 sticky top-[calc(4.08rem)] left-0 bg-inherit px-2 py-2 transition-colors text-nowrap"
-          >
-            {{budget_form.AccountNo.data}} - {{budget_form.Account.data}} {% if
-            budget_form.RAD.data != "" %} - {{budget_form.RAD.data}} {% endif %}
-          </td>
-          <td class="p-2">{{budget_form.ActualsTotal.data}}</td>
-          <td class="p-2">{{budget_form.BudgetsTotal.data}}</td>
-          <td class="p-2" variance>{{budget_form.Variance.data}}</td>
-          <td class="p-2">{{budget_form.ForecastAmount.data}}</td>
-          <td proposedBudget class="p-2">
-            {{budget_form.ProposedBudget(class="overflow-none bg-inherit
-            whitespace-nowrap focus:outline-none focus:ring-0
-            focus:border-transparent")}}
-          </td>
-          <td class="p-2">
-            {{budget_form.BusinessCaseName(class="overflow-none bg-inherit
-            whitespace-nowrap focus:outline-none focus:ring-0
-            focus:border-transparent")}}
-          </td>
-          <td businessCase class="p-2">
-            {{budget_form.BusinessCaseAmount(class="overflow-none bg-inherit
-            whitespace-nowrap focus:outline-none focus:ring-0
-            focus:border-transparent")}}
-          </td>
-          <td class="p-2">
-            {{budget_form.Comments(class="overflow-none bg-inherit
-            whitespace-nowrap focus:outline-none focus:ring-0
-            focus:border-transparent")}}
-          </td>
-          <td total class="p-2">{{budget_form.TotalBudget.data}}</td>
-        </tr>
-        {% endfor %}
+        {{generate_budget_rows(form)}}
       </tbody>
     </form>
   </table>

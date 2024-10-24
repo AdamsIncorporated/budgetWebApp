@@ -6,295 +6,290 @@ import os
 def get_budget_entry_view(
     fiscal_year: str, proposed_fiscal_year: str, business_unit_id: str
 ) -> dict | None:
-    def get_sub_totaled_dataframe(
-        table_name: str, column_name: str, fiscal_year: str, business_unit_id: str
-    ) -> pd.DataFrame() | None:
-        db_uri = os.getenv('DB_PATH')
-        conn = sqlite3.connect(db_uri)
+    # establish initial connection which is not concurrent with db app manager
+    db_uri = os.getenv("DB_PATH")
 
-        query = """
-            SELECT * FROM BudgetEntryAdminView WHERE IsActiveTemplate = 1 
-        """
-        ba = pd.read_sql(query, conn)
+    with sqlite3.connect(db_uri) as conn:
+        # Enable foreign key constraint
+        conn.execute("PRAGMA foreign_keys = ON;")
 
-        # first get the accounts
-        query = f"""
-            SELECT * 
-            FROM {table_name} 
-        """
-        accounts = pd.read_sql(
-            query,
-            conn,
-            dtype={"AccountNo": str, "FiscalYear": str, "BusinessUnitId": str},
+        def get_sub_totaled_dataframe(**kwargs) -> pd.DataFrame() | None:
+            table_name = kwargs["table_name"]
+            fiscal_year = kwargs["fiscal_year"]
+            column_name = kwargs["column_name"]
+            business_unit_id = kwargs["business_unit_id"]
+
+            query = """
+                SELECT * FROM BudgetEntryAdminView WHERE IsActiveTemplate = 1 
+            """
+            ba = pd.read_sql(query, conn)
+
+            # first get the accounts
+            query = f"""
+                SELECT * 
+                FROM {table_name} 
+            """
+            accounts = pd.read_sql(
+                query,
+                conn,
+                dtype={"AccountNo": str, "FiscalYear": str, "BusinessUnitId": str},
+            )
+            accounts["AccountNo"] = accounts["AccountNo"].fillna("").astype(str)
+            accounts["FiscalYear"] = accounts["FiscalYear"].fillna("").astype(str)
+            accounts["BusinessUnitId"] = (
+                accounts["BusinessUnitId"].fillna("").astype(str)
+            )
+            accounts["BusinessUnitId"] = accounts["BusinessUnitId"].str.replace(
+                ".0", ""
+            )
+            accounts = accounts[
+                (accounts["FiscalYear"] == fiscal_year)
+                & (accounts["BusinessUnitId"] == business_unit_id)
+            ]
+            account_group = (
+                accounts.groupby(["AccountNo"])["Amount"].sum().reset_index()
+            )
+            accounts = pd.merge(ba, account_group, on=["AccountNo"], how="left")
+            accounts = accounts[~pd.notna(accounts["RAD"])]
+
+            # next get the rads
+            query = f"""
+                SELECT * 
+                FROM {table_name} master 
+                JOIN {table_name}_Rad master_rad ON master_rad.{table_name}Id = master.Id
+                JOIN RAD r ON r.RadId = master_rad.RADID
+            """
+            rads = pd.read_sql(query, conn)
+            rads = rads[
+                (rads["FiscalYear"] == fiscal_year)
+                & (rads["BusinessUnitId"] == business_unit_id)
+            ]
+            rads_group = rads.groupby(["RAD"])["Amount"].sum().reset_index()
+            rads = pd.merge(ba, rads_group, on="RAD", how="left")
+            rads = rads.dropna(subset="RAD")
+
+            # union together
+            master = pd.concat([rads, accounts])
+            master.rename(columns={"Amount": f"{column_name}Total"}, inplace=True)
+
+            return master
+
+        # get the two tables actuals and budget
+        kwargs = {
+            "table_name": "Budget",
+            "column_name": "Budgets",
+            "fiscal_year": fiscal_year,
+            "business_unit_id": business_unit_id,
+        }
+        budgets = get_sub_totaled_dataframe(**kwargs)
+
+        kwargs = {
+            "table_name": "JournalEntry",
+            "column_name": "Actuals",
+            "fiscal_year": fiscal_year,
+            "business_unit_id": business_unit_id,
+        }
+        actuals = get_sub_totaled_dataframe(**kwargs)
+
+        # combine actuals and budget
+        merge_cols = ["DisplayOrder", "AccountNo", "Account", "RAD"]
+        actual_to_budget = pd.merge(actuals, budgets, on=merge_cols, how="left")
+        actual_to_budget["Variance"] = (
+            actual_to_budget["BudgetsTotal"] - actual_to_budget["ActualsTotal"]
         )
-        accounts["AccountNo"] = accounts["AccountNo"].fillna("").astype(str)
-        accounts["FiscalYear"] = accounts["FiscalYear"].fillna("").astype(str)
-        accounts["BusinessUnitId"] = accounts["BusinessUnitId"].fillna("").astype(str)
-        accounts["BusinessUnitId"] = accounts["BusinessUnitId"].str.replace(".0", "")
-        accounts = accounts[
-            (accounts["FiscalYear"] == fiscal_year)
-            & (accounts["BusinessUnitId"] == business_unit_id)
-        ]
-        account_group = accounts.groupby(["AccountNo"])["Amount"].sum().reset_index()
-        accounts = pd.merge(ba, account_group, on="AccountNo", how="left")
-        accounts = accounts[~pd.notna(accounts["RAD"])]
 
-        # next get the rads
-        query = f"""
-            SELECT * 
-            FROM {table_name} master 
-            JOIN {table_name}_Rad master_rad ON master_rad.{table_name}Id = master.Id
-            JOIN RAD r ON r.RadId = master_rad.RADID
-        """
-        rads = pd.read_sql(query, conn)
-        rads = rads[
-            (rads["FiscalYear"] == fiscal_year)
-            & (rads["BusinessUnitId"] == business_unit_id)
-        ]
-        rads_group = rads.groupby(["RAD"])["Amount"].sum().reset_index()
-        rads = pd.merge(ba, rads_group, on="RAD", how="left")
-        rads = rads.dropna(subset="RAD")
+        query = f"SELECT * FROM ProposedBudget WHERE FiscalYear = '{proposed_fiscal_year}' AND BusinessUnitId = '{business_unit_id}';"
+
+        # get proposed budget data
+        proposed_budget = pd.read_sql(query, conn)
+        proposed_budget.rename(columns={"Id": "ProposedBudgetId"}, inplace=True)
+
+        # get forecast data
+        budget_admin_view = pd.read_sql(
+            "SELECT * FROM BudgetEntryAdminView WHERE IsActiveTemplate = 1", conn
+        )
+        forecast = budget_admin_view[
+            ["AccountNo", "RAD", "ForecastMultiplier", "ForecastComments"]
+        ].copy()
+
+        # final merge operation for forecast, actuals and budget
+        pre_merge = pd.merge(
+            actual_to_budget,
+            proposed_budget,
+            on=["AccountNo", "RAD"],
+            how="left",
+        )
+        merge = pd.merge(pre_merge, forecast, on=["AccountNo", "RAD"], how="left")
 
         # Filter to get only AccountNo with two or more entries
         subtotal = (
-            rads.groupby(["AccountNo", "DisplayOrder"])["Amount"].sum().reset_index()
+            merge.groupby(["AccountNo", "DisplayOrder"])[
+                [
+                    "ActualsTotal",
+                    "BudgetsTotal",
+                    "ProposedBudget",
+                    "BusinessCaseAmount",
+                    "TotalBudget",
+                ]
+            ]
+            .sum()
+            .reset_index()
         )
-        account_counts = rads["AccountNo"].value_counts()
+
+        account_counts = merge["AccountNo"].value_counts()
         valid_accounts = account_counts[account_counts >= 2].index
 
         # Get subtotal for valid rows that have a two or more RADs
         subtotal_filtered = subtotal[subtotal["AccountNo"].isin(valid_accounts)]
-        max_display_order = (
-            subtotal.groupby("AccountNo")["DisplayOrder"].max().reset_index()
+        min_display_order = (
+            subtotal.groupby("AccountNo")["DisplayOrder"].min().reset_index()
         )
         subtotal_filtered = subtotal_filtered.merge(
-            max_display_order, on="AccountNo", how="left", suffixes=("", "_max")
+            min_display_order, on="AccountNo", how="left", suffixes=("", "_min")
         )
         subtotal_filtered = subtotal_filtered.reset_index()
         subtotal_filtered["AccountNo"] = (
             subtotal_filtered["AccountNo"].astype(str) + " SubTotal"
         )
-        subtotal_filtered = subtotal_filtered.groupby(
-            ["AccountNo", "DisplayOrder_max"]
-        )["Amount"].sum()
-        subtotal_filtered = subtotal_filtered.reset_index()
+        subtotal_filtered = (
+            subtotal_filtered.groupby(["AccountNo", "DisplayOrder_min"])[
+                [
+                    "ActualsTotal",
+                    "BudgetsTotal",
+                    "ProposedBudget",
+                    "BusinessCaseAmount",
+                    "TotalBudget",
+                ]
+            ]
+            .sum()
+            .reset_index()
+        )
         subtotal_filtered["IsSubTotal"] = 1
-
-        # set display order of subtotal row
-        subtotal_filtered["DisplayOrder_max"] = (
-            subtotal_filtered["DisplayOrder_max"] + 0.1
+        subtotal_filtered["DisplayOrder_min"] = (
+            subtotal_filtered["DisplayOrder_min"] - 0.1
         )
         subtotal_filtered.rename(
-            columns={"DisplayOrder_max": "DisplayOrder"}, inplace=True
+            columns={"DisplayOrder_min": "DisplayOrder"}, inplace=True
         )
 
-        # combine rad and subtotal dataframe
-        sub_total_rads = pd.concat([subtotal_filtered, rads])
-        sub_total_rads = sub_total_rads.sort_values(by="DisplayOrder")
-
-        # finally combine with the accounts dataframe
-        master = pd.concat([sub_total_rads, accounts])
+        # union merge and subtotal dataframe and create meta data columns
+        master = pd.concat([subtotal_filtered, merge])
         master = master.sort_values(by="DisplayOrder")
-        master = master[
-            ["IsSubTotal", "DisplayOrder", "AccountNo", "Account", "RAD", "Amount"]
-        ]
-        master["IsSubTotal"] = master["IsSubTotal"].fillna(0)
-        master.rename(columns={"Amount": f"{column_name}Total"}, inplace=True)
-
-        return master
-
-    kwargs = {
-        "table_name": "Budget",
-        "column_name": "Budgets",
-        "fiscal_year": fiscal_year,
-        "business_unit_id": business_unit_id,
-    }
-    budgets = get_sub_totaled_dataframe(**kwargs)
-
-    kwargs = {
-        "table_name": "JournalEntry",
-        "column_name": "Actuals",
-        "fiscal_year": fiscal_year,
-        "business_unit_id": business_unit_id,
-    }
-    actuals = get_sub_totaled_dataframe(**kwargs)
-
-    # combine actuals and budget
-    actual_to_budget = pd.merge(actuals, budgets, on="DisplayOrder", how="left")
-    actual_to_budget = actual_to_budget[
-        [
-            "IsSubTotal_x",
-            "DisplayOrder",
-            "AccountNo_x",
-            "Account_x",
-            "RAD_x",
+        master["ForecastAmount"] = master["ActualsTotal"] * master["ForecastMultiplier"]
+        float_cols = [
             "ActualsTotal",
             "BudgetsTotal",
+            "Variance",
+            "ForecastAmount",
+            "ProposedBudget",
+            "BusinessCaseAmount",
         ]
-    ]
-    actual_to_budget.columns = actual_to_budget.columns.str.replace(
-        "_x", "", regex=False
-    )
-    actual_to_budget["Variance"] = (
-        actual_to_budget["BudgetsTotal"] - actual_to_budget["ActualsTotal"]
-    )
+        master[float_cols] = master[float_cols].fillna(0).astype(float)
+        master["IsSubTotal"] = master["IsSubTotal"].fillna(0).astype(int)
+        master["TotalBudget"] = master["BusinessCaseAmount"] + master["ProposedBudget"]
+        master["FiscalYear"] = proposed_fiscal_year
+        master["BusinessUnitId"] = business_unit_id
 
-    query = f"SELECT * FROM ProposedBudget WHERE FiscalYear = '{proposed_fiscal_year}' AND BusinessUnitId = '{business_unit_id}';"
-    
-    # get proposed budget data
-    db_uri = os.getenv('DB_PATH')
-    conn = sqlite3.connect(db_uri)
-    proposed_budget = pd.read_sql(query, conn)
-    proposed_budget.rename(columns={"Id": "ProposedBudgetId"}, inplace=True)
+        # data presentation for frontend
+        cols_to_format = [
+            "ActualsTotal",
+            "BudgetsTotal",
+            "Variance",
+            "ForecastAmount",
+            "ProposedBudget",
+            "BusinessCaseAmount",
+            "TotalBudget",
+        ]
 
-    # combine results into a merge view 
-    budget_admin_view = pd.read_sql(
-        "SELECT * FROM BudgetEntryAdminView WHERE IsActiveTemplate = 1", conn
-    )
-    forecast = budget_admin_view[
-        ["AccountNo", "RAD", "ForecastMultiplier", "ForecastComments"]
-    ].copy()
-    merge = pd.merge(
-        actual_to_budget,
-        proposed_budget,
-        on=["AccountNo", "RAD", "IsSubTotal"],
-        how="left",
-    )
-    merge = pd.merge(merge, forecast, on=["AccountNo", "RAD"], how="left")
-    merge["ForecastAmount"] = merge["ActualsTotal"] * merge["ForecastMultiplier"]
-    merge['FiscalYear'] = proposed_fiscal_year
-    merge['BusinessUnitId'] = business_unit_id
-    
-    def format_number(x):
-        if isinstance(x, (int, float)):  # Check if x is a number
-            return f"{x:,.2f}"  # Format number with commas and two decimals
-        return x
+        def format_number(x):
+            if isinstance(x, (int, float)):
+                return f"{x:,.2f}"
+            return x
 
-    merge = merge.fillna("")
-    merge = merge.applymap(format_number)
-    
-    data = merge.to_dict(orient='records')
-    
-    return data
+        master[cols_to_format] = master[cols_to_format].applymap(format_number)
+
+        cols_to_format = [
+            "BusinessCaseName",
+            "Comments",
+        ]
+        master[cols_to_format] = master[cols_to_format].fillna("")
+
+        cols_to_keep = [
+            "IsSubTotal",
+            "DisplayOrder",
+            "BusinessUnitId",
+            "FiscalYear",
+            "AccountNo",
+            "Account",
+            "RAD",
+            "ActualsTotal",
+            "BudgetsTotal",
+            "Variance",
+            "ForecastAmount",
+            "ProposedBudgetId",
+            "ProposedBudget",
+            "BusinessCaseName",
+            "BusinessCaseAmount",
+            "Comments",
+            "TotalBudget",
+        ]
+
+        master = master[cols_to_keep]
+        master['ProposedBudgetId'].fillna(
+            value=-1,
+            method=None,
+            axis=None,
+            inplace=False,
+            limit=None,
+            downcast=None,
+        )
+
+        data = master.to_dict(orient="records")
+
+        return data
 
 
 queries = {
-    "fetch_all_fiscal_years": "SELECT DISTINCT FiscalYear FROM JournalEntry ORDER BY FiscalYear ASC;",
-    "fetch_all_business_units": "SELECT DISTINCT BusinessUnitId, BusinessUnit FROM BusinessUnit ORDER BY BusinessUnit ASC;",
-    "budget": lambda proposed_fy, fy, business_unit_id: f"""
-        WITH
-            Variables AS (
-                SELECT
-                    '{proposed_fy}' AS ProposedFY,
-                    '{fy}' AS FY,
-                    '{business_unit_id}' AS BusinessUnitId
-            ),
-            ActualData AS (
-                SELECT "AccountNo", SUM("Amount") AS Actual
-                FROM "JournalEntry"
-                WHERE
-                    "BusinessUnitId" = (
-                        SELECT BusinessUnitId
-                        FROM Variables
-                    )
-                    AND "FiscalYear" = (
-                        SELECT FY
-                        FROM Variables
-                    )
-                    AND "Amount" != 0
-                GROUP BY
-                    "AccountNo"
-            ),
-            BudgetData AS (
-                SELECT "AccountNo", SUM("Amount") AS Budget
-                FROM "Budget"
-                WHERE
-                    "BusinessUnitId" = (
-                        SELECT BusinessUnitId
-                        FROM Variables
-                    )
-                    AND "FiscalYear" = (
-                        SELECT FY
-                        FROM Variables
-                    )
-                    AND "Amount" != 0
-                GROUP BY
-                    "AccountNo"
-            ),
-            ProposedData AS (
-                SELECT
-                    "Id",
-                    "AccountNo",
-                    "ProposedBudget",
-                    "BusinessCaseName",
-                    "BusinessCaseAmount",
-                    "TotalBudget",
-                    "Comments"
-                FROM "ProposedBudget"
-                WHERE
-                    "FiscalYear" = (
-                        SELECT ProposedFY
-                        FROM Variables
-                    )
-            ),
-            ForecastData AS (
-                SELECT "ForecastAmount", "AccountNo"
-                FROM "Forecast"
-                WHERE
-                    "BudgetId" = (
-                        SELECT FY
-                        FROM Variables
-                    )
-            )
-        SELECT DISTINCT
-            p."Id",
-            (SELECT ProposedFy FROM Variables) AS "FiscalYear",
-            (SELECT BusinessUnitId FROM Variables) AS "BusinessUnitId",
-            ba."AccountNo",
-            ba."Account",
-            printf(
-                '%,.2f',
-                COALESCE(a.Actual, 0)
-            ) AS Actual,
-            printf(
-                '%,.2f',
-                COALESCE(b.Budget, 0)
-            ) AS Budget,
-            printf(
-                '%,.2f',
-                COALESCE(b.Budget, 0) - COALESCE(a.Actual, 0)
-            ) AS Variance,
-            printf(
-                '%.2f%%',
-                ROUND(
-                    CASE
-                        WHEN COALESCE(a.Actual, 0) = 0 THEN 0
-                        ELSE (
-                            (
-                                COALESCE(b.Budget, 0) - COALESCE(a.Actual, 0)
-                            ) / COALESCE(a.Actual, 0)
-                        )
-                    END * 100,
-                    2
-                )
-            ) AS Percent,
-            f."ForecastAmount",
-            p."ProposedBudget",
-            p."BusinessCaseName",
-            p."BusinessCaseAmount",
-            p."TotalBudget",
-            p."Comments"
-        FROM
-            "Budget_Account" ba
-            LEFT JOIN ActualData a ON ba."AccountNo" = a."AccountNo"
-            LEFT JOIN BudgetData b ON ba."AccountNo" = b."AccountNo"
-            LEFT JOIN ProposedData p ON ba."AccountNo" = p."AccountNo"
-            LEFT JOIN ForecastData f ON ba."AccountNo" = f."AccountNo"
-        WHERE
-            ba."IsActiveTemplate" = 1
-            AND ba."IsTotalAccount" = 0
-        ORDER BY ba."DisplayOrder" ASC;
+    "fetch_all_regular_user_business_unit_ids": lambda user_id: f"""
+        SELECT DISTINCT b.BusinessUnitId, b.BusinessUnit 
+        FROM BusinessUnit b JOIN User_BusinessUnit ub ON ub.BusinessUnitId = b.BusinessUnitId 
+        WHERE ub.UserId = {user_id} ORDER BY b.BusinessUnitId;
     """,
+    "fetch_all_business_unit_ids": """
+        SELECT DISTINCT BusinessUnitId, BusinessUnit 
+        FROM BusinessUnit ORDER BY BusinessUnitId;
+    """,
+    "fetch_all_historical_fiscal_years": "SELECT DISTINCT FiscalYear FROM JournalEntry ORDER BY FiscalYear DESC;",
+    "fetch_all_proposed_fiscal_years": """
+        SELECT DISTINCT 
+            'FY' || (CAST(SUBSTR(FiscalYear, 3) AS INTEGER) + 1) AS FiscalYear
+        FROM 
+            JournalEntry 
+        UNION
+        SELECT DISTINCT FiscalYear
+        FROM "JournalEntry"
+        ORDER BY 
+            FiscalYear DESC 
+    """,
+    "fetch_default_historical_fiscal_year": """
+        SELECT DISTINCT 
+            FiscalYear 
+        FROM 
+            JournalEntry 
+        ORDER BY 
+            FiscalYear DESC 
+        LIMIT 1;
+    """,
+    "fetch_all_default_proposed_fiscal_year": """
+        SELECT DISTINCT 
+            'FY' || (CAST(SUBSTR(FiscalYear, 3) AS INTEGER) + 1) AS FiscalYear
+        FROM 
+            JournalEntry 
+        ORDER BY 
+            FiscalYear DESC 
+        LIMIT 1;
+    """,
+    "fetch_all_business_units": "SELECT DISTINCT BusinessUnitId, BusinessUnit FROM BusinessUnit ORDER BY BusinessUnit ASC;",
     "account_actuals_timeline": """
         SELECT 
             j."AccountNo",

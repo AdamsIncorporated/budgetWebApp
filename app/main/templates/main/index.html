@@ -116,19 +116,6 @@
       {% endfor %}
     </select>
 
-    <label for="fiscalYear">Fiscal Year:</label>
-    <select
-      id="fiscalYear"
-      name="fiscalYear"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-white"
-    >
-      <option value="" disabled selected>--Select Fiscal Year--</option>
-      {% for year in picklist.FISCAL_YEARS %}
-      <option class="hover:bg-teal-100" value="{{ year[0] }}">
-        {{ year[0] }}
-      </option>
-      {% endfor %}
-    </select>
     <button
       type="button"
       class="bg-cyan-500 text-white py-3 px-6 rounded-full shadow-md hover:bg-cyan-600"

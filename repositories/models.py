@@ -6,6 +6,23 @@ from flask_login import UserMixin
 from flask import current_app
 import jwt
 
+class RadType(db.Model):
+    __tablename__ = "RadType"
+
+    id = Column("Id", Integer, primary_key=True, autoincrement=True)
+    rad_type_id = Column("RADTypeId", String, unique=True)
+    rad_type = Column("RADType", String, unique=True)
+
+class Rad(db.Model):
+    __tablename__ = "Rad"
+
+    id = Column("Id", Integer, primary_key=True, autoincrement=True, nullable=False)
+    rad_type_id = Column("RADTypeId", String, ForeignKey("RadType.Id"))
+    rad_id = Column("RADId", String)
+    rad = Column("RAD", String)
+
+    rad_type = relationship("RadType", backref="rads")
+
 
 class Account(db.Model):
     __tablename__ = "Account"
@@ -31,10 +48,6 @@ class Account(db.Model):
     user_created = Column("UserCreated", String)
     date_created = Column("DateCreated", String)
 
-    def __repr__(self):
-        attributes = ", ".join(f"{key}={value}" for key, value in self.__dict__.items())
-        return f"<Account({attributes})>"
-
 
 class ProposedBudget(db.Model):
     __tablename__ = "ProposedBudget"
@@ -45,19 +58,16 @@ class ProposedBudget(db.Model):
         "BusinessUnitId", String, ForeignKey("BusinessUnit.BusinessUnitId")
     )
     account_no = Column("AccountNo", String, ForeignKey("Account.AccountNo"))
+    rad = Column("RAD", String)
     proposed_budget = Column("ProposedBudget", Float)
     business_case_name = Column("BusinessCaseName", String)
     business_case_amount = Column("BusinessCaseAmount", Float)
-    comments = Column("Comments", String)
     total_budget = Column("TotalBudget", Float)
+    comments = Column("Comments", String)
 
     # Relationships
     business_unit = relationship("BusinessUnit", backref="proposed_budgets")
     account = relationship("Account", backref="proposed_budgets")
-
-    def __repr__(self):
-        attributes = ", ".join(f"{key}={value}" for key, value in self.__dict__.items())
-        return f"<ProposedBudget({attributes})>"
 
 
 class BusinessUnit(db.Model):
@@ -91,10 +101,6 @@ class MasterEmail(db.Model):
         default=db.func.current_timestamp(),
     )
     master_email_user = db.relationship("User", backref="master_user")
-
-    def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
-
 
 @login_manager.user_loader
 def load_user(user_id):

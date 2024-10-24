@@ -1,4 +1,12 @@
-// Column highlighting event listener
+function toggleRow(rowId) {
+    const classId = `${rowId}-hidden-row`
+    const rows = document.getElementsByClassName(classId);
+
+    [...rows].forEach((row) => {
+        row.classList.toggle('hidden');
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const headers = document.querySelectorAll("thead tr:nth-child(2) th");
@@ -24,28 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 : cell.classList.remove(classToAdd);
         });
     }
-
-    function getColorForvariance(variance) {
-        // Check if the value is negative or positive
-        if (variance < 0) {
-            return '#be123c'; // Red color for negative values
-        } else {
-            return '#047857'; // Green color for positive or zero values
-        }
-    }
-
-    // Find all input fields whose ID contains "variance"
-    const varianceFields = document.querySelectorAll('td[variance]');
-
-    varianceFields.forEach(function (field) {
-        const varianceValue = parseFloat(field.textContent);
-
-        if (!isNaN(varianceValue)) {
-            const fontColor = getColorForvariance(varianceValue);
-            field.style.color = fontColor;
-            field.style.fontStyle = 'italic'; // Optional styling for italic text
-        }
-    });
 
     // add total event listener for each total budget element
     function updateTotalAmount() {
@@ -86,10 +72,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // add event listner for query button
     document.getElementById('queryBtn').addEventListener('click', () => {
-        const fiscalYear = document.getElementById('fiscal_year_picklist').value;
+        const historicalFiscalYear = document.getElementById('historical_fiscal_year_picklist').value;
+        const proposedFiscalYear = document.getElementById('proposed_fiscal_year_picklist').value;
         const businessUnitId = document.getElementById('business_unit_picklist').value;
-        const fiscalYearInt = String(fiscalYear).replace('FY', '20');
-        const uri = `/budget/budget-entry/${fiscalYearInt}/${businessUnitId}`;
+        const base = `/budget/budget-entry/${businessUnitId}`
+        const uri = base + `?historical_fiscal_year=${encodeURIComponent(historicalFiscalYear)}&proposed_fiscal_year=${encodeURIComponent(proposedFiscalYear)}`;
         window.location.href = uri;
     });
 });
