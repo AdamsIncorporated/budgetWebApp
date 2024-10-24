@@ -2,7 +2,7 @@
 
 <div class="overflow-auto h-[calc(100vh-8rem)] w-full text-xs">
   <table id="budgetTable" class="border-collapse w-full bg-white">
-    <thead class="text-nowrap focus:outline-none sticky top-0">
+    <thead class="text-nowrap focus:outline-none sticky top-0 z-20">
       <tr class="text-stone-50">
         <th class="bg-teal-700 px-2 py-2 whitespace-nowrap" colspan="5">
           Historical {{ form.budgets[0].FiscalYear.data[:2] +
@@ -13,42 +13,28 @@
         </th>
       </tr>
       <tr class="text-stone-50">
-        <th class="sticky left-0 top-0 bg-teal-300 px-2 py-2 whitespace-nowrap">
-          Account
-        </th>
+        <th class="sticky left-0 top-0 bg-teal-300 px-2 py-2 whitespace-nowrap">Account</th>
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Actual</th>
         <th class="bg-teal-400 px-2 py-2 whitespace-nowrap">Budget</th>
-        <th variance class="bg-teal-400 px-2 py-2 whitespace-nowrap">
-          Variance
-        </th>
-        <th class="bg-teal-400 border px-2 py-2 whitespace-nowrap">
-          Forecasted Amount
-        </th>
+        <th variance class="bg-teal-400 px-2 py-2 whitespace-nowrap">Variance</th>
+        <th class="bg-teal-400 border px-2 py-2 whitespace-nowrap">Forecasted Amount</th>
+        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">Proposed Budget</th>
         <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
-          Proposed Budget
-        </th>
-        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
-          {% if current_user.is_root_user == 0 %}
-          <i class="fas fa-lock mr-2 text-amber-500"></i>
-          {% endif %}
+          {% if current_user.is_root_user == 0 %}<i class="fas fa-lock mr-2 text-amber-500"></i>{% endif %}
           Business Case Name
         </th>
         <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
-          {% if current_user.is_root_user == 0 %}
-          <i class="fas fa-lock mr-2 text-amber-500"></i>
-          {% endif %}
+          {% if current_user.is_root_user == 0 %}<i class="fas fa-lock mr-2 text-amber-500"></i>{% endif %}
           Business Case Amount
         </th>
         <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">Comments</th>
-        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">
-          Total FY Budget
-        </th>
+        <th class="bg-teal-600 border px-2 py-2 whitespace-nowrap">Total FY Budget</th>
       </tr>
     </thead>
-    <form id="budgetsForm" action="{{ request.path }}" , method="POST">
+    <form id="budgetsForm" action="{{ request.path }}", method="post">
       {{ form.hidden_tag() }}
       <tbody class="text-gray-600">
-        {{generate_budget_rows(form, current_user)}}
+        {{ generate_budget_rows(form, current_user) }}
       </tbody>
     </form>
   </table>

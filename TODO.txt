@@ -1,6 +1,0 @@
-- MultiSnooze
-    - Get requisitions data uplaod
-
-- Frontend
-    - Add shadow to left pane over right pane - hard
-     

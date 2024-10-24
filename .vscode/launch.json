@@ -12,7 +12,6 @@
       },
       "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
       "args": ["run", "--debug", "--port", "3000"],
-      "jinja": true,
       "justMyCode": false
     }
   ]

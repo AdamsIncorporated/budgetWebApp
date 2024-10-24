@@ -93,7 +93,7 @@ def home(business_unit_id: str, image_file=None):
     if request.method == "POST":
         if form.validate_on_submit():
             for budget in form.budgets:
-                if budget.IsSubTotals.data == 0:
+                if budget.IsSubTotal.data == 0:
                     budget_data = {
                         "fiscal_year": sanitize(budget.FiscalYear.data, str),
                         "business_unit_id": sanitize(budget.BusinessUnitId.data, str),

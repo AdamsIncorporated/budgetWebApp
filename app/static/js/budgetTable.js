@@ -20,9 +20,13 @@ function hideError(element) {
     }
 }
 
-function toggleRow(rowId) {
+function toggleRow(element, rowId) {
+    const icon = element.querySelector('i');
     const classId = `${rowId}-hidden-row`
     const rows = document.getElementsByClassName(classId);
+
+    icon.classList.toggle('fa-minus-square');
+    icon.classList.toggle('fa-plus-square');
 
     [...rows].forEach((row) => {
         row.classList.toggle('hidden');
@@ -43,15 +47,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function toggleCellHighlight(index, highlight) {
+        const adjustedForHiddenCellsIndex = index + 12
         const cells = document.querySelectorAll(
-            `tbody tr td:nth-child(${index})`
+            `tbody tr td:nth-child(${adjustedForHiddenCellsIndex})`
         );
         cells.forEach((cell) => {
             const isEvenRow = cell.parentElement.rowIndex % 2 === 0;
             const classToAdd = isEvenRow ? "bg-stone-200" : "bg-teal-200";
-            highlight
-                ? cell.classList.add(classToAdd)
-                : cell.classList.remove(classToAdd);
+            
+            if (highlight) {
+                cell.classList.add(classToAdd);
+                cell.classList.add("border-none");
+            } else {
+                cell.classList.remove(classToAdd);
+                cell.classList.remove("border-none");
+            }
         });
     }
 
