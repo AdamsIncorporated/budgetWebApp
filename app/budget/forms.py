@@ -12,6 +12,7 @@ from wtforms.validators import Optional
 from repositories.queries import queries
 from app import db
 from sqlalchemy import text
+from wtforms.validators import Length
 
 
 def get_historical_fiscal_year_picklist():
@@ -49,8 +50,7 @@ class Budget(FlaskForm):
     Comments = StringField()
     TotalBudget = StringField(render_kw={"masknumber": True})
     IsSubTotal = IntegerField(default=0)
-
-
+    
 class Budgets(FlaskForm):
     budgets = FieldList(FormField(Budget), min_entries=1)
     historical_fiscal_year_picklist = SelectField(

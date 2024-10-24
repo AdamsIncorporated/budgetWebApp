@@ -1,3 +1,25 @@
+function displayError(element) {
+    const errorTooltip = element.querySelector('.error-tooltip'); // Find the tooltip inside the td
+
+    if (element && errorTooltip) {
+        const rect = element.getBoundingClientRect();
+        const tooltipHeight = errorTooltip.offsetHeight;
+
+        // Position the tooltip slightly above the input field
+        errorTooltip.style.left = `${rect.left}px`;
+        errorTooltip.style.top = `${rect.top - tooltipHeight - 50}px`; // Adjust the position based on input field
+        errorTooltip.classList.remove("hidden");
+    }
+}
+
+function hideError(element) {
+    const errorTooltip = element.querySelector('.error-tooltip'); // Find the tooltip inside the td
+
+    if (errorTooltip) {
+        errorTooltip.classList.add("hidden");
+    }
+}
+
 function toggleRow(rowId) {
     const classId = `${rowId}-hidden-row`
     const rows = document.getElementsByClassName(classId);
@@ -33,41 +55,41 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // add total event listener for each total budget element
-    function updateTotalAmount() {
-        const totals = document.querySelectorAll('td[total]');
-        totals.forEach(function (field) {
-            const row = field.closest('tr');
-            const businessCaseAmount = row.querySelector('td[businessCase]').textContent;
-            const proposedBudgetAmount = row.querySelector('td[proposedBudget]').textContent;
-            const total = parseFloat(businessCaseAmount) + parseFloat(proposedBudgetAmount);
-            field.textContent = total || 0;
-        });
-    }
+    // // add total event listener for each total budget element
+    // function updateTotalAmount() {
+    //     const totals = document.querySelectorAll('td[total]');
+    //     totals.forEach(function (field) {
+    //         const row = field.closest('tr');
+    //         const businessCaseAmount = row.querySelector('*[id*="businessCase"]').textContent;
+    //         const proposedBudgetAmount = row.querySelector('*[id*="proposedBudget"]').textContent;
+    //         const total = parseFloat(businessCaseAmount) + parseFloat(proposedBudgetAmount);
+    //         field.textContent = total || 0;
+    //     });
+    // }
 
-    // Add change event listeners to the relevant fields
-    const businessCaseFields = document.querySelectorAll('td[businessCase]');
-    const proposedBudgetFields = document.querySelectorAll('td[proposedBudget]');
+    // // Add change event listeners to the relevant fields
+    // const businessCaseFields = document.querySelectorAll('td[businessCase]');
+    // const proposedBudgetFields = document.querySelectorAll('td[proposedBudget]');
 
-    businessCaseFields.forEach(function (field) {
-        field.addEventListener('change', updateTotalAmount);
-    });
+    // businessCaseFields.forEach(function (field) {
+    //     field.addEventListener('change', updateTotalAmount);
+    // });
 
-    proposedBudgetFields.forEach(function (field) {
-        field.addEventListener('change', updateTotalAmount);
-    });
+    // proposedBudgetFields.forEach(function (field) {
+    //     field.addEventListener('change', updateTotalAmount);
+    // });
 
-    // Optionally, if you're using inputs, you might want to listen for input or keyup events
-    businessCaseFields.forEach(function (field) {
-        field.addEventListener('input', updateTotalAmount);
-    });
+    // // Optionally, if you're using inputs, you might want to listen for input or keyup events
+    // businessCaseFields.forEach(function (field) {
+    //     field.addEventListener('input', updateTotalAmount);
+    // });
 
-    proposedBudgetFields.forEach(function (field) {
-        field.addEventListener('input', updateTotalAmount);
-    });
+    // proposedBudgetFields.forEach(function (field) {
+    //     field.addEventListener('input', updateTotalAmount);
+    // });
 
-    // Initial call to set totals based on existing values
-    updateTotalAmount();
+    // // Initial call to set totals based on existing values
+    // updateTotalAmount();
 
 
     // add event listner for query button

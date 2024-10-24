@@ -2,7 +2,5 @@
     - Get requisitions data uplaod
 
 - Frontend
-    - Disable/Hide Business Case/Amount for non admin
-    - Add shadow to left pane over right pane
-    - tooltip errors - easy
+    - Add shadow to left pane over right pane - hard
      

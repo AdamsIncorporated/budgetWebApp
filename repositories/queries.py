@@ -94,9 +94,7 @@ def get_budget_entry_view(
         # combine actuals and budget
         merge_cols = ["DisplayOrder", "AccountNo", "Account", "RAD"]
         actual_to_budget = pd.merge(actuals, budgets, on=merge_cols, how="left")
-        actual_to_budget["Variance"] = (
-            actual_to_budget["BudgetsTotal"] - actual_to_budget["ActualsTotal"]
-        )
+        
 
         query = f"SELECT * FROM ProposedBudget WHERE FiscalYear = '{proposed_fiscal_year}' AND BusinessUnitId = '{business_unit_id}';"
 
@@ -175,16 +173,18 @@ def get_budget_entry_view(
         # union merge and subtotal dataframe and create meta data columns
         master = pd.concat([subtotal_filtered, merge])
         master = master.sort_values(by="DisplayOrder")
-        master["ForecastAmount"] = master["ActualsTotal"] * master["ForecastMultiplier"]
         float_cols = [
             "ActualsTotal",
             "BudgetsTotal",
-            "Variance",
-            "ForecastAmount",
             "ProposedBudget",
             "BusinessCaseAmount",
         ]
         master[float_cols] = master[float_cols].fillna(0).astype(float)
+        master["Variance"] = (
+            master["BudgetsTotal"] - master["ActualsTotal"]
+        )
+        master["ForecastAmount"] = master["ActualsTotal"] * master["ForecastMultiplier"]
+        master["ForecastAmount"] = master["ForecastAmount"].fillna(0).astype(float)
         master["IsSubTotal"] = master["IsSubTotal"].fillna(0).astype(int)
         master["TotalBudget"] = master["BusinessCaseAmount"] + master["ProposedBudget"]
         master["FiscalYear"] = proposed_fiscal_year

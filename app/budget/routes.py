@@ -93,36 +93,35 @@ def home(business_unit_id: str, image_file=None):
     if request.method == "POST":
         if form.validate_on_submit():
             for budget in form.budgets:
-                budget_data = {
-                    "fiscal_year": sanitize(budget.FiscalYear.data, str),
-                    "business_unit_id": sanitize(budget.BusinessUnitId.data, str),
-                    "account_no": sanitize(budget.AccountNo.data, str),
-                    "rad": sanitize(budget.RAD.data, str),
-                    "proposed_budget": sanitize(budget.ProposedBudget.data, float),
-                    "business_case_name": sanitize(budget.BusinessCaseName.data, str),
-                    "business_case_amount": sanitize(
-                        budget.BusinessCaseAmount.data, float
-                    ),
-                    "comments": sanitize(budget.Comments.data, str),
-                    "total_budget": sanitize(budget.TotalBudget.data, float),
-                }
+                if budget.IsSubTotals.data == 0:
+                    budget_data = {
+                        "fiscal_year": sanitize(budget.FiscalYear.data, str),
+                        "business_unit_id": sanitize(budget.BusinessUnitId.data, str),
+                        "account_no": sanitize(budget.AccountNo.data, str),
+                        "rad": sanitize(budget.RAD.data, str),
+                        "proposed_budget": sanitize(budget.ProposedBudget.data, float),
+                        "business_case_name": sanitize(budget.BusinessCaseName.data, str),
+                        "business_case_amount": sanitize(budget.BusinessCaseAmount.data, float),
+                        "comments": sanitize(budget.Comments.data, str),
+                        "total_budget": sanitize(budget.TotalBudget.data, float),
+                    }
 
-                proposed_budget_id = (
-                    None
-                    if budget.ProposedBudgetId.data == "nan"
-                    else budget.ProposedBudgetId.data
-                )
-                row = (
-                    ProposedBudget.query.get(proposed_budget_id)
-                    if proposed_budget_id
-                    else ProposedBudget()
-                )
+                    proposed_budget_id = (
+                        None
+                        if budget.ProposedBudgetId.data == "nan"
+                        else budget.ProposedBudgetId.data
+                    )
+                    row = (
+                        ProposedBudget.query.get(proposed_budget_id)
+                        if proposed_budget_id
+                        else ProposedBudget()
+                    )
 
-                for key, value in budget_data.items():
-                    setattr(row, key, value)
+                    for key, value in budget_data.items():
+                        setattr(row, key, value)
 
-                if not proposed_budget_id:
-                    db.session.add(row)
+                    if not proposed_budget_id:
+                        db.session.add(row)
 
             db.session.commit()
 
