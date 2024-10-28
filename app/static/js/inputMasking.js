@@ -1,7 +1,6 @@
 $(document).ready(function () {
-    const elements = $("input[masknumber]");
+    const elements = $("[masknumber]");
     
-    // Initialize the input mask
     elements.inputmask({
         alias: "numeric",
         prefix: '',

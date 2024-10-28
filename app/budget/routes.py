@@ -81,24 +81,27 @@ def authorize_business_unit(f):
 @authorize_business_unit
 def home(business_unit_id: str, image_file=None):
     form = Budgets()
-    historical_fiscal_year = request.args.get(
-        "historical_fiscal_year", default=get_default_historical_fiscal_year()
-    )
-    proposed_fiscal_year = request.args.get(
-        "proposed_fiscal_year", default=get_default_proposed_fiscal_year()
-    )
     form.business_unit_picklist.choices = get_all_business_units()
     form.business_unit_picklist.default = business_unit_id
-    form.historical_fiscal_year_picklist.default = historical_fiscal_year
-    form.proposed_fiscal_year_picklist.default = proposed_fiscal_year
 
     if request.method == "GET":
+        historical_fiscal_year = request.args.get(
+            "historical_fiscal_year", default=get_default_historical_fiscal_year()
+        )
+        proposed_fiscal_year = request.args.get(
+            "proposed_fiscal_year", default=get_default_proposed_fiscal_year()
+        )
+        form.historical_fiscal_year_picklist.default = historical_fiscal_year
+        form.proposed_fiscal_year_picklist.default = proposed_fiscal_year
         data = queries["budget_entry_view"](
             historical_fiscal_year, proposed_fiscal_year, business_unit_id
         )
         form.process(data={"budgets": data})
 
     if request.method == "POST":
+        historical_fiscal_year = form.historical_fiscal_year_picklist.data
+        proposed_fiscal_year = form.proposed_fiscal_year_picklist.data
+
         if form.validate_on_submit():
             for budget in form.budgets:
                 if budget.IsSubTotal.data == 0:
@@ -141,7 +144,13 @@ def home(business_unit_id: str, image_file=None):
             data = queries["budget_entry_view"](
                 historical_fiscal_year, proposed_fiscal_year, business_unit_id
             )
-            form.process(data={"budgets": data})
+            form.process(
+                data={
+                    "historical_fiscal_year_picklist": historical_fiscal_year,
+                    "proposed_fiscal_year_picklist": proposed_fiscal_year,
+                    "budgets": data,
+                }
+            )
             flash("Form submitted!", "success")
         else:
             flash("You have form errors!", "error")

@@ -2,14 +2,12 @@
 {% macro create_error_container(field, current_user, is_subtotal) %}
   {% set is_read_only = False %}
 
-  <!-- BusinessCaseName and BusinessCaseAmount default are readonly unless Admin -->
   {% if current_user.is_root_user == 0 %}
     {% if 'BusinessCaseName' in field.name or 'BusinessCaseAmount' in field.name %}
       {% set is_read_only = True %}
     {% endif %}
   {% endif %}
 
-  <!-- All subtotal fields are read only -->
   {% if is_subtotal %}
     {% set is_read_only = True %}
   {% endif %}
@@ -54,29 +52,28 @@
   </td>
 
   {# regular generated cells #}
-  <td class="p-2">{{ form.ActualsTotal.data }}</td>
-  <td class="p-2">{{ form.BudgetsTotal.data }}</td>
-  <td class="p-2 italic
+  <td masknumber class="p-2">{{ form.ActualsTotal.data }}</td>
+  <td masknumber class="p-2">{{ form.BudgetsTotal.data }}</td>
+  <td masknumber class="p-2 italic
              {% if form.Variance.data < 0 %}
                text-rose-400
              {% else %}
                text-emerald-400
              {% endif %}">{{ form.Variance.data }}</td>
-  <td class="p-2">{{ form.ForecastAmount.data }}</td>
+  <td masknumber class="p-2">{{ form.ForecastAmount.data }}</td>
 
   {{ create_error_container(form.ProposedBudget, current_user=current_user, is_subtotal=is_subtotal) }}
   {{ create_error_container(form.BusinessCaseName, current_user=current_user, is_subtotal=is_subtotal) }}
   {{ create_error_container(form.BusinessCaseAmount, current_user=current_user, is_subtotal=is_subtotal) }}
   {{ create_error_container(form.Comments, current_user=current_user, is_subtotal=is_subtotal) }}
 
-  <td total class="p-2 text-right">{{ form.TotalBudget.data }}</td>
+  <td masknumber total class="p-2 text-right">{{ form.TotalBudget.data }}</td>
 {% endmacro %}
 
 <!-- Rows Macro -->
 {% macro generate_budget_rows(form, current_user) %}
   {% set sub_groups = [] %}
   {% for sub_form in form.budgets %}
-    {{ form.hidden_tag() }}
     {% if sub_form.IsSubTotal.data == 1 %}
       {% set account_group = sub_form.AccountNo.data.replace('Subtotal', '').strip() %}
       {% set _ = sub_groups.append(account_group) %}

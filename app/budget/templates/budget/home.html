@@ -9,6 +9,9 @@
   src="{{ url_for('static', filename='js/inputMasking.js')}}"
   defer
 ></script>
-<div>{% include 'header.html' %}</div>
-<div>{% include 'table.html' %}</div>
+<form id="budgetsForm" action="{{ request.path }}", method="post">
+  {{ form.hidden_tag() }}
+  <div>{% include 'header.html' %}</div>
+  <div>{% include 'table.html' %}</div>
+</form>
 {% endblock content %}

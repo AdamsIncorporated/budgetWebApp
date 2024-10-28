@@ -5,11 +5,10 @@
     <thead class="text-nowrap focus:outline-none sticky top-0 z-20">
       <tr class="text-stone-50">
         <th class="bg-teal-700 px-1 py-2 whitespace-nowrap" colspan="5">
-          Historical {{ form.budgets[0].FiscalYear.data[:2] +
-          (form.budgets[0].FiscalYear.data[-2:] | int - 1) | string }}
+          Historical {{ form.historical_fiscal_year_picklist.data }}
         </th>
         <th class="bg-teal-900 px-1 py-2 whitespace-nowrap" colspan="5">
-          Proposed {{ form.budgets[0].FiscalYear.data }}
+          Proposed {{ form.proposed_fiscal_year_picklist.data }}
         </th>
       </tr>
       <tr class="text-stone-50">
@@ -31,11 +30,8 @@
         <th class="bg-teal-600 border px-1 py-2 whitespace-nowrap">Total FY Budget</th>
       </tr>
     </thead>
-    <form id="budgetsForm" action="{{ request.path }}", method="post">
-      {{ form.hidden_tag() }}
       <tbody class="text-gray-600">
         {{ generate_budget_rows(form, current_user) }}
       </tbody>
-    </form>
   </table>
 </div>
