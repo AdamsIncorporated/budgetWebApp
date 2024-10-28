@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function toggleCellHighlight(index, highlight) {
-        const adjustedForHiddenCellsIndex = index + 12
+        const adjustedForHiddenCellsIndex = index + 13
         const cells = document.querySelectorAll(
             `tbody tr td:nth-child(${adjustedForHiddenCellsIndex})`
         );

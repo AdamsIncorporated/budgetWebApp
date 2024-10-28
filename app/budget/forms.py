@@ -40,17 +40,18 @@ class Budget(FlaskForm):
     AccountNo = HiddenField()
     Account = HiddenField()
     RAD = HiddenField()
-    ActualsTotal = HiddenField()
-    BudgetsTotal = HiddenField()
-    Variance = HiddenField()
-    ForecastAmount = HiddenField()
+    ActualsTotal = HiddenField(render_kw={"masknumber": True})
+    BudgetsTotal = HiddenField(render_kw={"masknumber": True})
+    Variance = HiddenField(render_kw={"masknumber": True})
+    ForecastAmount = HiddenField(render_kw={"masknumber": True})
     ProposedBudget = StringField(render_kw={"masknumber": True})
     BusinessCaseName = StringField()
     BusinessCaseAmount = StringField(render_kw={"masknumber": True})
     Comments = StringField()
     TotalBudget = StringField(render_kw={"masknumber": True})
     IsSubTotal = IntegerField(default=0)
-    
+
+
 class Budgets(FlaskForm):
     budgets = FieldList(FormField(Budget), min_entries=1)
     historical_fiscal_year_picklist = SelectField(

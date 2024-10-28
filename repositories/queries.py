@@ -120,17 +120,29 @@ def get_budget_entry_view(
         """
         proposed_budget = pl.read_database(query, conn, infer_schema_length=None)
         proposed_budget = proposed_budget.rename({"Id": "ProposedBudgetId"})
+
+        # Step 1: Fill null values in the RAD column before concatenation
         proposed_budget = proposed_budget.with_columns(
-            [
-                pl.col("AccountNo").cast(pl.Utf8).fill_null(""),
-                pl.col("RAD").cast(pl.Utf8).fill_null(""),
-            ]
+            pl.col("RAD")
+            .fill_null("NO RAD")
+            .alias("RAD_filled")  # Fill nulls in RAD and rename
+        )
+        actual_to_budget = actual_to_budget.with_columns(
+            pl.col("RAD")
+            .fill_null("NO RAD")
+            .alias("RAD_filled")  # Fill nulls in RAD and rename
         )
 
-        # final merge operation for forecast, actuals and budget
-        totals = actual_to_budget.join(
-            proposed_budget, on=["AccountNo", "RAD"], how="left"
+        # Step 2: Create the Merge column based on the filled RAD column
+        proposed_budget = proposed_budget.with_columns(
+            pl.concat_str(["AccountNo", "RAD_filled"], separator=" ").alias("MergeCol")
         )
+        actual_to_budget = actual_to_budget.with_columns(
+            pl.concat_str(["AccountNo", "RAD_filled"], separator=" ").alias("MergeCol")
+        )
+
+        # Final merge operation for forecast, actuals, and budget
+        totals = actual_to_budget.join(proposed_budget, on="MergeCol", how="left")
         totals = totals.with_columns(pl.col("DisplayOrder").cast(pl.Float64))
         totals = totals.with_columns(pl.lit(0).alias("IsSubTotal"))
 
