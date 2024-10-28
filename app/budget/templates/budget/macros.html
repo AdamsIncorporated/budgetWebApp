@@ -39,8 +39,11 @@
 {% macro create_cells(form, is_subtotal=False, current_user=None) %}
   {{ form.hidden_tag() }}
 
+  {# Is SubTotal Hidden Cell #}
+  <td class="hidden">{{form.IsSubTotal()}}</td>
+
   {# special account cells #}
-  <td class="fixed top-0 z-10 sticky left-0 bg-white px-2 py-2 text-nowrap">
+  <td class="fixed top-0 z-10 sticky left-0 bg-white px-2 py-2 text-nowrap shadow-[3px_0_10px_rgba(0,0,0,0.1)]">
     {% if is_subtotal %}
       <i class="mr-3 fas fa-plus-square"></i>{{ form.AccountNo.data }}
     {% elif form.RAD.data %}
@@ -48,14 +51,13 @@
     {% else %}
       {{ form.AccountNo.data }} - {{ form.Account.data }}
     {% endif %}
-    <span class="absolute right-0 top-0 h-full border-r-4 border-teal-300"></span>
   </td>
 
   {# regular generated cells #}
   <td class="p-2">{{ form.ActualsTotal.data }}</td>
   <td class="p-2">{{ form.BudgetsTotal.data }}</td>
   <td class="p-2 italic
-             {% if '-' in form.Variance.data %}
+             {% if form.Variance.data < 0 %}
                text-rose-400
              {% else %}
                text-emerald-400
@@ -76,7 +78,7 @@
   {% for sub_form in form.budgets %}
     {{ form.hidden_tag() }}
     {% if sub_form.IsSubTotal.data == 1 %}
-      {% set account_group = sub_form.AccountNo.data.replace('SubTotal', '').strip() %}
+      {% set account_group = sub_form.AccountNo.data.replace('Subtotal', '').strip() %}
       {% set _ = sub_groups.append(account_group) %}
 
       <tr class="font-bold cursor-pointer border-b-2 border-stone-200 hover:bg-stone-200 hover:text-stone-500 hover:border-stone-200"

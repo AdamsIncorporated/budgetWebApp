@@ -1,11 +1,11 @@
-import pandas as pd
+import polars as pl
 import sqlite3
 import os
 
 
 def get_budget_entry_view(
     fiscal_year: str, proposed_fiscal_year: str, business_unit_id: str
-) -> dict | None:
+) -> list | None:
     # establish initial connection which is not concurrent with db app manager
     db_uri = os.getenv("DB_PATH")
 
@@ -13,7 +13,7 @@ def get_budget_entry_view(
         # Enable foreign key constraint
         conn.execute("PRAGMA foreign_keys = ON;")
 
-        def get_sub_totaled_dataframe(**kwargs) -> pd.DataFrame() | None:
+        def get_sub_totaled_dataframe(**kwargs) -> pl.DataFrame | None:
             table_name = kwargs["table_name"]
             fiscal_year = kwargs["fiscal_year"]
             column_name = kwargs["column_name"]
@@ -22,197 +22,180 @@ def get_budget_entry_view(
             query = """
                 SELECT * FROM BudgetEntryAdminView WHERE IsActiveTemplate = 1 
             """
-            ba = pd.read_sql(query, conn)
+            ba = pl.read_database(query, conn, infer_schema_length=None)
 
             # first get the accounts
             query = f"""
-                SELECT * 
-                FROM {table_name} 
+                SELECT *
+                FROM {table_name}
             """
-            accounts = pd.read_sql(
-                query,
-                conn,
-                dtype={"AccountNo": str, "FiscalYear": str, "BusinessUnitId": str},
+            accounts = pl.read_database(query, conn, infer_schema_length=None)
+            accounts = accounts.with_columns(
+                [
+                    pl.col("AccountNo").cast(pl.Utf8).fill_null(""),
+                    pl.col("FiscalYear").cast(pl.Utf8).fill_null(""),
+                    pl.col("BusinessUnitId")
+                    .cast(pl.Utf8)
+                    .fill_null("")
+                    .str.replace(".0", ""),
+                ]
             )
-            accounts["AccountNo"] = accounts["AccountNo"].fillna("").astype(str)
-            accounts["FiscalYear"] = accounts["FiscalYear"].fillna("").astype(str)
-            accounts["BusinessUnitId"] = (
-                accounts["BusinessUnitId"].fillna("").astype(str)
+            accounts = accounts.filter(
+                (pl.col("FiscalYear") == fiscal_year)
+                & (pl.col("BusinessUnitId") == business_unit_id)
             )
-            accounts["BusinessUnitId"] = accounts["BusinessUnitId"].str.replace(
-                ".0", ""
+
+            account_group = accounts.group_by("AccountNo").agg(
+                pl.sum("Amount").alias("Amount")
             )
-            accounts = accounts[
-                (accounts["FiscalYear"] == fiscal_year)
-                & (accounts["BusinessUnitId"] == business_unit_id)
-            ]
-            account_group = (
-                accounts.groupby(["AccountNo"])["Amount"].sum().reset_index()
-            )
-            accounts = pd.merge(ba, account_group, on=["AccountNo"], how="left")
-            accounts = accounts[~pd.notna(accounts["RAD"])]
+            accounts = ba.join(account_group, on="AccountNo", how="left")
+            accounts = accounts.filter(pl.col("RAD").is_null())
 
             # next get the rads
             query = f"""
-                SELECT * 
-                FROM {table_name} master 
+                SELECT
+                    master.FiscalYear,
+                    master.BusinessUnitId,
+                    master.AccountNo,
+                    master.Amount,
+                    r.RAD
+                FROM {table_name} master
                 JOIN {table_name}_Rad master_rad ON master_rad.{table_name}Id = master.Id
                 JOIN RAD r ON r.RadId = master_rad.RADID
             """
-            rads = pd.read_sql(query, conn)
-            rads = rads[
-                (rads["FiscalYear"] == fiscal_year)
-                & (rads["BusinessUnitId"] == business_unit_id)
-            ]
-            rads_group = rads.groupby(["RAD"])["Amount"].sum().reset_index()
-            rads = pd.merge(ba, rads_group, on="RAD", how="left")
-            rads = rads.dropna(subset="RAD")
+            rads = pl.read_database(query, conn, infer_schema_length=None)
+            rads = rads.with_columns(
+                rads["FiscalYear"].cast(pl.String),
+                rads["BusinessUnitId"].cast(pl.String),
+            )
+            rads = rads.filter(
+                (pl.col("FiscalYear") == fiscal_year)
+                & (pl.col("BusinessUnitId") == business_unit_id)
+            )
+            rads_group = rads.group_by("RAD").agg(pl.sum("Amount").alias("Amount"))
+            rads = ba.join(rads_group, on="RAD", how="left").filter(
+                pl.col("RAD").is_not_null()
+            )
 
             # union together
-            master = pd.concat([rads, accounts])
-            master.rename(columns={"Amount": f"{column_name}Total"}, inplace=True)
+            master = pl.concat([rads, accounts])
+            master = master.rename({"Amount": f"{column_name}Total"})
 
             return master
 
         # get the two tables actuals and budget
-        kwargs = {
-            "table_name": "Budget",
-            "column_name": "Budgets",
-            "fiscal_year": fiscal_year,
-            "business_unit_id": business_unit_id,
-        }
-        budgets = get_sub_totaled_dataframe(**kwargs)
+        budgets = get_sub_totaled_dataframe(
+            table_name="Budget",
+            column_name="Budgets",
+            fiscal_year=fiscal_year,
+            business_unit_id=business_unit_id,
+        )
 
-        kwargs = {
-            "table_name": "JournalEntry",
-            "column_name": "Actuals",
-            "fiscal_year": fiscal_year,
-            "business_unit_id": business_unit_id,
-        }
-        actuals = get_sub_totaled_dataframe(**kwargs)
+        actuals = get_sub_totaled_dataframe(
+            table_name="JournalEntry",
+            column_name="Actuals",
+            fiscal_year=fiscal_year,
+            business_unit_id=business_unit_id,
+        )
 
         # combine actuals and budget
-        merge_cols = ["DisplayOrder", "AccountNo", "Account", "RAD"]
-        actual_to_budget = pd.merge(actuals, budgets, on=merge_cols, how="left")
-        
+        merge_cols = [
+            "Id",
+            "DisplayOrder",
+            "AccountNo",
+            "Account",
+            "RAD",
+            "ForecastMultiplier",
+            "ForecastComments",
+            "UserId",
+            "IsActiveTemplate",
+            "CreatedDate",
+        ]
+        actual_to_budget = actuals.join(budgets, on=merge_cols, how="left")
 
-        query = f"SELECT * FROM ProposedBudget WHERE FiscalYear = '{proposed_fiscal_year}' AND BusinessUnitId = '{business_unit_id}';"
-
-        # get proposed budget data
-        proposed_budget = pd.read_sql(query, conn)
-        proposed_budget.rename(columns={"Id": "ProposedBudgetId"}, inplace=True)
-
-        # get forecast data
-        budget_admin_view = pd.read_sql(
-            "SELECT * FROM BudgetEntryAdminView WHERE IsActiveTemplate = 1", conn
+        query = f"""
+            SELECT * FROM ProposedBudget
+            WHERE FiscalYear = '{proposed_fiscal_year}'
+            AND BusinessUnitId = '{business_unit_id}';
+        """
+        proposed_budget = pl.read_database(query, conn, infer_schema_length=None)
+        proposed_budget = proposed_budget.rename({"Id": "ProposedBudgetId"})
+        proposed_budget = proposed_budget.with_columns(
+            [
+                pl.col("AccountNo").cast(pl.Utf8).fill_null(""),
+                pl.col("RAD").cast(pl.Utf8).fill_null(""),
+            ]
         )
-        forecast = budget_admin_view[
-            ["AccountNo", "RAD", "ForecastMultiplier", "ForecastComments"]
-        ].copy()
 
         # final merge operation for forecast, actuals and budget
-        pre_merge = pd.merge(
-            actual_to_budget,
-            proposed_budget,
-            on=["AccountNo", "RAD"],
+        totals = actual_to_budget.join(
+            proposed_budget, on=["AccountNo", "RAD"], how="left"
+        )
+        totals = totals.with_columns(pl.col("DisplayOrder").cast(pl.Float64))
+        totals = totals.with_columns(pl.lit(0).alias("IsSubTotal"))
+
+        # get subtotals display order by minimum of each
+        counted_accounts = totals.group_by("AccountNo").agg(pl.count().alias("Count"))
+        filtered_accounts = counted_accounts.filter(pl.col("Count") >= 2)
+        subtotals_display_order = (
+            totals.join(
+                filtered_accounts.select("AccountNo"), on="AccountNo", how="right"
+            )
+            .group_by("AccountNo")
+            .agg(pl.col("DisplayOrder").min())
+            .with_columns((pl.col("DisplayOrder") - 0.1).alias("DisplayOrder"))
+        )
+        subtotals = (
+            totals.filter(
+                pl.col("AccountNo").is_in(subtotals_display_order["AccountNo"])
+            )
+            .group_by(["AccountNo"])
+            .agg(
+                [
+                    pl.sum("ActualsTotal").alias("ActualsTotal"),
+                    pl.sum("BudgetsTotal").alias("BudgetsTotal"),
+                    pl.sum("ProposedBudget").alias("ProposedBudget"),
+                    pl.sum("BusinessCaseAmount").alias("BusinessCaseAmount"),
+                    pl.sum("TotalBudget").alias("TotalBudget"),
+                ]
+            )
+        )
+        subtotals = subtotals.join(
+            subtotals_display_order.select(["AccountNo", "DisplayOrder"]),
+            on="AccountNo",
             how="left",
-        )
-        merge = pd.merge(pre_merge, forecast, on=["AccountNo", "RAD"], how="left")
-
-        # Filter to get only AccountNo with two or more entries
-        subtotal = (
-            merge.groupby(["AccountNo", "DisplayOrder"])[
-                [
-                    "ActualsTotal",
-                    "BudgetsTotal",
-                    "ProposedBudget",
-                    "BusinessCaseAmount",
-                    "TotalBudget",
-                ]
+        ).with_columns(
+            [
+                (pl.col("AccountNo") + pl.lit(" Subtotal")).alias("AccountNo"),
+                pl.lit(1).alias("IsSubTotal"),
             ]
-            .sum()
-            .reset_index()
-        )
-
-        account_counts = merge["AccountNo"].value_counts()
-        valid_accounts = account_counts[account_counts >= 2].index
-
-        # Get subtotal for valid rows that have a two or more RADs
-        subtotal_filtered = subtotal[subtotal["AccountNo"].isin(valid_accounts)]
-        min_display_order = (
-            subtotal.groupby("AccountNo")["DisplayOrder"].min().reset_index()
-        )
-        subtotal_filtered = subtotal_filtered.merge(
-            min_display_order, on="AccountNo", how="left", suffixes=("", "_min")
-        )
-        subtotal_filtered = subtotal_filtered.reset_index()
-        subtotal_filtered["AccountNo"] = (
-            subtotal_filtered["AccountNo"].astype(str) + " SubTotal"
-        )
-        subtotal_filtered = (
-            subtotal_filtered.groupby(["AccountNo", "DisplayOrder_min"])[
-                [
-                    "ActualsTotal",
-                    "BudgetsTotal",
-                    "ProposedBudget",
-                    "BusinessCaseAmount",
-                    "TotalBudget",
-                ]
-            ]
-            .sum()
-            .reset_index()
-        )
-        subtotal_filtered["IsSubTotal"] = 1
-        subtotal_filtered["DisplayOrder_min"] = (
-            subtotal_filtered["DisplayOrder_min"] - 0.1
-        )
-        subtotal_filtered.rename(
-            columns={"DisplayOrder_min": "DisplayOrder"}, inplace=True
         )
 
         # union merge and subtotal dataframe and create meta data columns
-        master = pd.concat([subtotal_filtered, merge])
-        master = master.sort_values(by="DisplayOrder")
+        master = pl.concat([subtotals, totals], how="diagonal").sort("DisplayOrder")
         float_cols = [
             "ActualsTotal",
             "BudgetsTotal",
             "ProposedBudget",
             "BusinessCaseAmount",
         ]
-        master[float_cols] = master[float_cols].fillna(0).astype(float)
-        master["Variance"] = (
-            master["BudgetsTotal"] - master["ActualsTotal"]
+        master = master.with_columns(
+            [pl.col(col).fill_null(0).cast(pl.Float64).alias(col) for col in float_cols]
         )
-        master["ForecastAmount"] = master["ActualsTotal"] * master["ForecastMultiplier"]
-        master["ForecastAmount"] = master["ForecastAmount"].fillna(0).astype(float)
-        master["IsSubTotal"] = master["IsSubTotal"].fillna(0).astype(int)
-        master["TotalBudget"] = master["BusinessCaseAmount"] + master["ProposedBudget"]
-        master["FiscalYear"] = proposed_fiscal_year
-        master["BusinessUnitId"] = business_unit_id
 
-        # data presentation for frontend
-        cols_to_format = [
-            "ActualsTotal",
-            "BudgetsTotal",
-            "Variance",
-            "ForecastAmount",
-            "ProposedBudget",
-            "BusinessCaseAmount",
-            "TotalBudget",
-        ]
-
-        def format_number(x):
-            if isinstance(x, (int, float)):
-                return f"{x:,.2f}"
-            return x
-
-        master[cols_to_format] = master[cols_to_format].applymap(format_number)
-
-        cols_to_format = [
-            "BusinessCaseName",
-            "Comments",
-        ]
-        master[cols_to_format] = master[cols_to_format].fillna("")
+        master = master.with_columns(
+            [
+                (pl.col("BudgetsTotal") - pl.col("ActualsTotal")).alias("Variance"),
+                (pl.col("ActualsTotal") * pl.col("ForecastMultiplier"))
+                .fill_null(0)
+                .alias("ForecastAmount"),
+                (pl.col("BusinessCaseAmount") + pl.col("ProposedBudget")).alias(
+                    "TotalBudget"
+                ),
+                pl.lit(proposed_fiscal_year).alias("FiscalYear"),
+                pl.lit(business_unit_id).alias("BusinessUnitId"),
+            ]
+        )
 
         cols_to_keep = [
             "IsSubTotal",
@@ -234,25 +217,16 @@ def get_budget_entry_view(
             "TotalBudget",
         ]
 
-        master = master[cols_to_keep]
-        master['ProposedBudgetId'].fillna(
-            value=-1,
-            method=None,
-            axis=None,
-            inplace=False,
-            limit=None,
-            downcast=None,
-        )
-
-        data = master.to_dict(orient="records")
+        master = master.select(cols_to_keep)
+        data = master.to_dicts()
 
         return data
 
 
 queries = {
     "fetch_all_regular_user_business_unit_ids": lambda user_id: f"""
-        SELECT DISTINCT b.BusinessUnitId, b.BusinessUnit 
-        FROM BusinessUnit b JOIN User_BusinessUnit ub ON ub.BusinessUnitId = b.BusinessUnitId 
+        SELECT DISTINCT b.BusinessUnitId, b.BusinessUnit
+        FROM BusinessUnit b JOIN User_BusinessUnit ub ON ub.BusinessUnitId = b.BusinessUnitId
         WHERE ub.UserId = {user_id} ORDER BY b.BusinessUnitId;
     """,
     "fetch_all_business_unit_ids": """
@@ -313,26 +287,26 @@ queries = {
             bu."BusinessUnit"
     """,
     "user_business_units": lambda user_id: f"""
-        SELECT 
+        SELECT
             (
                 SELECT ub.Id
                 FROM "MasterEmail" me
                 JOIN "User_BusinessUnit" ub ON me."Id" = ub."UserId"
-                WHERE 
+                WHERE
                     bu."BusinessUnitId" = ub."BusinessUnitId"
                     AND "UserId" = {user_id}
             ) AS Id,
             bu."BusinessUnitId",
             bu."BusinessUnit",
-            CASE 
+            CASE
                 WHEN EXISTS (
                     SELECT 1
                     FROM "MasterEmail" me
                     JOIN "User_BusinessUnit" ub ON me."Id" = ub."UserId"
-                    WHERE 
+                    WHERE
                         bu."BusinessUnitId" = ub."BusinessUnitId"
                         AND "UserId" = {user_id}
-                ) 
+                )
                 THEN 1
                 ELSE 0
             END AS IsSelected

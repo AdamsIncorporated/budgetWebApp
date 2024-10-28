@@ -1,3 +1,4 @@
+from functools import wraps
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from .forms import Budgets
 from repositories.models import ProposedBudget, UserBusinessUnit
@@ -25,7 +26,6 @@ def get_default_historical_fiscal_year():
         text(queries["fetch_default_historical_fiscal_year"])
     ).all()
     value = result[0][0]
-
     return value
 
 
@@ -34,7 +34,6 @@ def get_default_proposed_fiscal_year():
         text(queries["fetch_all_default_proposed_fiscal_year"])
     ).all()
     value = result[0][0]
-
     return value
 
 
@@ -53,25 +52,34 @@ def get_all_business_units():
     return [(item[0], item[1]) for item in data]
 
 
+def authorize_business_unit(f):
+    @wraps(f)
+    def decorated_function(business_unit_id, *args, **kwargs):
+        # authenticate if the regular user has access to this page
+        if not current_user.is_root_user:  # user is a normal user and not admin
+            user_business_unit_ids = UserBusinessUnit.query.filter_by(
+                user_id=current_user.id
+            ).all()
+            keys = [str(key.business_unit_id) for key in user_business_unit_ids]
+
+            if not keys:  # no departments have been authorized for user
+                return redirect(url_for("auth.not_an_authorized_user"))
+
+            if (
+                business_unit_id not in keys
+            ):  # the wrong business unit has been assigned for user
+                return redirect(url_for("auth.not_allowed"))
+
+        return f(business_unit_id, *args, **kwargs)
+
+    return decorated_function
+
+
 @budget.route("/budget-entry/<string:business_unit_id>", methods=["POST", "GET"])
 @login_required
 @image_wrapper
+@authorize_business_unit
 def home(business_unit_id: str, image_file=None):
-    # authenticate if the regular user has access to this page
-    if not current_user.is_root_user:  # user is a normal user and not admin
-        user_business_unit_ids = UserBusinessUnit.query.filter_by(
-            user_id=current_user.id
-        ).all()
-        keys = [str(key.business_unit_id) for key in user_business_unit_ids]
-
-        if not keys:  # no departments have been authorized for user
-            return redirect(url_for("auth.not_an_authorized_user"))
-
-        if (
-            business_unit_id not in keys
-        ):  # the wrong business unit has been assigned for user
-            return redirect(url_for("auth.not_allowed"))
-
     form = Budgets()
     historical_fiscal_year = request.args.get(
         "historical_fiscal_year", default=get_default_historical_fiscal_year()
@@ -100,15 +108,19 @@ def home(business_unit_id: str, image_file=None):
                         "account_no": sanitize(budget.AccountNo.data, str),
                         "rad": sanitize(budget.RAD.data, str),
                         "proposed_budget": sanitize(budget.ProposedBudget.data, float),
-                        "business_case_name": sanitize(budget.BusinessCaseName.data, str),
-                        "business_case_amount": sanitize(budget.BusinessCaseAmount.data, float),
+                        "business_case_name": sanitize(
+                            budget.BusinessCaseName.data, str
+                        ),
+                        "business_case_amount": sanitize(
+                            budget.BusinessCaseAmount.data, float
+                        ),
                         "comments": sanitize(budget.Comments.data, str),
                         "total_budget": sanitize(budget.TotalBudget.data, float),
                     }
 
                     proposed_budget_id = (
                         None
-                        if budget.ProposedBudgetId.data == "nan"
+                        if budget.ProposedBudgetId.data == ""
                         else budget.ProposedBudgetId.data
                     )
                     row = (

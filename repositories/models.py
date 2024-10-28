@@ -6,12 +6,14 @@ from flask_login import UserMixin
 from flask import current_app
 import jwt
 
+
 class RadType(db.Model):
     __tablename__ = "RadType"
 
     id = Column("Id", Integer, primary_key=True, autoincrement=True)
     rad_type_id = Column("RADTypeId", String, unique=True)
     rad_type = Column("RADType", String, unique=True)
+
 
 class Rad(db.Model):
     __tablename__ = "Rad"
@@ -102,6 +104,7 @@ class MasterEmail(db.Model):
     )
     master_email_user = db.relationship("User", backref="master_user")
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -152,7 +155,10 @@ class UserBusinessUnit(db.Model):
 
     id = db.Column("Id", db.Integer, primary_key=True)
     business_unit_id = db.Column(
-        "BusinessUnitId", db.Integer, db.ForeignKey("BusinessUnit.BusinessUnitId"), nullable=False
+        "BusinessUnitId",
+        db.Integer,
+        db.ForeignKey("BusinessUnit.BusinessUnitId"),
+        nullable=False,
     )
     user_id = db.Column("UserId", db.Integer, db.ForeignKey("User.Id"), nullable=False)
 

@@ -10,9 +10,15 @@
         "FLASK_APP": "run.py",
         "FLASK_ENV": "development"
       },
-      "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-      "args": ["run", "--debug", "--port", "3000"],
-      "justMyCode": false
+      "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "args": [
+        "run",
+        "--debug",
+        "--port",
+        "3000"
+      ],
+      "justMyCode": false,
+      "cwd": "${workspaceFolder}"
     }
-  ]
+  ],
 }
