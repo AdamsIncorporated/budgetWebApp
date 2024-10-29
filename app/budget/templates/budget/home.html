@@ -1,12 +1,12 @@
 {% extends "layout.html" %} {% block content %}
 <script
   defer
-  src="{{ url_for('static', filename='js/budgetTable.js')}}"
+  src="{{ url_for('budget.static', filename='js/budgetTable.js')}}"
   defer
 ></script>
 <script
   defer
-  src="{{ url_for('static', filename='js/inputMasking.js')}}"
+  src="{{ url_for('budget.static', filename='js/inputMasking.js')}}"
   defer
 ></script>
 <form id="budgetsForm" action="{{ request.path }}", method="post">
