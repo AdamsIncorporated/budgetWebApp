@@ -17,10 +17,6 @@ budget = Blueprint(
 )
 
 
-def sanitize(value: str, type_func):
-    return type_func(value.replace(",", "")) if value else None
-
-
 def get_default_historical_fiscal_year():
     result = db.session.execute(
         text(queries["fetch_default_historical_fiscal_year"])
@@ -105,21 +101,7 @@ def home(business_unit_id: str, image_file=None):
         if form.validate_on_submit():
             for budget in form.budgets:
                 if budget.IsSubTotal.data == 0:
-                    budget_data = {
-                        "fiscal_year": sanitize(budget.FiscalYear.data, str),
-                        "business_unit_id": sanitize(budget.BusinessUnitId.data, str),
-                        "account_no": sanitize(budget.AccountNo.data, str),
-                        "rad": sanitize(budget.RAD.data, str),
-                        "proposed_budget": sanitize(budget.ProposedBudget.data, float),
-                        "business_case_name": sanitize(
-                            budget.BusinessCaseName.data, str
-                        ),
-                        "business_case_amount": sanitize(
-                            budget.BusinessCaseAmount.data, float
-                        ),
-                        "comments": sanitize(budget.Comments.data, str),
-                        "total_budget": sanitize(budget.TotalBudget.data, float),
-                    }
+                    budget_data = budget.serialize_data()
 
                     proposed_budget_id = (
                         None
