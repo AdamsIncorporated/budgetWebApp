@@ -45,7 +45,7 @@ def download_template(fiscal_year):
 
     # Get the active sheet
     sheet = workbook.active
-    sheet['B2'] = fiscal_year
+    sheet["B2"] = fiscal_year
 
     # get the data from the server
     query = queries["multiview_download"]
@@ -275,3 +275,9 @@ def delete():
             return redirect(url_for("dashboard.add_users"))
 
     return render_template("modal/deleteModal.html", data=data)
+
+
+@dashboard.route("/budget-admin-view", methods=["GET", "POST"])
+@login_required
+def budget_admin_view():
+    return render_template("budgetAdminView.html")

@@ -7,10 +7,11 @@ from wtforms import (
     FieldList,
     FormField,
     BooleanField,
-    SelectField
+    SelectField,
 )
 from wtforms.validators import DataRequired, Email, Length, ValidationError
 from app import db
+from repositories.queries import queries
 from repositories.models import MasterEmail, User
 from sqlalchemy import text
 
@@ -20,6 +21,7 @@ class UserBusinessUnit(FlaskForm):
     is_business_unit_selected = BooleanField(default=False)
     business_unit = StringField()
     business_unit_id = StringField()
+
 
 class UserBusinessUnits(FlaskForm):
     user_id = HiddenField()
@@ -33,11 +35,14 @@ class UserBusinessUnits(FlaskForm):
         validators=[DataRequired()],
     )
     submit = SubmitField("Submit")
-    
+
     def validate_user_business_units(self, field):
         # Check if at least one business unit is selected
-        if not any(unit.is_business_unit_selected.data for unit in self.user_business_units):
+        if not any(
+            unit.is_business_unit_selected.data for unit in self.user_business_units
+        ):
             raise ValidationError("At least one business unit must be selected")
+
 
 class MasterEmailForm(FlaskForm):
     id = HiddenField()
@@ -68,17 +73,20 @@ class MasterEmailForm(FlaskForm):
 
     def validate_user_business_units(self, field):
         # Check if at least one business unit is selected
-        if not any(unit.is_business_unit_selected.data for unit in self.user_business_units):
+        if not any(
+            unit.is_business_unit_selected.data for unit in self.user_business_units
+        ):
             raise ValidationError("At least one business unit must be selected")
-        
+
+
 class MultiviewTemplate(FlaskForm):
     fiscal_year = SelectField("Fiscal Year", validators=[DataRequired()])
-    
+
     def __init__(self, *args, **kwargs):
         super(MultiviewTemplate, self).__init__(*args, **kwargs)
         self.populate_fiscal_year_choices()
 
     def populate_fiscal_year_choices(self):
-        query = text("SELECT DISTINCT FiscalYear FROM JournalEntry ORDER BY FiscalYear;")
+        query = text(queries["fetch_all_proposed_fiscal_years"])
         result = db.session.execute(query).fetchall()
         self.fiscal_year.choices = [(row[0]) for row in result]

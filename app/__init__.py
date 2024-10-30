@@ -13,7 +13,9 @@ db = SQLAlchemy()
 
 
 def create_app():
-    app = Flask(__name__, static_folder="./main/static")
+    app = Flask(
+        __name__, static_folder="./main/static", template_folder="./main/templates"
+    )
     app.config.from_object(Config)
 
     Config.init_app(app)

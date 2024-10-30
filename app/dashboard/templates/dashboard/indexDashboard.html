@@ -1,81 +1,71 @@
 {% extends "layout.html" %} {% block content %}
 
+<script defer src="{{url_for('dashboard.static', filename='js/main.js')}}"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
+<link rel="stylesheet" href="{{url_for('dashboard.static', filename='css/main.css')}}">
 
-<div class="overflow-hidden">
-  <div class="flex flex-row justify-between bg-teal-500 text-white p-6">
-    <div>
-      <nav class="mt-4">
-        <ul class="flex space-x-4">
-          <li class="px-2 border-r-2 border-teal-200">
-            <a
-              href="{{ url_for('main.home') }}"
-              class="text-teal-200 hover:text-teal-100"
-            >
-              <i class="fas fa-home mr-2"></i>Home
-            </a>
-          </li>
-          <li class="px-2 border-r-2 border-teal-200">
-            <a
-              href="{{ url_for('auth.logout') }}"
-              class="text-teal-200 hover:text-teal-100"
-            >
-              <i class="fas fa-sign-out-alt mr-2"></i> Logout
-            </a>
-          </li>
-          <li class="px-2 border-r-2 border-teal-200">
-            <a
-              href="{{ url_for('auth.account') }}"
-              class="text-teal-200 hover:text-teal-100"
-            >
-              <i class="fas fa-user-circle mr-2"></i> Account
-            </a>
-          </li>
-          <li class="px-2 border-r-2 border-teal-200">
-            <a
-              href="{{ url_for('dashboard.template') }}"
-              class="text-teal-200 hover:text-teal-100"
-            >
-            <i class="fas fa-download mr-2"></i> Multiview Templates
-            </a>
-          </li>
-          <li class="px-2">
-            <a
-              href="{{ url_for('dashboard.add_users') }}"
-              class="text-teal-200 hover:text-teal-100"
-            >
-              <i class="fas fa-users mr-2"></i> Add Department User Accounts
-            </a>
-          </li>
-        </ul>
-      </nav>
+<header class="top-0 left-0 fixed w-full bg-gradient-to-r from-cyan-600 to-indigo-600 text-white">
+  <nav class="p-5 flex justify-between items-center">
+
+    <!-- Hamburger Icon -->
+    <div class="hamburger">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
     </div>
+
+    <!-- Navigation Menu -->
+    <ul class="nav-menu flex">
+      <li class="px-2">
+        <a href="{{ url_for('main.home') }}" class="nav-link text-teal-200 hover:text-teal-100">
+          <i class="fas fa-home mr-2"></i>Home
+        </a>
+      </li>
+      <li class="px-2">
+        <a href="{{ url_for('auth.logout') }}" class="nav-link text-teal-200 hover:text-teal-100">
+          <i class="fas fa-sign-out-alt mr-2"></i> Logout
+        </a>
+      </li>
+      <li class="px-2">
+        <a href="{{ url_for('auth.account') }}" class="nav-link text-teal-200 hover:text-teal-100">
+          <i class="fas fa-user-circle mr-2"></i> Account
+        </a>
+      </li>
+      <li class="px-2">
+        <a href="{{ url_for('dashboard.template') }}" class="nav-link text-teal-200 hover:text-teal-100">
+          <i class="fas fa-download mr-2"></i> Multiview Templates
+        </a>
+      </li>
+      <li class="px-2">
+        <a href="{{ url_for('dashboard.add_users') }}" class="nav-link text-teal-200 hover:text-teal-100">
+          <i class="fas fa-users mr-2"></i> Add Department User Accounts
+        </a>
+      </li>
+    </ul>
+
+    <!-- User Profile -->
     <div class="flex items-center mb-6">
       <div
-        class="flex justify-center items-center rounded-full w-20 h-20 object-cover mr-4 border-4 border-white bg-cyan-900 text-gray-white"
-      >
-        <img
-          class="rounded-full w-full h-full object-cover"
-          src="data:image/jpeg;base64,{{ image_file }}"
-          alt="User Image"
-          onerror="this.style.display='none'; this.parentElement.textContent = 'User';"
-        />
+        class="flex justify-center items-center rounded-full w-20 h-20 object-cover mr-4 border-4 border-white bg-cyan-900 text-gray-white">
+        <img class="rounded-full w-full h-full object-cover" src="data:image/jpeg;base64,{{ image_file }}"
+          alt="User Image" onerror="this.style.display='none'; this.parentElement.textContent = 'User';" />
       </div>
       <div class="flex-col">
         <h2 class="truncate text-2xl font-bold whitespace-nowrap">
           {% if current_user.is_root_user == 1 %}
-          <span class="text-amber-400"
-            ><i class="fas fa-crown"></i> Admin
-          </span>
+          <span class="text-amber-400"><i class="fas fa-crown"></i> Admin</span>
           <div>{{ current_user.username }}</div>
           {% else %} {{ current_user.username }} {% endif %}
         </h2>
         <p class="truncate break-words">{{ current_user.email }}</p>
       </div>
     </div>
-  </div>
-  <div>{% block section %} {% endblock section%}</div>
-</div>
+
+  </nav>
+</header>
+
+
+<div class="mt-24 p-24">{% block section %} {% endblock section%}</div>
 
 {% endblock %}
