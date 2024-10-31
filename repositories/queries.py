@@ -20,7 +20,7 @@ def get_budget_entry_view(
             business_unit_id = kwargs["business_unit_id"]
 
             query = """
-                SELECT * FROM BudgetEntryAdminView WHERE IsActiveTemplate = 1 
+                SELECT * FROM BudgetEntryAdminView;
             """
             ba = pl.read_database(query, conn, infer_schema_length=None)
 
@@ -107,9 +107,6 @@ def get_budget_entry_view(
             "RAD",
             "ForecastMultiplier",
             "ForecastComments",
-            "UserId",
-            "IsActiveTemplate",
-            "CreatedDate",
         ]
         actual_to_budget = actuals.join(budgets, on=merge_cols, how="left")
 
@@ -354,4 +351,10 @@ queries = {
             "FiscalYear" = :proposed_fy
     """,
     "budget_entry_view": get_budget_entry_view,
+    "fetch_all_accounts": """
+        SELECT Account FROM Account ORDER BY Account ASC;
+    """,
+    "fetch_all_rads": """
+        SELECT RAD FROM RAD ORDER BY RAD ASC;
+    """,
 }

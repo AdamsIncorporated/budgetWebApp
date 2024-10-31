@@ -8,6 +8,7 @@ from wtforms import (
     FormField,
     BooleanField,
     SelectField,
+    FloatField,
 )
 from wtforms.validators import DataRequired, Email, Length, ValidationError
 from app import db
@@ -90,3 +91,36 @@ class MultiviewTemplate(FlaskForm):
         query = text(queries["fetch_all_proposed_fiscal_years"])
         result = db.session.execute(query).fetchall()
         self.fiscal_year.choices = [(row[0]) for row in result]
+
+
+class BudgetEntryForm(FlaskForm):
+    id = HiddenField()
+    display_order = StringField("Display Order", validators=[DataRequired()])
+    account_no = StringField("Account No", validators=[DataRequired()])
+    account = SelectField("Account", validators=[DataRequired()])
+    rad = SelectField("RAD")
+    forecast_multiplier = FloatField("Forecast Multiplier")
+    forecast_comments = StringField("Forecast Comments")
+
+    def __init__(self, *args, **kwargs):
+        super(BudgetEntryForm, self).__init__(*args, **kwargs)
+
+        self.account.choices = self.get_account_choices()
+        self.rad.choices = self.get_rad_choices()
+
+    def get_account_choices(self):
+        query = queries["fetch_all_accounts"]
+        data = db.session.execute(text(query))
+
+        return [(item[0]) for item in data]
+
+    def get_rad_choices(self):
+        query = queries["fetch_all_rads"]
+        data = db.session.execute(text(query))
+
+        return [(item[0]) for item in data]
+
+
+class BudgetEntryAdminViewForm(FlaskForm):
+    budget_entries = FieldList(FormField(BudgetEntryForm), min_entries=1)
+    submit = SubmitField("Submit")

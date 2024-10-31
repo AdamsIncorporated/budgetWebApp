@@ -5,8 +5,8 @@
 
 .bar {
     display: block;
-    width: 25px;
-    height: 3px;
+    width: 40px;
+    height: 6px;
     margin: 5px auto;
     background-color: #fff;
     transition: all 0.3s ease-in-out;
@@ -62,10 +62,10 @@
     }
 
     .hamburger.active .bar:nth-child(1) {
-        transform: translateY(8px) rotate(45deg);
+        transform: translateY(11px) rotate(45deg);
     }
 
     .hamburger.active .bar:nth-child(3) {
-        transform: translateY(-8px) rotate(-45deg);
+        transform: translateY(-11px) rotate(-45deg);
     }
 }

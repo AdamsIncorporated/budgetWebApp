@@ -1,10 +1,24 @@
-from flask import Blueprint, render_template, redirect, flash, url_for, request
+from sqlalchemy import func
+from flask import Blueprint, render_template, redirect, flash, url_for, request, abort
 from flask_login import login_required, current_user
 import base64
 from io import BytesIO
 from app import db
-from repositories.models import MasterEmail, BusinessUnit, UserBusinessUnit, User
-from .forms import MasterEmailForm, UserBusinessUnits, MultiviewTemplate
+from repositories.models import (
+    MasterEmail,
+    BusinessUnit,
+    UserBusinessUnit,
+    User,
+    BudgetEntryAdminView,
+    Account,
+)
+from .forms import (
+    MasterEmailForm,
+    UserBusinessUnits,
+    MultiviewTemplate,
+    BudgetEntryForm,
+    BudgetEntryAdminViewForm,
+)
 from flask import jsonify, current_app, send_file
 from sqlalchemy import text
 from repositories.queries import queries
@@ -279,5 +293,78 @@ def delete():
 
 @dashboard.route("/budget-admin-view", methods=["GET", "POST"])
 @login_required
-def budget_admin_view():
-    return render_template("budgetAdminView.html")
+@image_wrapper
+def budget_admin_view(image_file=None):
+    form = BudgetEntryAdminViewForm()
+
+    if request.method == "GET":
+        data = BudgetEntryAdminView.query.all()
+        form.process(data={"budget_entries": data})
+
+    return render_template("budgetAdminView.html", form=form, image_file=image_file)
+
+
+@dashboard.route("/budget-admin-view/delete", methods=["GET", "POST"])
+@login_required
+def budget_admin_view_delete():
+    id = int(request.args.get("id"))
+    data = BudgetEntryAdminView.query.filter_by(id=id).first()
+
+    if request.method == "POST":
+        row = BudgetEntryAdminView.query.get(id)
+
+        if data:
+            db.session.delete(row)
+            db.session.commit()
+            flash("Successfully deleted row!", "success")
+
+            return redirect(url_for("dashboard.budget_admin_view"))
+
+        else:
+            flash("User not found!", "error")
+
+            return redirect(url_for("dashboard.budget_admin_view"))
+
+    return render_template("budgetAdminModal/deleteModal.html", data=data)
+
+
+@dashboard.route("/budget-admin-view/create", methods=["GET", "POST"])
+@login_required
+def budget_admin_view_create():
+    form = BudgetEntryForm()
+
+    if request.method == "POST":
+        if form.validate_on_submit():
+            account_no = (
+                Account.query.filter_by(account=form.account.data)
+                .with_entities(Account.AccountNo)
+                .first()
+            )
+            display_order = BudgetEntryAdminView.query.with_entities(
+                func.max(BudgetEntryAdminView.display_order)
+            ).scalar()
+            new_row = BudgetEntryAdminView(
+                display_order=display_order,
+                account_no=account_no,
+                account=form.account.data,
+                rad=form.rad.data,
+                forecast_multiplier=form.forecast_multiplier.data,
+                forecast_comments=form.forecast_comments.data,
+            )
+            db.session.add(new_row)
+            db.session.commit()
+
+            flash(f"User rights for {form.email.data} created successfully!", "success")
+            return redirect(url_for("dashboard.budget_admin_view"))
+        else:
+            errors = ". ".join(
+                [
+                    error
+                    for field_errors in form.errors.values()
+                    for error in field_errors
+                ]
+            )
+            flash(errors, "error")
+            return redirect(url_for("dashboard.budget_admin_view"))
+
+    return render_template("budgetAdminViewModal/createModal.html", form=form)

@@ -161,18 +161,12 @@ class UserBusinessUnit(db.Model):
         nullable=False,
     )
     user_id = db.Column("UserId", db.Integer, db.ForeignKey("User.Id"), nullable=False)
-
     business_unit = db.relationship("BusinessUnit", backref="user_business_units")
     user = db.relationship("User", backref="user_business_units")
 
 
 class BudgetEntryAdminView(db.Model):
     __tablename__ = "BudgetEntryAdminView"
-    __table_args__ = (
-        CheckConstraint("IsActiveTemplate IN (0, 1)", name="chk_is_active_template"),
-        {"sqlite_autoincrement": True},  # Enable AUTOINCREMENT in SQLite
-    )
-
     id = Column(
         "Id", Integer, primary_key=True, autoincrement=True, unique=True, nullable=False
     )
@@ -180,9 +174,5 @@ class BudgetEntryAdminView(db.Model):
     account_no = Column("AccountNo", Text, ForeignKey("Account.AccountNo"))
     account = Column("Account", Text, ForeignKey("Account.Account"))
     rad = Column("RAD", Text, ForeignKey("RAD.RAD"))
-    created_date = Column("CreatedDate", Text)
     forecast_multiplier = Column("ForecastMultiplier", Float)
     forecast_comments = Column("ForecastComments", Text)
-    user_id = Column("UserId", Integer, ForeignKey("User.Id"))
-    is_active_template = Column("IsActiveTemplate", Integer, nullable=False)
-    template_name = Column("TemplateName", Text)

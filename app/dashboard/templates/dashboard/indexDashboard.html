@@ -5,8 +5,8 @@
 <script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
 <link rel="stylesheet" href="{{url_for('dashboard.static', filename='css/main.css')}}">
 
-<header class="top-0 left-0 fixed w-full bg-gradient-to-r from-cyan-600 to-indigo-600 text-white">
-  <nav class="p-5 flex justify-between items-center">
+<header class="z-50 top-0 left-0 fixed w-full bg-gradient-to-r from-cyan-600 to-indigo-600 text-white">
+  <nav class="p-5 flex justify-between items-center gap-x-4">
 
     <!-- Hamburger Icon -->
     <div class="hamburger">
@@ -40,6 +40,11 @@
       <li class="px-2">
         <a href="{{ url_for('dashboard.add_users') }}" class="nav-link text-teal-200 hover:text-teal-100">
           <i class="fas fa-users mr-2"></i> Add Department User Accounts
+        </a>
+      </li>
+      <li class="px-2">
+        <a href="{{ url_for('dashboard.budget_admin_view') }}" class="nav-link text-teal-200 hover:text-teal-100">
+          <i class="fas fa-pencil-alt mr-2"></i> Budget Admin View
         </a>
       </li>
     </ul>
