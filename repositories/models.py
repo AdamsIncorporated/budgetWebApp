@@ -173,6 +173,6 @@ class BudgetEntryAdminView(db.Model):
     display_order = Column("DisplayOrder", Integer, unique=True, nullable=False)
     account_no = Column("AccountNo", Text, ForeignKey("Account.AccountNo"))
     account = Column("Account", Text, ForeignKey("Account.Account"))
-    rad = Column("RAD", Text, ForeignKey("RAD.RAD"))
+    rad = Column("RAD", Text, ForeignKey("Rad.RAD"))
     forecast_multiplier = Column("ForecastMultiplier", Float)
     forecast_comments = Column("ForecastComments", Text)

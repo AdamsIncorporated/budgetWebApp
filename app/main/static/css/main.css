@@ -11,113 +11,34 @@
   transition: transform 0.3s ease;
 }
 
-@keyframes swoopDown {
-  0% {
-    transform: translate(50%, -50%);
+.fade-in-down {
+  opacity: 0;
+  animation: fadeInDown 0.5s forwards;
+}
+
+@keyframes fadeInDown {
+  to {
     opacity: 1;
-  }
-  50% {
-    transform: translate(50%, 20%);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(50%, 20%);
-    opacity: 1; /* Holds position */
+    transform: translateY(-20px);
   }
 }
 
-@keyframes swoopUp {
+.fade-out-up {
+  animation: fadeOutUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeOutUp {
   0% {
-    transform: translate(50%, 20%);
     opacity: 1;
+    transform: translateY(20px);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(0);
   }
   100% {
-    transform: translate(50%, -50%);
     opacity: 0;
-    display: none; /* Hide after swooping up */
+    transform: translateY(-20px);
   }
 }
 
-.error {
-  background: linear-gradient(217deg, #f43f5e, #f34d69, #f6193d);
-  background-size: 600% 600%;
-
-  -webkit-animation: MessageBackgroundSwirl 50s ease infinite;
-  -moz-animation: MessageBackgroundSwirl 50s ease infinite;
-  animation: MessageBackgroundSwirl 50s ease infinite;
-}
-
-.success {
-  background: linear-gradient(217deg, #2abb06, #5ee951, #106804);
-  background-size: 600% 600%;
-
-  -webkit-animation: MessageBackgroundSwirl 50s ease infinite;
-  -moz-animation: MessageBackgroundSwirl 50s ease infinite;
-  animation: MessageBackgroundSwirl 50s ease infinite;
-}
-
-.warning {
-  background: linear-gradient(217deg, #d8ca0b, #d4e20d, #d3c504);
-  background-size: 600% 600%;
-
-  -webkit-animation: MessageBackgroundSwirl 50s ease infinite;
-  -moz-animation: MessageBackgroundSwirl 50s ease infinite;
-  animation: MessageBackgroundSwirl 50s ease infinite;
-}
-
-@-webkit-keyframes MessageBackgroundSwirl {
-  0% {
-    background-position: 91% 0%;
-  }
-  50% {
-    background-position: 10% 100%;
-  }
-  100% {
-    background-position: 91% 0%;
-  }
-}
-@-moz-keyframes MessageBackgroundSwirl {
-  0% {
-    background-position: 91% 0%;
-  }
-  50% {
-    background-position: 10% 100%;
-  }
-  100% {
-    background-position: 91% 0%;
-  }
-}
-@keyframes MessageBackgroundSwirl {
-  0% {
-    background-position: 91% 0%;
-  }
-  50% {
-    background-position: 10% 100%;
-  }
-  100% {
-    background-position: 91% 0%;
-  }
-}
-
-.flashes {
-  color: white;
-  position: fixed;
-  top: 7.5%;
-  right: 15%;
-  width: 500px;
-  z-index: 999;
-  opacity: 1;
-  animation: swoopDown 2s ease forwards, swoopUp 1s ease forwards 5s;
-  padding: 1%;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-  word-wrap: break-word;
-}
-
-.flashes ul {
-  padding-left: 10px;
-}
-
-.flashes li {
-  text-align: left;
-  list-style-type: disc;
-}

@@ -1,13 +1,13 @@
 {% extends "indexDashboard.html" %} {% block section %}
 
-<script defer src="{{url_for('dashboard.static', filename='js/budgetAdminView.js')}}"></script>
+<script src="{{url_for('dashboard.static', filename='js/budgetAdminView.js')}}"></script>
 
 <form action="{{url_for('dashboard.budget_admin_view')}}" , method="post">
 
   {{form.hidden_tag()}}
 
   <div class="flex justify-between items-end my-5 border-b-2 border-stone-100 pb-5">
-    <div class="bg-cyan-600 text-white font-bold flex items-center justify-center w-8 h-8 rounded-full 
+    <div create class="bg-cyan-600 text-white font-bold flex items-center justify-center w-8 h-8 rounded-full 
         hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-900 cursor-pointer">
       <i class="fas fa-plus"></i>
     </div>
@@ -18,46 +18,53 @@
     </div>
   </div>
 
-  <div class="h-screen">
+  <div class="h-dvh">
     <div class="h-1/2 overflow-x-auto ">
-      <table class="min-w-full bg-white shadow:md rounded:md">
-        <thead class="text-center sticky z-10 top-0 left-0 bg-cyan-600 text-white">
+      <table class="min-w-full">
+        <thead class="text-center sticky z-10 top-0 bg-cyan-600 text-white">
           <tr>
-            <th class="py-2 px-4 border-b">Action</th>
             <th class="py-2 px-4 border-b">Display Order</th>
             <th class="py-2 px-4 border-b">Account No</th>
             <th class="py-2 px-4 border-b">Account</th>
             <th class="py-2 px-4 border-b">
-              <div class="relative inline-block group">
-                <i class="text-amber-500 far fa-question-circle mr-2"></i>RAD
-                <div
-                  class="z-20 absolute left-10 transform -translate-y-1/4 mt-2 w-48 bg-gradient-to-b from-cyan-800 to-teal-800 text-white text-sm shadow-lg rounded-md p-2 opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100">
-                  If the RAD displays "Null", then no subtotal row will be computed when display for the end user.
-                </div>
+              <div class="relative inline-block">
+                <i class="text-amber-500 far fa-question-circle mr-2 group-hover:opacity-100"></i>
+                <span class="group">
+                  RAD
+                  <div
+                    class="z-20 absolute left-10 transform -translate-y-1/4 mt-2 w-48 bg-gradient-to-b from-cyan-800 to-teal-800 text-white text-sm shadow-lg rounded-md p-2 opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100">
+                    If the RAD displays "Null", then no subtotal row will be computed when displayed for the end user.
+                  </div>
+                </span>
               </div>
             </th>
             <th class="py-2 px-4 border-b">
-              <div class="relative inline-block group">
-                <i class="text-amber-500 far fa-question-circle mr-2"></i>Forecast Multiplier
-                <div
-                  class="z-20 absolute left-10 transform -translate-y-1/4 mt-2 w-48 bg-gradient-to-b from-cyan-800 to-teal-800 text-white text-sm shadow-lg rounded-md p-2 opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100">
-                  The forecast multiplier will always multiply the actual that is matched for the AccountNo and RAD row
-                  into forecast amount for the end user.
-                </div>
+              <div class="relative inline-block">
+                <i class="text-amber-500 far fa-question-circle mr-2 group-hover:opacity-100"></i>
+                <span class="group">
+                  Forecast Multiplier
+                  <div
+                    class="z-20 absolute left-10 transform -translate-y-1/4 mt-2 w-48 bg-gradient-to-b from-cyan-800 to-teal-800 text-white text-sm shadow-lg rounded-md p-2 opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100">
+                    The forecast multiplier will always multiply the actual that is matched for the AccountNo and RAD
+                    row
+                    into forecast amount for the end user.
+                  </div>
+                </span>
               </div>
             </th>
             <th class="py-2 px-4 border-b">Forecast Comments</th>
+            <th class="py-2 px-4 border-b">Action</th>
           </tr>
         </thead>
         <tbody id="budget-entries" class="divide-y">
           {% for sub_form in form.budget_entries %}
           <tr data-id="{{ loop.index }}" draggable="true"
-            class="text-stone-500 hover:bg-stone-200 hover:text-stone-900 transition-colors duration-50 ease-in-out">
+            class="text-stone-300 hover:bg-stone-200 hover:text-stone-900 transition-colors duration-50 ease-in-out">
             {{sub_form.hidden_tag()}}
-            <td class="text-center py-2 px-4" onclick="deleteRow(this)" data-id="{{sub_form.id}}"><i
-                class="rounded-full text-rose-500 fas fa-minus-circle"></i></td>
-            <td class="py-2 px-4">{{ sub_form.display_order(readonly=true, class="bg-inherit w-full text-center
-              font-bold italic") }}</td>
+            <td class="py-2 px-4">
+              {{ sub_form.display_order(readonly=true, class="bg-inherit w-full text-center
+              border-none font-bold italic focus:outline-none focus:ring-0")}}
+            </td>
             <td class="py-2 px-4">{{ sub_form.account_no.data }}</td>
             <td class="py-2 px-4">{{ sub_form.account.data }}</td>
             <td class="py-2 px-4">
@@ -67,11 +74,15 @@
               {{ sub_form.rad.data }}
               {% endif %}
             </td>
-            <td class="py-2 px-4">
-              {{ sub_form.forecast_multiplier(class="bg-inherit w-full focus:outline-none") }}
+            <td class="py-2 px-4 text-black">
+              {{ sub_form.forecast_multiplier(class="bg-inherit w-full border-none focus:outline-none focus:ring-0") }}
             </td>
-            <td class="py-2 px-4">{{ sub_form.forecast_comments(class="bg-inherit w-full
-              focus:outline-none") }}
+            <td class="py-2 px-4 text-black">{{ sub_form.forecast_comments(class="bg-inherit w-full
+              border-none focus:outline-none focus:ring-0") }}
+            </td>
+            <td class="text-center py-2 px-4">
+              <i delete rowId="{{sub_form.id}}"
+                class="rounded-full text-rose-500 hover:text-rose-700 fas fa-minus-circle cursor-pointer"></i>
             </td>
           </tr>
           {% endfor %}
@@ -81,5 +92,8 @@
   </div>
 </form>
 
+{% if modal_html %}
+{{ modal_html | safe }}
+{% endif %}
 
 {% endblock section %}

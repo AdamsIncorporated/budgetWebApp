@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 # Initialize extensions globally
 bcrypt = Bcrypt()
@@ -17,8 +18,8 @@ def create_app():
         __name__, static_folder="./main/static", template_folder="./main/templates"
     )
     app.config.from_object(Config)
-
-    Config.init_app(app)
+    Config.init_app_logging(app)
+    CORS(app)
 
     # Associate extensions with the app
     bcrypt.init_app(app)

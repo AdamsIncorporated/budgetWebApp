@@ -10,7 +10,7 @@ from wtforms import (
     SelectField,
     FloatField,
 )
-from wtforms.validators import DataRequired, Email, Length, ValidationError
+from wtforms.validators import DataRequired, Email, Length, ValidationError, NumberRange
 from app import db
 from repositories.queries import queries
 from repositories.models import MasterEmail, User
@@ -95,30 +95,59 @@ class MultiviewTemplate(FlaskForm):
 
 class BudgetEntryForm(FlaskForm):
     id = HiddenField()
-    display_order = StringField("Display Order", validators=[DataRequired()])
-    account_no = StringField("Account No", validators=[DataRequired()])
+    display_order = StringField("Display Order")
+    account_no = StringField("Account No")
     account = SelectField("Account", validators=[DataRequired()])
-    rad = SelectField("RAD")
-    forecast_multiplier = FloatField("Forecast Multiplier")
-    forecast_comments = StringField("Forecast Comments")
+    rad = SelectField("RAD", choices=[("", "Select RAD")])
+    forecast_multiplier = FloatField(
+        "Forecast Multiplier",
+        default=1.0,
+        validators=[
+            NumberRange(
+                min=1,
+                max=500,
+                message="Length of forecast is bound between 1x and 500x!",
+            )
+        ],
+    )
+    forecast_comments = StringField(
+        "Forecast Comments",
+        validators=[
+            Length(
+                min=0,
+                max=500,
+                message="Only 500 charcter limit allowed for the forecast comments field!",
+            )
+        ],
+    )
+    is_rad = BooleanField("Should this Require a RAD?", default=0)
 
     def __init__(self, *args, **kwargs):
         super(BudgetEntryForm, self).__init__(*args, **kwargs)
 
         self.account.choices = self.get_account_choices()
-        self.rad.choices = self.get_rad_choices()
 
     def get_account_choices(self):
-        query = queries["fetch_all_accounts"]
+        query = queries["fetch_accounts_for_budget_admin_view"]
         data = db.session.execute(text(query))
 
         return [(item[0]) for item in data]
 
-    def get_rad_choices(self):
-        query = queries["fetch_all_rads"]
-        data = db.session.execute(text(query))
+    def validate(self, extra_validators=None):
+        # Call the parent class's validate method with extra_validators
+        if not super(BudgetEntryForm, self).validate(extra_validators=extra_validators):
+            return False
 
-        return [(item[0]) for item in data]
+        account_rad = f"{self.account.data} {self.rad.data}"
+        query = queries["validate_budget_entry_admin_view_row"](account_rad)
+        result = db.session.execute(text(query)).fetchone()
+
+        if result:
+            raise ValidationError(
+                "Account and RAD combination present within the budget entry admin view!"
+            )
+
+        return True
 
 
 class BudgetEntryAdminViewForm(FlaskForm):

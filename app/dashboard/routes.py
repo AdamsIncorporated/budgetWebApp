@@ -1,5 +1,14 @@
 from sqlalchemy import func
-from flask import Blueprint, render_template, redirect, flash, url_for, request, abort
+from flask import (
+    Blueprint,
+    render_template,
+    redirect,
+    flash,
+    url_for,
+    request,
+    abort,
+    session,
+)
 from flask_login import login_required, current_user
 import base64
 from io import BytesIO
@@ -47,7 +56,7 @@ def home(image_file=None):
 @dashboard.route("/download-template/<string:fiscal_year>")
 @login_required
 def download_template(fiscal_year):
-    download_folder = os.path.join(current_app.root_path, "dashboard\download")
+    download_folder = os.path.join(current_app.root_path, r"dashboard\download")
 
     # Ensure the download folder exists
     if not os.path.exists(download_folder):
@@ -291,17 +300,18 @@ def delete():
     return render_template("modal/deleteModal.html", data=data)
 
 
-@dashboard.route("/budget-admin-view", methods=["GET", "POST"])
+@dashboard.route("/budget-admin-view")
 @login_required
 @image_wrapper
 def budget_admin_view(image_file=None):
     form = BudgetEntryAdminViewForm()
+    data = BudgetEntryAdminView.query.all()
+    form.process(data={"budget_entries": data})
+    modal_html = request.args.get("modal_html", default=None)
 
-    if request.method == "GET":
-        data = BudgetEntryAdminView.query.all()
-        form.process(data={"budget_entries": data})
-
-    return render_template("budgetAdminView.html", form=form, image_file=image_file)
+    return render_template(
+        "budgetAdminView.html", form=form, image_file=image_file, modal_html=modal_html
+    )
 
 
 @dashboard.route("/budget-admin-view/delete", methods=["GET", "POST"])
@@ -337,12 +347,15 @@ def budget_admin_view_create():
         if form.validate_on_submit():
             account_no = (
                 Account.query.filter_by(account=form.account.data)
-                .with_entities(Account.AccountNo)
+                .with_entities(Account.account_no)
                 .first()
+            )[0]
+            display_order = (
+                BudgetEntryAdminView.query.with_entities(
+                    func.max(BudgetEntryAdminView.display_order)
+                ).scalar()
+                + 1
             )
-            display_order = BudgetEntryAdminView.query.with_entities(
-                func.max(BudgetEntryAdminView.display_order)
-            ).scalar()
             new_row = BudgetEntryAdminView(
                 display_order=display_order,
                 account_no=account_no,
@@ -352,19 +365,27 @@ def budget_admin_view_create():
                 forecast_comments=form.forecast_comments.data,
             )
             db.session.add(new_row)
-            db.session.commit()
 
-            flash(f"User rights for {form.email.data} created successfully!", "success")
-            return redirect(url_for("dashboard.budget_admin_view"))
-        else:
-            errors = ". ".join(
-                [
-                    error
-                    for field_errors in form.errors.values()
-                    for error in field_errors
-                ]
-            )
-            flash(errors, "error")
+            try:
+                db.session.commit()
+            except Exception as error:
+                raise error
+
+            flash(f"New budget entry admin view row created successfully!", "success")
             return redirect(url_for("dashboard.budget_admin_view"))
 
     return render_template("budgetAdminViewModal/createModal.html", form=form)
+
+
+@dashboard.route("/get-rads")
+def get_rads():
+    account = request.args.get("Account", default=None, type=str)
+
+    if not account:
+        abort(404)
+
+    query = queries["fetch_rads_by_account"](account)
+    result = db.session.execute(text(query))
+    options = [(item[0]) for item in result]
+
+    return jsonify(options)

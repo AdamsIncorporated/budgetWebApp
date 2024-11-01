@@ -352,9 +352,54 @@ queries = {
     """,
     "budget_entry_view": get_budget_entry_view,
     "fetch_all_accounts": """
-        SELECT Account FROM Account ORDER BY Account ASC;
+        SELECT DISTINCT Account
+        FROM Account
+        WHERE Account NOT IN (SELECT Account FROM BudgetEntryAdminView)
+        ORDER BY Account ASC;
     """,
     "fetch_all_rads": """
-        SELECT RAD FROM RAD ORDER BY RAD ASC;
+        SELECT DISTINCT RAD FROM RAD ORDER BY RAD ASC;
+    """,
+    "fetch_accounts_for_budget_admin_view": """
+        SELECT DISTINCT
+            vw."Account"
+        FROM 
+            "vwAccount_RadType_Rad" vw
+        WHERE 
+            (vw.AccountNo || ' ' || COALESCE(vw.RAD, '')) NOT IN (
+                SELECT 
+                    ba.AccountNo || ' ' || COALESCE(ba.RAD, '')
+                FROM 
+                    "BudgetEntryAdminView" ba
+            )
+            AND vw."AccountNo" IS NOT NULL
+        UNION    
+        SELECT DISTINCT  "Account"
+        FROM "Account"
+        WHERE "Account" IS NOT NULL
+        ORDER BY vw."Account" ASC;
+    """,
+    "fetch_rads_by_account": lambda account_no: f"""
+        SELECT DISTINCT
+            "RAD"
+        FROM 
+            "vwAccount_RadType_Rad"
+        WHERE 
+            (AccountNo || ' ' || COALESCE(RAD, '')) NOT IN (
+                SELECT 
+                    AccountNo || ' ' || COALESCE(RAD, '')
+                FROM 
+                    "BudgetEntryAdminView"
+            )
+            AND "Account" IS NOT NULL
+            AND "Account" = '{account_no}'
+        ORDER BY "RAD" ASC;
+    """,
+    "validate_budget_entry_admin_view_row": lambda account_rad: f"""
+        SELECT DISTINCT
+           AccountNo || ' ' || COALESCE(RAD, '') AS Compare
+        FROM BudgetEntryAdminView
+        WHERE 
+            AccountNo || ' ' || COALESCE(RAD, '') = '{account_rad}'
     """,
 }
