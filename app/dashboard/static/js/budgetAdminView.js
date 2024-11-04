@@ -106,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     elements.inputmask({
         alias: "numeric",
-        prefix: 'x ',
         groupSeparator: ',',
         autoGroup: true,
         digits: 3,
@@ -114,13 +113,14 @@ document.addEventListener('DOMContentLoaded', () => {
         clearIncomplete: true,
         placeholder: "0.000",
         showMaskOnHover: false,
-        max: 100,
+        max: 500.000,
+        min: 1.000,
         step: 1.001,
         rightAlign: false,
         onblur: function () {
             const value = parseFloat($(this).val().replace(/,/g, ''));
             if (value > 100) {
-                $(this).val('100.000');
+                $(this).val('500.000');
             }
         }
     });

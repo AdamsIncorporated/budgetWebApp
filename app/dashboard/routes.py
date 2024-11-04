@@ -25,8 +25,8 @@ from .forms import (
     MasterEmailForm,
     UserBusinessUnits,
     MultiviewTemplate,
-    BudgetEntryForm,
-    BudgetEntryAdminViewForm,
+    BudgetEntryAdminViewCreateForm,
+    BudgetEntryAdminViewsForm,
 )
 from flask import jsonify, current_app, send_file
 from sqlalchemy import text
@@ -304,21 +304,24 @@ def delete():
 @login_required
 @image_wrapper
 def budget_admin_view(image_file=None):
-    form = BudgetEntryAdminViewForm()
-    data = BudgetEntryAdminView.query.all()
-    form.process(data={"budget_entries": data})
+    form = BudgetEntryAdminViewsForm()
     modal_html = request.args.get("modal_html", default=None)
+
+    if request.method == "GET":
+        data = BudgetEntryAdminView.query.all()
+        form.process(data={"budget_entries": data})
 
     if request.method == "POST":
         if form.validate_on_submit():
             for sub_form in form.budget_entries:
-                id = int(sub_form.data["id"])
-                row = BudgetEntryAdminView.query.filter_by(id=id).first_or_404()
-                row.display_order = int(sub_form.display_order.data)
-                row.forcast_multiplier = float(sub_form.forecast_multiplier.data)
-                row.forecast_comments = sub_form.forecast_comments.data
-                db.session.commit()
-            flash("Successfully updated budget admin views!", "success")
+                if sub_form.data["is_updated"] == "yes":
+                    id = int(sub_form.data["id"])
+                    row = BudgetEntryAdminView.query.filter_by(id=id).first_or_404()
+                    row.display_order = sub_form.display_order.data
+                    row.forcast_multiplier = sub_form.forecast_multiplier.data
+                    row.forecast_comments = sub_form.forecast_comments.data
+                    db.session.commit()
+            flash("Successfully updated!", "success")
         else:
             flash("Form errors", "error")
 
@@ -354,7 +357,7 @@ def budget_admin_view_delete():
 @dashboard.route("/budget-admin-view/create", methods=["GET", "POST"])
 @login_required
 def budget_admin_view_create():
-    form = BudgetEntryForm()
+    form = BudgetEntryAdminViewCreateForm()
 
     if request.method == "POST":
         if form.validate_on_submit():

@@ -60,8 +60,14 @@
           <tr data-id="{{ loop.index }}" draggable="true"
             class="text-stone-300 hover:bg-stone-200 hover:text-stone-900 transition-colors duration-50 ease-in-out">
 
-            {{sub_form.hidden_tag()}}
+            {# Hidden Fields and forms #}
+            <td class="hidden">
+              {{ sub_form.hidden_tag() }}
+              {{ sub_form.account}}
+              {{ sub_form.rad }}
+            </td>
 
+            {# Actual data and fields #}
             <td class="py-2 px-4">
               {{ sub_form.display_order(readonly=true, class="bg-inherit w-full text-center
               border-none font-bold italic focus:outline-none focus:ring-0")}}
@@ -75,11 +81,11 @@
               {{ sub_form.rad.data }}
               {% endif %}
             </td>
-            <td class="py-2 px-4 text-black">
+            <td class="py-2 px-4 text-stone-600">
               {{ sub_form.forecast_multiplier(class="bg-inherit w-full border-none focus:outline-none focus:ring-0",
               oninput="changeIsUpdated(this)", masknumber="") }}
             </td>
-            <td class="py-2 px-4 text-black">{{ sub_form.forecast_comments(class="bg-inherit w-full
+            <td class="py-2 px-4 text-stone-600">{{ sub_form.forecast_comments(class="bg-inherit w-full
               border-none focus:outline-none focus:ring-0",
               oninput="changeIsUpdated(this)") }}
             </td>

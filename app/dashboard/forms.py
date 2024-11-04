@@ -9,6 +9,7 @@ from wtforms import (
     BooleanField,
     SelectField,
     FloatField,
+    IntegerField,
 )
 from wtforms.validators import (
     DataRequired,
@@ -100,10 +101,8 @@ class MultiviewTemplate(FlaskForm):
         self.fiscal_year.choices = [(row[0]) for row in result]
 
 
-class BudgetEntryForm(FlaskForm):
+class BudgetEntryAdminViewCreateForm(FlaskForm):
     id = HiddenField()
-    is_updated = HiddenField()
-    display_order = StringField("Display Order")
     account_no = StringField("Account No")
     account = SelectField("Account", validators=[DataRequired()])
     rad = SelectField("RAD", choices=[("", "Select RAD")], validators=[Optional()])
@@ -131,7 +130,7 @@ class BudgetEntryForm(FlaskForm):
     is_rad = BooleanField("Should this Require a RAD?", default=0)
 
     def __init__(self, *args, **kwargs):
-        super(BudgetEntryForm, self).__init__(*args, **kwargs)
+        super(BudgetEntryAdminViewCreateForm, self).__init__(*args, **kwargs)
 
         self.account.choices = self.get_account_choices()
 
@@ -143,7 +142,9 @@ class BudgetEntryForm(FlaskForm):
 
     def validate(self, extra_validators=None):
         # Call the parent class's validate method with extra_validators
-        if not super(BudgetEntryForm, self).validate(extra_validators=extra_validators):
+        if not super(BudgetEntryAdminViewCreateForm, self).validate(
+            extra_validators=extra_validators
+        ):
             return False
 
         account_rad = f"{self.account.data} {self.rad.data}"
@@ -161,5 +162,35 @@ class BudgetEntryForm(FlaskForm):
 
 
 class BudgetEntryAdminViewForm(FlaskForm):
-    budget_entries = FieldList(FormField(BudgetEntryForm), min_entries=1)
+    id = HiddenField()
+    is_updated = HiddenField(default="no")
+    display_order = IntegerField("Display Order")
+    account_no = StringField("Account No")
+    account = StringField("Account")
+    rad = StringField("RAD")
+    forecast_multiplier = FloatField(
+        "Forecast Multiplier",
+        default=1.0,
+        validators=[
+            NumberRange(
+                min=1,
+                max=500,
+                message="Length of forecast is bound between 1x and 500x!",
+            )
+        ],
+    )
+    forecast_comments = StringField(
+        "Forecast Comments",
+        validators=[
+            Length(
+                min=0,
+                max=500,
+                message="Only 500 charcter limit allowed for the forecast comments field!",
+            )
+        ],
+    )
+
+
+class BudgetEntryAdminViewsForm(FlaskForm):
+    budget_entries = FieldList(FormField(BudgetEntryAdminViewForm))
     submit = SubmitField("Save")
