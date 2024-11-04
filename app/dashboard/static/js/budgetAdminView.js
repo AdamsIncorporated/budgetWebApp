@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('input', async (event) => {
-        const isRad = document.getElementById('is_rad').value == 'y';
+        const isRadElement = document.getElementById('is_rad');
+        const isRad = isRadElement && isRadElement.value === 'y';
 
         if (event.target.id === 'account' && isRad) {
             const element = event.target;
@@ -45,60 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    const rows = document.querySelectorAll('#budget-entries tr');
-    let draggedRow = null;
 
-    rows.forEach(row => {
-        row.addEventListener('dragstart', () => {
-            draggedRow = row;
-            row.classList.add('opacity-30');
-        });
-
-        row.addEventListener('dragend', () => {
-            draggedRow = null;
-            row.classList.remove('opacity-30');
-        });
-
-        row.addEventListener('dragover', (event) => {
-            event.preventDefault(); // Allow the drop
-        });
-
-        row.addEventListener('drop', () => {
-            if (draggedRow !== row) {
-                const parent = row.parentNode;
-                parent.insertBefore(draggedRow, row.nextSibling || row);
-                updateDisplayOrder();
-            }
-        });
-    });
-
-    function updateDisplayOrder() {
-        const newOrder = Array.from(document.querySelectorAll('#budget-entries tr')).map((row, index) => {
-            const displayOrderInput = row.querySelector('td:first-child input'); // Adjust the selector if needed
-            if (displayOrderInput) {
-                displayOrderInput.value = index + 1;
-            }
-            return {
-                id: row.dataset.id,
-                order: index + 1
-            };
-        });
-    }
-
-    function appendModalHtml(data) {
-        document.getElementById('modalContainer')?.remove();
-
-        const contentDiv = document.createElement('div');
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
-
-        // Extract the body content and append it to the container
-        const content = document.importNode(doc.body, true);
-        contentDiv.appendChild(content);
-        contentDiv.id = 'modalContainer';
-
-        document.querySelector('body').append(contentDiv);
-    }
 
     const fetchData = async (url) => {
         try {
@@ -152,4 +100,95 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // Element Updates for masking
+    const elements = $("[masknumber]");
+
+    elements.inputmask({
+        alias: "numeric",
+        prefix: 'x ',
+        groupSeparator: ',',
+        autoGroup: true,
+        digits: 3,
+        digitsOptional: false,
+        clearIncomplete: true,
+        placeholder: "0.000",
+        showMaskOnHover: false,
+        max: 100,
+        step: 1.001,
+        rightAlign: false,
+        onblur: function () {
+            const value = parseFloat($(this).val().replace(/,/g, ''));
+            if (value > 100) {
+                $(this).val('100.000');
+            }
+        }
+    });
+
 });
+
+const rows = document.querySelectorAll('#budget-entries tr');
+let draggedRow = null;
+
+rows.forEach(row => {
+    row.addEventListener('dragstart', () => {
+        draggedRow = row;
+        row.classList.add('opacity-30');
+    });
+
+    row.addEventListener('dragend', () => {
+        draggedRow = null;
+        row.classList.remove('opacity-30');
+    });
+
+    row.addEventListener('dragover', (event) => {
+        event.preventDefault(); // Allow the drop
+    });
+
+    row.addEventListener('drop', () => {
+        if (draggedRow !== row) {
+            const parent = row.parentNode;
+            parent.insertBefore(draggedRow, row.nextSibling || row);
+            updateDisplayOrder();
+        }
+    });
+
+
+});
+
+
+function updateDisplayOrder() {
+    const newOrder = Array.from(document.querySelectorAll('#budget-entries tr')).map((row, index) => {
+        const displayOrderInput = row.querySelector('td:first-child input'); // Adjust the selector if needed
+        if (displayOrderInput) {
+            displayOrderInput.value = index + 1;
+        }
+        return {
+            id: row.dataset.id,
+            order: index + 1
+        };
+    });
+}
+
+function appendModalHtml(data) {
+    document.getElementById('modalContainer')?.remove();
+
+    const contentDiv = document.createElement('div');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data, 'text/html');
+
+    // Extract the body content and append it to the container
+    const content = document.importNode(doc.body, true);
+    contentDiv.appendChild(content);
+    contentDiv.id = 'modalContainer';
+
+    document.querySelector('body').append(contentDiv);
+}
+
+
+function changeIsUpdated(element) {
+    const id = String(element.id).split('-')[1];
+    const isUpdated = document.getElementById(`budget_entries-${id}-is_updated`);
+    isUpdated.value = "yes";
+    console.log(`%c${element.name} was updated!`, "color: green");
+}

@@ -10,7 +10,14 @@ from wtforms import (
     SelectField,
     FloatField,
 )
-from wtforms.validators import DataRequired, Email, Length, ValidationError, NumberRange
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    Length,
+    ValidationError,
+    NumberRange,
+    Optional,
+)
 from app import db
 from repositories.queries import queries
 from repositories.models import MasterEmail, User
@@ -95,10 +102,11 @@ class MultiviewTemplate(FlaskForm):
 
 class BudgetEntryForm(FlaskForm):
     id = HiddenField()
+    is_updated = HiddenField()
     display_order = StringField("Display Order")
     account_no = StringField("Account No")
     account = SelectField("Account", validators=[DataRequired()])
-    rad = SelectField("RAD", choices=[("", "Select RAD")])
+    rad = SelectField("RAD", choices=[("", "Select RAD")], validators=[Optional()])
     forecast_multiplier = FloatField(
         "Forecast Multiplier",
         default=1.0,
