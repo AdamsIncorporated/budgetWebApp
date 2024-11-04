@@ -1,96 +1,99 @@
 <!-- Error Macro -->
 {% macro create_error_container(field, current_user, is_subtotal) %}
-  {% set is_read_only = False %}
+{% set is_read_only = False %}
 
-  {% if current_user.is_root_user == 0 %}
-    {% if 'BusinessCaseName' in field.name or 'BusinessCaseAmount' in field.name %}
-      {% set is_read_only = True %}
-    {% endif %}
-  {% endif %}
+{% if current_user.is_root_user == 0 %}
+{% if 'BusinessCaseName' in field.name or 'BusinessCaseAmount' in field.name %}
+{% set is_read_only = True %}
+{% endif %}
+{% endif %}
 
-  {% if is_subtotal %}
-    {% set is_read_only = True %}
-  {% endif %}
+{% if is_subtotal %}
+{% set is_read_only = True %}
+{% endif %}
 
-  {% if field.errors %}
-    <td class="p-2" onmouseenter="displayError(this)" onmouseleave="hideError(this)">
-      {{ field(class="text-rose-500 font-bold overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0
-            focus:border-transparent", readonly=is_read_only) }}
-      <div class="error-tooltip hidden p-3 w-fit h-fit absolute bg-gradient-to-br from-rose-500 to-rose-800 rounded shadow-md">
-        <span class="text-white">
-          {% for error in field.errors %}
-            {{ error }}
-            <br />
-          {% endfor %}
-        </span>
-      </div>
-    </td>
-  {% else %}
-    <td class="p-2">
-      {{ field(class="overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0 focus:border-transparent",
-            readonly=is_read_only) }}
-    </td>
-  {% endif %}
+{% if field.errors %}
+<td class="p-2" onmouseenter="displayError(this)" onmouseleave="hideError(this)">
+  {{ field(class="text-rose-500 font-bold overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0
+  focus:border-transparent border-none", readonly=is_read_only) }}
+  <div
+    class="error-tooltip hidden p-3 w-fit h-fit absolute bg-gradient-to-br from-rose-500 to-rose-800 rounded shadow-md">
+    <span class="text-white">
+      {% for error in field.errors %}
+      {{ error }}
+      <br />
+      {% endfor %}
+    </span>
+  </div>
+</td>
+{% else %}
+<td class="p-2">
+  {{ field(class="border-none overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0
+  focus:border-transparent",
+  readonly=is_read_only) }}
+</td>
+{% endif %}
 {% endmacro %}
 
 <!-- Cells Macro -->
 {% macro create_cells(form, is_subtotal=False, current_user=None) %}
-  {{ form.hidden_tag() }}
+{{ form.hidden_tag() }}
 
-  {# Is SubTotal Hidden Cell #}
-  <td class="hidden">{{form.IsSubTotal()}}</td>
+{# Is SubTotal Hidden Cell #}
+<td class="hidden">{{form.IsSubTotal()}}</td>
 
-  {# special account cells #}
-  <td class="fixed top-0 z-10 sticky left-0 bg-white px-2 py-2 text-nowrap shadow-[3px_0_10px_rgba(0,0,0,0.1)]">
-    {% if is_subtotal %}
-      <i class="mr-3 fas fa-plus-square"></i>{{ form.AccountNo.data }}
-    {% elif form.RAD.data %}
-      <div class="ml-5">{{ form.AccountNo.data }} - {{ form.Account.data }} - {{ form.RAD.data }}</div>
-    {% else %}
-      {{ form.AccountNo.data }} - {{ form.Account.data }}
-    {% endif %}
-  </td>
+{# special account cells #}
+<td class="fixed top-0 z-10 sticky left-0 bg-white px-2 py-2 text-nowrap shadow-[3px_0_10px_rgba(0,0,0,0.1)]">
+  {% if is_subtotal %}
+  <i class="mr-3 fas fa-plus-square"></i>{{ form.AccountNo.data }}
+  {% elif form.RAD.data %}
+  <div class="ml-5">{{ form.AccountNo.data }} - {{ form.Account.data }} - {{ form.RAD.data }}</div>
+  {% else %}
+  {{ form.AccountNo.data }} - {{ form.Account.data }}
+  {% endif %}
+</td>
 
-  {# regular generated cells #}
-  <td masknumber class="p-2">{{ form.ActualsTotal.data }}</td>
-  <td masknumber class="p-2">{{ form.BudgetsTotal.data }}</td>
-  <td masknumber class="p-2 italic
+{# regular generated cells #}
+<td masknumber class="p-2">{{ form.ActualsTotal.data }}</td>
+<td masknumber class="p-2">{{ form.BudgetsTotal.data }}</td>
+<td masknumber class="p-2 italic
              {% if form.Variance.data < 0 %}
                text-rose-400
              {% else %}
                text-emerald-400
              {% endif %}">{{ form.Variance.data }}</td>
-  <td masknumber class="p-2">{{ form.ForecastAmount.data }}</td>
+<td masknumber class="p-2">{{ form.ForecastAmount.data }}</td>
 
-  {{ create_error_container(form.ProposedBudget, current_user=current_user, is_subtotal=is_subtotal) }}
-  {{ create_error_container(form.BusinessCaseName, current_user=current_user, is_subtotal=is_subtotal) }}
-  {{ create_error_container(form.BusinessCaseAmount, current_user=current_user, is_subtotal=is_subtotal) }}
-  {{ create_error_container(form.Comments, current_user=current_user, is_subtotal=is_subtotal) }}
+{{ create_error_container(form.ProposedBudget, current_user=current_user, is_subtotal=is_subtotal) }}
+{{ create_error_container(form.BusinessCaseName, current_user=current_user, is_subtotal=is_subtotal) }}
+{{ create_error_container(form.BusinessCaseAmount, current_user=current_user, is_subtotal=is_subtotal) }}
+{{ create_error_container(form.Comments, current_user=current_user, is_subtotal=is_subtotal) }}
 
-  <td masknumber total class="p-2 text-right">{{ form.TotalBudget.data }}</td>
+<td masknumber total class="p-2 text-right">{{ form.TotalBudget.data }}</td>
 {% endmacro %}
 
 <!-- Rows Macro -->
 {% macro generate_budget_rows(form, current_user) %}
-  {% set sub_groups = [] %}
-  {% for sub_form in form.budgets %}
-    {% if sub_form.IsSubTotal.data == 1 %}
-      {% set account_group = sub_form.AccountNo.data.replace('Subtotal', '').strip() %}
-      {% set _ = sub_groups.append(account_group) %}
+{% set sub_groups = [] %}
+{% for sub_form in form.budgets %}
+{% if sub_form.IsSubTotal.data == 1 %}
+{% set account_group = sub_form.AccountNo.data.replace('Subtotal', '').strip() %}
+{% set _ = sub_groups.append(account_group) %}
 
-      <tr class="font-bold cursor-pointer border-b-2 border-stone-200 hover:bg-stone-200 hover:text-stone-500 hover:border-stone-200"
-          onclick="toggleRow(this, '{{ account_group }}')">
-        {{ create_cells(sub_form, is_subtotal=True, current_user=current_user) }}
-      </tr>
-    {% elif sub_form.AccountNo.data in sub_groups %}
-      <tr class="hidden bg-white {{ sub_form.AccountNo.data }}-hidden-row">
-        {{ create_cells(sub_form, current_user=current_user) }}
-      </tr>
-    {% else %}
-      {% set _ = sub_groups.clear() %}
-      <tr class="border-b-2 border-stone-100 bg-white">
-        {{ create_cells(sub_form, current_user=current_user) }}
-      </tr>
-    {% endif %}
-  {% endfor %}
+<tr
+  class="font-bold cursor-pointer border-b-2 border-stone-200 hover:bg-stone-200 hover:text-stone-500 hover:border-stone-200"
+  onclick="toggleRow(this, '{{ account_group }}')">
+  {{ create_cells(sub_form, is_subtotal=True, current_user=current_user) }}
+</tr>
+{% elif sub_form.AccountNo.data in sub_groups %}
+<tr class="hidden bg-white {{ sub_form.AccountNo.data }}-hidden-row">
+  {{ create_cells(sub_form, current_user=current_user) }}
+</tr>
+{% else %}
+{% set _ = sub_groups.clear() %}
+<tr class="border-b-2 border-stone-100 bg-white">
+  {{ create_cells(sub_form, current_user=current_user) }}
+</tr>
+{% endif %}
+{% endfor %}
 {% endmacro %}

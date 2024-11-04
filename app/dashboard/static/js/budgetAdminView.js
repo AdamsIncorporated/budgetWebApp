@@ -1,7 +1,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (event) => {
-        if (event.target.id === 'closeModalBtn') {
+        const button = document.getElementById('closeModalBtn');
+
+        if (button && button.contains(event.target)) {
             const element = event.target;
             const modal = element.closest('[modal]') || exit('Error: Modal not found!');
 
@@ -121,31 +123,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener("click", async (event) => {
-        if (event.target.id !== 'createFormSubmitBtn') return;
+        const button = document.getElementById('createFormSubmitBtn');
 
-        event.preventDefault(); // Prevent default form submission
+        if (button && button.contains(event.target)) {
+            event.preventDefault(); // Prevent default form submission
 
-        const form = document.getElementById('createForm');
-        const formData = new FormData(form);
-        const url = form.action;
-        const method = form.method;
+            const form = document.getElementById('createForm');
+            const formData = new FormData(form);
+            const url = form.action;
+            const method = form.method;
 
-        try {
-            const response = await fetch(url, {
-                method: method,
-                body: formData,
-            });
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    body: formData,
+                });
 
-            if (response.redirected) {
-                // If the server responds with a redirect, navigate to the new URL
-                window.location.href = response.url;
-            } else if (response.ok) {
-                // If the response is OK, render the new form with error messages if needed
-                const data = await response.text();
-                appendModalHtml(data);
+                if (response.redirected) {
+                    // If the server responds with a redirect, navigate to the new URL
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    // If the response is OK, render the new form with error messages if needed
+                    const data = await response.text();
+                    appendModalHtml(data);
+                }
+            } catch (error) {
+                throw new Error("An error occurred while submitting the form. Please try again.");
             }
-        } catch (error) {
-            throw new Error("An error occurred while submitting the form. Please try again.");
         }
     });
 });

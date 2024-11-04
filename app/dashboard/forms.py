@@ -143,13 +143,15 @@ class BudgetEntryForm(FlaskForm):
         result = db.session.execute(text(query)).fetchone()
 
         if result:
-            raise ValidationError(
+            # Add the error message to the form's errors instead of raising an exception
+            self.account.errors.append(
                 "Account and RAD combination present within the budget entry admin view!"
             )
+            return False
 
         return True
 
 
 class BudgetEntryAdminViewForm(FlaskForm):
     budget_entries = FieldList(FormField(BudgetEntryForm), min_entries=1)
-    submit = SubmitField("Submit")
+    submit = SubmitField("Save")

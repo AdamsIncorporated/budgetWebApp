@@ -396,10 +396,13 @@ queries = {
         ORDER BY "RAD" ASC;
     """,
     "validate_budget_entry_admin_view_row": lambda account_rad: f"""
-        SELECT DISTINCT
-           AccountNo || ' ' || COALESCE(RAD, '') AS Compare
-        FROM BudgetEntryAdminView
-        WHERE 
-            AccountNo || ' ' || COALESCE(RAD, '') = '{account_rad}'
+        SELECT Compare
+        FROM (
+            SELECT DISTINCT
+                Account || ' ' || COALESCE(RAD, '') AS Compare
+            FROM BudgetEntryAdminView
+        ) AS Temp
+        WHERE
+            Compare = '{account_rad}'
     """,
 }

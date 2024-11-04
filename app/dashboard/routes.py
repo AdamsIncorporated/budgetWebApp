@@ -300,7 +300,7 @@ def delete():
     return render_template("modal/deleteModal.html", data=data)
 
 
-@dashboard.route("/budget-admin-view")
+@dashboard.route("/budget-admin-view", methods=["GET", "POST"])
 @login_required
 @image_wrapper
 def budget_admin_view(image_file=None):
@@ -308,6 +308,19 @@ def budget_admin_view(image_file=None):
     data = BudgetEntryAdminView.query.all()
     form.process(data={"budget_entries": data})
     modal_html = request.args.get("modal_html", default=None)
+
+    if request.method == "POST":
+        if form.validate_on_submit():
+            for sub_form in form.budget_entries:
+                id = int(sub_form.data["id"])
+                row = BudgetEntryAdminView.query.filter_by(id=id).first_or_404()
+                row.display_order = int(sub_form.display_order.data)
+                row.forcast_multiplier = float(sub_form.forecast_multiplier.data)
+                row.forecast_comments = sub_form.forecast_comments.data
+                db.session.commit()
+            flash("Successfully updated budget admin views!", "success")
+        else:
+            flash("Form errors", "error")
 
     return render_template(
         "budgetAdminView.html", form=form, image_file=image_file, modal_html=modal_html
@@ -331,11 +344,11 @@ def budget_admin_view_delete():
             return redirect(url_for("dashboard.budget_admin_view"))
 
         else:
-            flash("User not found!", "error")
+            flash("Error in deleting row!", "error")
 
             return redirect(url_for("dashboard.budget_admin_view"))
 
-    return render_template("budgetAdminModal/deleteModal.html", data=data)
+    return render_template("budgetAdminViewModal/deleteModal.html", data=data)
 
 
 @dashboard.route("/budget-admin-view/create", methods=["GET", "POST"])
