@@ -7,7 +7,6 @@ from flask import (
     url_for,
     request,
     abort,
-    session,
 )
 from flask_login import login_required, current_user
 import base64
@@ -33,12 +32,10 @@ from flask import jsonify, current_app, send_file
 from sqlalchemy import text
 from repositories.queries import (
     queries,
-    get_default_historical_fiscal_year,
-    get_default_business_unit,
 )
 from services.current_user_image import image_wrapper
 from services.get_current_fiscal_year import get_fiscal_year
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 import os
 
 
@@ -49,6 +46,45 @@ dashboard = Blueprint(
     static_folder="static",
     url_prefix="/dashboard",
 )
+
+
+@dashboard.route("/home/download-csv-table")
+def download_csv_table():
+    fiscal_year = request.args.get("fiscalYear")
+    business_unit_id = request.args.get("businessUnitId")
+
+    query = queries["actual_by_budget_for_fiscal_year_and_business_unit"](
+        fiscal_year, business_unit_id
+    )
+    data = db.session.execute(text(query))
+
+    # Create a workbook in memory using BytesIO
+    output = BytesIO()
+    workbook = Workbook()
+    sheet = workbook.active  # Get the active worksheet
+
+    headers = ["AccountNo", "Account", "TotalActual", "TotalBudget", "Variance"]
+    for col_idx, value in enumerate(headers, start=1):
+        sheet.cell(row=1, column=col_idx, value=value)
+
+    # Fill the sheet with data
+    for row_idx, row in enumerate(data, start=2):
+        for col_idx, value in enumerate(row, start=1):
+            sheet.cell(row=row_idx, column=col_idx, value=value)
+
+    # Save the workbook to the in-memory BytesIO object
+    workbook.save(output)
+
+    # Reset the stream position to the beginning
+    output.seek(0)
+
+    # Return the file for download as a response
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name="output.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
 
 
 @dashboard.route("/home/table")
