@@ -9,28 +9,10 @@ from wtforms import (
     IntegerField,
 )
 from wtforms.validators import Optional
-from repositories.queries import queries
-from app import db
-from sqlalchemy import text
-from wtforms.validators import Length
-
-
-def get_historical_fiscal_year_picklist():
-    query = queries["fetch_all_historical_fiscal_years"]
-    data = db.session.execute(text(query))
-
-    return [(item[0]) for item in data]
-
-
-def get_proposed_fiscal_year_picklist():
-    query = queries["fetch_all_proposed_fiscal_years"]
-    data = db.session.execute(text(query))
-
-    return [(item[0]) for item in data]
-
-
-HISTORICAL_FISCAL_YEAR_PICKLIST_CHOICES = get_historical_fiscal_year_picklist()
-PROPOSED_FISCAL_YEAR_PICKLIST_CHOICES = get_proposed_fiscal_year_picklist()
+from repositories.queries import (
+    get_historical_fiscal_year_picklist,
+    get_proposed_fiscal_year_picklist,
+)
 
 
 class Budget(FlaskForm):
@@ -86,10 +68,10 @@ class Budget(FlaskForm):
 class Budgets(FlaskForm):
     budgets = FieldList(FormField(Budget), min_entries=1)
     historical_fiscal_year_picklist = SelectField(
-        validators=[Optional()], choices=HISTORICAL_FISCAL_YEAR_PICKLIST_CHOICES
+        validators=[Optional()], choices=get_historical_fiscal_year_picklist()
     )
     proposed_fiscal_year_picklist = SelectField(
-        validators=[Optional()], choices=PROPOSED_FISCAL_YEAR_PICKLIST_CHOICES
+        validators=[Optional()], choices=get_proposed_fiscal_year_picklist()
     )
     business_unit_picklist = SelectField(validators=[Optional()])
     submit = SubmitField("Submit Budget")

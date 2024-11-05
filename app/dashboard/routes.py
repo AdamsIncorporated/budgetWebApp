@@ -27,10 +27,15 @@ from .forms import (
     MultiviewTemplate,
     BudgetEntryAdminViewCreateForm,
     BudgetEntryAdminViewsForm,
+    DashBoardActualsToBudgetForm,
 )
 from flask import jsonify, current_app, send_file
 from sqlalchemy import text
-from repositories.queries import queries
+from repositories.queries import (
+    queries,
+    get_default_historical_fiscal_year,
+    get_default_business_unit,
+)
 from services.current_user_image import image_wrapper
 from services.get_current_fiscal_year import get_fiscal_year
 from openpyxl import load_workbook
@@ -50,7 +55,15 @@ dashboard = Blueprint(
 @login_required
 @image_wrapper
 def home(image_file=None):
-    return render_template("homeDashboard.html", image_file=image_file)
+    query = queries["actual_by_budget_for_fiscal_year_and_business_unit"](
+        get_default_historical_fiscal_year(), get_default_business_unit()
+    )
+    form = DashBoardActualsToBudgetForm()
+    data = db.session.execute(text(query))
+
+    return render_template(
+        "homeDashboard.html", image_file=image_file, data=data, form=form
+    )
 
 
 @dashboard.route("/download-template/<string:fiscal_year>")

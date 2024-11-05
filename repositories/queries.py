@@ -1,6 +1,52 @@
 import polars as pl
 import sqlite3
 import os
+from app import db
+from sqlalchemy import text
+
+
+def get_all_business_units():
+    query = queries["fetch_all_business_unit_ids"]
+    data = db.session.execute(text(query)).fetchall()
+
+    return [(item[0], item[1]) for item in data]
+
+
+def get_historical_fiscal_year_picklist():
+    query = queries["fetch_all_historical_fiscal_years"]
+    data = db.session.execute(text(query))
+
+    return [(item[0]) for item in data]
+
+
+def get_proposed_fiscal_year_picklist():
+    query = queries["fetch_all_proposed_fiscal_years"]
+    data = db.session.execute(text(query))
+
+    return [(item[0]) for item in data]
+
+
+def get_default_historical_fiscal_year():
+    result = db.session.execute(
+        text(queries["fetch_default_historical_fiscal_year"])
+    ).all()
+    value = result[0][0]
+    return value
+
+
+def get_default_proposed_fiscal_year():
+    result = db.session.execute(
+        text(queries["fetch_all_default_proposed_fiscal_year"])
+    ).all()
+    value = result[0][0]
+    return value
+
+
+def get_default_business_unit():
+    query = queries["fetch_default_business_unit_id"]
+    data = db.session.execute(text(query)).fetchall()[0][0]
+
+    return data
 
 
 def get_budget_entry_view(
@@ -254,6 +300,12 @@ queries = {
         ORDER BY 
             FiscalYear DESC 
     """,
+    "fetch_default_business_unit": """
+        SELECT BusinessUnitId, BusinessUnit FROM BusinessUnit ORDER BY BusinessUnitId ASC LIMIT 1;
+    """,
+    "fetch_default_business_unit_id": """
+        SELECT BusinessUnitId FROM BusinessUnit ORDER BY BusinessUnitId ASC LIMIT 1;
+    """,
     "fetch_default_historical_fiscal_year": """
         SELECT DISTINCT 
             FiscalYear 
@@ -404,5 +456,37 @@ queries = {
         ) AS Temp
         WHERE
             Compare = '{account_rad}'
+    """,
+    "actual_by_budget_for_fiscal_year_and_business_unit": lambda fiscal_year, business_unit_id: f"""
+        WITH 
+        VARIABLES AS (
+            SELECT 
+                '{fiscal_year}' AS FiscalYear,
+                '{business_unit_id}' AS BusinessUnitId
+        ),
+        MAIN AS (
+            SELECT
+                a."AccountNo",
+                a."Account",
+                (
+                    SELECT SUM(b."Amount")
+                    FROM "Budget" b
+                    WHERE
+                        b."AccountNo" = a."AccountNo"
+                        AND b."BusinessUnitId" = (SELECT "BusinessUnitId" FROM VARIABLES)
+                        AND b."FiscalYear" = (SELECT "FiscalYear" FROM VARIABLES)
+                ) AS TotalBudget,
+                (
+                    SELECT SUM(j."Amount")
+                    FROM "JournalEntry" j
+                    WHERE
+                        j."AccountNo" = a."AccountNo"
+                        AND j."BusinessUnitId" = (SELECT "BusinessUnitId" FROM VARIABLES)
+                        AND j."FiscalYear" = (SELECT "FiscalYear" FROM VARIABLES)
+                ) AS TotalActual
+            FROM "Account" a
+            ORDER BY a."AccountNo" ASC
+        )
+        SELECT *, (TotalBudget - TotalActual) AS Variance FROM MAIN;
     """,
 }

@@ -2,7 +2,11 @@ from functools import wraps
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from .forms import Budgets
 from repositories.models import ProposedBudget, UserBusinessUnit
-from repositories.queries import queries
+from repositories.queries import (
+    queries,
+    get_default_historical_fiscal_year,
+    get_default_proposed_fiscal_year,
+)
 from app import db
 from sqlalchemy import text
 from flask_login import login_required, current_user
@@ -15,22 +19,6 @@ budget = Blueprint(
     static_folder="static",
     url_prefix="/budget",
 )
-
-
-def get_default_historical_fiscal_year():
-    result = db.session.execute(
-        text(queries["fetch_default_historical_fiscal_year"])
-    ).all()
-    value = result[0][0]
-    return value
-
-
-def get_default_proposed_fiscal_year():
-    result = db.session.execute(
-        text(queries["fetch_all_default_proposed_fiscal_year"])
-    ).all()
-    value = result[0][0]
-    return value
 
 
 def get_all_business_units():

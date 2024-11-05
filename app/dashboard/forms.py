@@ -20,9 +20,25 @@ from wtforms.validators import (
     Optional,
 )
 from app import db
-from repositories.queries import queries
+from repositories.queries import (
+    queries,
+    get_all_business_units,
+    get_default_business_unit,
+    get_default_historical_fiscal_year,
+    get_historical_fiscal_year_picklist,
+)
 from repositories.models import MasterEmail, User
 from sqlalchemy import text
+
+
+class DashBoardActualsToBudgetForm:
+    fiscal_year = SelectField(
+        default=get_default_historical_fiscal_year(),
+        choices=get_historical_fiscal_year_picklist(),
+    )
+    business_unit = SelectField(
+        default=get_default_business_unit(), choices=get_all_business_units()
+    )
 
 
 class UserBusinessUnit(FlaskForm):

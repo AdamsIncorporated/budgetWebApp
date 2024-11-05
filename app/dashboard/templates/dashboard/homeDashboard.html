@@ -2,6 +2,7 @@
 
 <script src="{{url_for('dashboard.static', filename='js/chart.js')}}"></script>
 
+{# Charts #}
 <div class="relative overflow-hidden w-full my-5 p-6">
   <div id="canvasSlider" class="flex transition-transform duration-500 ease-in-out">
     <div class="flex-shrink-0 w-full">
@@ -23,5 +24,17 @@
   </button>
 </div>
 
+{# Tables #}
+<div>
+  <table>
+    <thead>
+      <th>AccountNo</th>
+      <th>Account</th>
+      <th>Total Actual</th>
+      <th>Total Budget</th>
+      <th>Variance</th>
+    </thead>
+  </table>
+</div>
 
 {% endblock section %}
