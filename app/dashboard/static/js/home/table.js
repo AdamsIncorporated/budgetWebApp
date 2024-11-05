@@ -46,6 +46,37 @@ const skeletonLoaderHtml = `
     </div>
 `
 
+const getTableText = (divider) => {
+    // Get the headers from the table
+    const headers = Array.from(document.querySelectorAll('thead th'))
+        .map(header => header.textContent.trim())
+        .join(divider);
+    
+    // Get the data rows from the table
+    const rows = Array.from(document.querySelectorAll('tbody tr'));
+    const td = rows
+        .map(row => Array.from(row.querySelectorAll('td'))
+            .map(cell => cell.textContent.trim())
+            .join(divider))
+        .join('\n');
+
+    // Return the full table text
+    return `${headers}\n${td}`;
+};
+
+
+const handleCopy = (evt) => {
+    if (!navigator.clipboard) {
+        return;
+    }
+    const text = getTableText(divider="\t");
+    // The following line doesn't work in CodeSandbox
+    navigator.clipboard.writeText(text).then(() => {
+        console.log("Copied to clipboard");
+    });
+};
+
+
 function getCSVFile() {
     const fiscalYearSelect = document.getElementById('fiscal_year');
     const businessUnitSelect = document.getElementById('business_unit');
