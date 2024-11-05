@@ -346,6 +346,9 @@ queries = {
         WHERE "FiscalYear" = 'FY24'
         GROUP BY 
             bu."BusinessUnit"
+        ORDER BY 
+            TotalBudgetByDepartment DESC
+        LIMIT 5;
     """,
     "user_business_units": lambda user_id: f"""
         SELECT
@@ -459,34 +462,44 @@ queries = {
     """,
     "actual_by_budget_for_fiscal_year_and_business_unit": lambda fiscal_year, business_unit_id: f"""
         WITH 
-        VARIABLES AS (
+            VARIABLES AS (
+                SELECT 
+                    '{fiscal_year}' AS FiscalYear,
+                    '{business_unit_id}' AS BusinessUnitId
+            )
+        SELECT 
+            a."AccountNo",
+            a."Account",
+            printf('%,.2f', COALESCE(b.TotalBudget, 0)) AS TotalBudget,
+            printf('%,.2f', COALESCE(j.TotalActual, 0)) AS TotalActual,
+            printf('%,.2f', COALESCE(b.TotalBudget, 0) - COALESCE(j.TotalActual, 0)) AS Variance
+        FROM 
+            "Account" a
+        LEFT JOIN (
             SELECT 
-                '{fiscal_year}' AS FiscalYear,
-                '{business_unit_id}' AS BusinessUnitId
-        ),
-        MAIN AS (
-            SELECT
-                a."AccountNo",
-                a."Account",
-                (
-                    SELECT SUM(b."Amount")
-                    FROM "Budget" b
-                    WHERE
-                        b."AccountNo" = a."AccountNo"
-                        AND b."BusinessUnitId" = (SELECT "BusinessUnitId" FROM VARIABLES)
-                        AND b."FiscalYear" = (SELECT "FiscalYear" FROM VARIABLES)
-                ) AS TotalBudget,
-                (
-                    SELECT SUM(j."Amount")
-                    FROM "JournalEntry" j
-                    WHERE
-                        j."AccountNo" = a."AccountNo"
-                        AND j."BusinessUnitId" = (SELECT "BusinessUnitId" FROM VARIABLES)
-                        AND j."FiscalYear" = (SELECT "FiscalYear" FROM VARIABLES)
-                ) AS TotalActual
-            FROM "Account" a
-            ORDER BY a."AccountNo" ASC
-        )
-        SELECT *, (TotalBudget - TotalActual) AS Variance FROM MAIN;
+                b."AccountNo", 
+                SUM(b."Amount") AS TotalBudget
+            FROM 
+                "Budget" b
+            JOIN 
+                VARIABLES v ON b."BusinessUnitId" = v."BusinessUnitId" AND b."FiscalYear" = v."FiscalYear"
+            GROUP BY 
+                b."AccountNo"
+        ) b ON a."AccountNo" = b."AccountNo"
+        LEFT JOIN (
+            SELECT 
+                j."AccountNo", 
+                SUM(j."Amount") AS TotalActual
+            FROM 
+                "JournalEntry" j
+            JOIN 
+                VARIABLES v ON j."BusinessUnitId" = v."BusinessUnitId" AND j."FiscalYear" = v."FiscalYear"
+            GROUP BY 
+                j."AccountNo"
+        ) j ON a."AccountNo" = j."AccountNo"
+        WHERE 
+            COALESCE(b.TotalBudget, 0) <> 0 OR COALESCE(j.TotalActual, 0) <> 0
+        ORDER BY 
+            a."AccountNo" ASC;
     """,
 }

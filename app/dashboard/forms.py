@@ -31,7 +31,7 @@ from repositories.models import MasterEmail, User
 from sqlalchemy import text
 
 
-class DashBoardActualsToBudgetForm:
+class DashBoardActualsToBudgetForm(FlaskForm):
     fiscal_year = SelectField(
         default=get_default_historical_fiscal_year(),
         choices=get_historical_fiscal_year_picklist(),

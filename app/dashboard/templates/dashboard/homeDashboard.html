@@ -1,6 +1,7 @@
 {% extends 'indexDashboard.html' %} {% block section %}
 
-<script src="{{url_for('dashboard.static', filename='js/chart.js')}}"></script>
+<script src="{{url_for('dashboard.static', filename='js/home/chart.js')}}"></script>
+<script src="{{url_for('dashboard.static', filename='js/home/table.js')}}"></script>
 
 {# Charts #}
 <div class="relative overflow-hidden w-full my-5 p-6">
@@ -24,17 +25,33 @@
   </button>
 </div>
 
-{# Tables #}
+{# Selectors #}
 <div>
-  <table>
-    <thead>
-      <th>AccountNo</th>
-      <th>Account</th>
-      <th>Total Actual</th>
-      <th>Total Budget</th>
-      <th>Variance</th>
-    </thead>
-  </table>
+  <div class="w-full mb-4 p-4 flex flex-row justify-between gap-4 items-end">
+    <div>
+      <label for="fiscal_year" class="block text-teal-800 font-bold mb-2">Fiscal Year:</label>
+      {{ form.fiscal_year(class='bg-white shadow appearance-none border border-none rounded
+      w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
+      focus:ring-teal-300 focus:border-teal-500') }} {% for error in
+      form.fiscal_year.errors %}
+      <div class="text-red-500 text-sm">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div>
+      <label for="business_unit" class="block text-teal-800 font-bold mb-2">Business Unit:</label>
+      {{ form.business_unit(class='bg-white shadow appearance-none border border-none rounded
+      w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
+      focus:ring-teal-300 focus:border-teal-500') }} {% for error in
+      form.business_unit.errors %}
+      <div class="text-red-500 text-sm">{{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
 </div>
+
+
+
+{# Tables #}
+<div id="tableContainer"></div>
 
 {% endblock section %}

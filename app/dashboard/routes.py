@@ -51,19 +51,25 @@ dashboard = Blueprint(
 )
 
 
+@dashboard.route("/home/table")
+def get_table_html():
+    fiscal_year = request.args.get("fiscalYear")
+    business_unit_id = request.args.get("businessUnitId")
+    query = queries["actual_by_budget_for_fiscal_year_and_business_unit"](
+        fiscal_year, business_unit_id
+    )
+    data = db.session.execute(text(query)).fetchall()
+
+    return render_template("homeComponents/table.html", data=data)
+
+
 @dashboard.route("/home")
 @login_required
 @image_wrapper
 def home(image_file=None):
-    query = queries["actual_by_budget_for_fiscal_year_and_business_unit"](
-        get_default_historical_fiscal_year(), get_default_business_unit()
-    )
     form = DashBoardActualsToBudgetForm()
-    data = db.session.execute(text(query))
 
-    return render_template(
-        "homeDashboard.html", image_file=image_file, data=data, form=form
-    )
+    return render_template("homeDashboard.html", image_file=image_file, form=form)
 
 
 @dashboard.route("/download-template/<string:fiscal_year>")
