@@ -14,7 +14,8 @@
 
 {% if field.errors %}
 <td class="p-2" onmouseenter="displayError(this)" onmouseleave="hideError(this)">
-  {{ field(class="text-rose-500 font-bold overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0
+  {{ field(class="text-xs text-rose-500 font-bold overflow-none bg-inherit whitespace-nowrap focus:outline-none
+  focus:ring-0
   focus:border-transparent border-none", readonly=is_read_only) }}
   <div
     class="error-tooltip hidden p-3 w-fit h-fit absolute bg-gradient-to-br from-rose-500 to-rose-800 rounded shadow-md">
@@ -28,7 +29,7 @@
 </td>
 {% else %}
 <td class="p-2">
-  {{ field(class="border-none overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0
+  {{ field(class="text-xs border-none overflow-none bg-inherit whitespace-nowrap focus:outline-none focus:ring-0
   focus:border-transparent",
   readonly=is_read_only) }}
 </td>

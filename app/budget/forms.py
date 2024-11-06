@@ -26,11 +26,15 @@ class Budget(FlaskForm):
     BudgetsTotal = HiddenField()
     Variance = HiddenField()
     ForecastAmount = HiddenField()
-    ProposedBudget = StringField(render_kw={"masknumber": True})
+    ProposedBudget = StringField(
+        render_kw={"masknumber": True, "sumProposedBudget": True}
+    )
     BusinessCaseName = StringField()
-    BusinessCaseAmount = StringField(render_kw={"masknumber": True})
+    BusinessCaseAmount = StringField(
+        render_kw={"masknumber": True, "sumBusinessCaseAmount": True}
+    )
     Comments = StringField()
-    TotalBudget = StringField(render_kw={"masknumber": True})
+    TotalBudget = StringField(render_kw={"masknumber": True, "totalBudget": True})
     IsSubTotal = IntegerField(default=0)
 
     @staticmethod

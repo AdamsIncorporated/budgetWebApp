@@ -1,3 +1,2 @@
 - Stress test the db with no data
-- Totals row
 - Multiview change header to have accurate fiscal years

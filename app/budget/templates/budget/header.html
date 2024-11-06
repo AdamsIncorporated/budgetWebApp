@@ -14,24 +14,18 @@
 
       <div class="flex items-end shadow-md rounded-md p-4">
         <div
-          class="flex justify-center items-center rounded-full w-10 h-10 object-cover mr-4 border-4 border-stone-300 bg-cyan-900 text-gray-white"
-        >
-          <img
-            class="rounded-full w-full h-full object-cover text-xs"
-            src="data:image/jpeg;base64,{{ image_file }}"
+          class="flex justify-center items-center rounded-full w-10 h-10 object-cover mr-4 border-4 border-stone-300 bg-cyan-900 text-gray-white">
+          <img class="rounded-full w-full h-full object-cover text-xs" src="data:image/jpeg;base64,{{ image_file }}"
             alt="User Image"
-            onerror="this.style.display='none'; this.parentElement.style.fontSize = '8px'; this.parentElement.textContent = 'User';"
-          />
+            onerror="this.style.display='none'; this.parentElement.style.fontSize = '8px'; this.parentElement.textContent = 'User';" />
         </div>
         <div class="flex-col">
           <h2 class="truncate text-xs font-bold whitespace-nowrap">
             {% if current_user.is_root_user == 1 %}
-            <span class="text-amber-400"
-              ><i class="fas fa-crown"></i> {{ current_user.username }}
+            <span class="text-amber-400"><i class="fas fa-crown"></i> {{ current_user.username }}
             </span>
             {% else %}
-            <span class="text-emerald-400"
-              ><i class="fas fa-key"></i> {{ current_user.username }}
+            <span class="text-emerald-400"><i class="fas fa-key"></i> {{ current_user.username }}
             </span>
             {% endif %}
           </h2>
@@ -41,8 +35,8 @@
       {% endif %}
     </div>
   </div>
-  <div class="overflow-auto flex flex-row justify-between items-end my-5 pb-2">
-    <div class="flex flex-row items-end gap-3 p-2">
+  <div class="overflow-auto flex flex-row justify-between items-end my-5 pb-2 gap-2">
+    <div class="flex flex-row items-end gap-3">
       <div class="flex flex-col text-teal-700">
         <div class="p-2 text-xs text-nowrap">Historical Fiscal Year</div>
         {{ form.historical_fiscal_year_picklist(class="inline-flex justify-between w-full
@@ -61,7 +55,7 @@
       </div>
       <div class="flex flex-col text-teal-700">
         <div class="p-2 text-xs text-nowrap">Department</div>
-        {{ form.business_unit_picklist(class="inline-flex justify-between w-full
+        {{ form.business_unit_picklist(class="inline-flex text-nowrap justify-between w-full
         rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-xs
         font-medium text-cyan-800 hover:bg-white hover:text-cyan-950
         focus:outline-none focus:ring-2 focus:ring-offset-2
@@ -70,19 +64,13 @@
     </div>
     <div class="flex flex-col justify-between gap-4">
       <div class="flex flex-row">
-        <button
-          id="queryBtn"
-          type="button"
-          class="flex items-center justify-center bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75 mr-4"
-        >
-          <i class="fas fa-server mr-2"></i> 
+        <button id="queryBtn" type="button"
+          class="flex items-center justify-center bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75 mr-4">
+          <i class="fas fa-server mr-2"></i>
           Query
         </button>
-        <button
-          form="budgetsForm"
-          type="submit"
-          class="flex items-center justify-center bg-teal-500 text-white font-bold py-2 px-4 rounded hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75"
-        >
+        <button form="budgetsForm" type="submit"
+          class="flex items-center justify-center bg-teal-500 text-white font-bold py-2 px-4 rounded hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75">
           <i class="fas fa-save mr-2"></i>
           Save
         </button>

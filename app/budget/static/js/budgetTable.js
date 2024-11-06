@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
         cells.forEach((cell) => {
             const isEvenRow = cell.parentElement.rowIndex % 2 === 0;
             const classToAdd = isEvenRow ? "bg-stone-200" : "bg-teal-200";
-            
+
             if (highlight) {
                 cell.classList.add(classToAdd);
                 cell.classList.add("border-none");
@@ -65,42 +65,39 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // // add total event listener for each total budget element
-    // function updateTotalAmount() {
-    //     const totals = document.querySelectorAll('td[total]');
-    //     totals.forEach(function (field) {
-    //         const row = field.closest('tr');
-    //         const businessCaseAmount = row.querySelector('*[id*="businessCase"]').textContent;
-    //         const proposedBudgetAmount = row.querySelector('*[id*="proposedBudget"]').textContent;
-    //         const total = parseFloat(businessCaseAmount) + parseFloat(proposedBudgetAmount);
-    //         field.textContent = total || 0;
-    //     });
-    // }
+    // add total event listener for each total budget element
+    function updateTotalAmount(element) {
+        const row = element.closest('tr');
+        const businessCaseAmountElement = row.querySelector('input[sumbusinesscaseamount]');
+        const proposedBudgetElement = row.querySelector('input[sumproposedbudget]');
+        const totalBudget = row.querySelector('input[TotalBudget]');
 
-    // // Add change event listeners to the relevant fields
-    // const businessCaseFields = document.querySelectorAll('td[businessCase]');
-    // const proposedBudgetFields = document.querySelectorAll('td[proposedBudget]');
+        const businessCaseAmount = parseFloat(businessCaseAmountElement?.textContent || 0);
+        const proposedBudgetAmount = parseFloat(proposedBudgetElement?.textContent || 0);
+        const total = businessCaseAmount + proposedBudgetAmount;
 
-    // businessCaseFields.forEach(function (field) {
-    //     field.addEventListener('change', updateTotalAmount);
-    // });
+        totalBudget.textContent = total.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
 
-    // proposedBudgetFields.forEach(function (field) {
-    //     field.addEventListener('change', updateTotalAmount);
-    // });
 
-    // // Optionally, if you're using inputs, you might want to listen for input or keyup events
-    // businessCaseFields.forEach(function (field) {
-    //     field.addEventListener('input', updateTotalAmount);
-    // });
+    // Add change event listeners to the relevant fields
+    const sumBusinessCaseAmounts = document.querySelectorAll('input[sumbusinesscaseamount]');
+    const sumProposedBudgets = document.querySelectorAll('input[sumproposedbudget]');
 
-    // proposedBudgetFields.forEach(function (field) {
-    //     field.addEventListener('input', updateTotalAmount);
-    // });
+    sumBusinessCaseAmounts.forEach(function (field) {
+        field.addEventListener('input', function () {
+            updateTotalAmount(field);
+        });
+    });
 
-    // // Initial call to set totals based on existing values
-    // updateTotalAmount();
-
+    sumProposedBudgets.forEach(function (field) {
+        field.addEventListener('input', function () {
+            updateTotalAmount(field);
+        });
+    });
 
     // add event listner for query button
     document.getElementById('queryBtn').addEventListener('click', () => {
