@@ -7,15 +7,6 @@ document.addEventListener('DOMContentLoaded', function () {
         '#0F766E', // Teal 700
     ];
 
-    // Initial setup
-    const canvases = document.querySelectorAll('#canvasSlider > div');
-    let currentIndex = 0;
-
-    function updateCanvasVisibility() {
-        const offset = -currentIndex * 100; // Calculate offset
-        document.getElementById('canvasSlider').style.transform = `translateX(${offset}%)`;
-    }
-
     fetch('/dashboard/budget-pie-chart')
         .then(response => {
             if (!response.ok) {
@@ -29,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const ctx = document.getElementById('budgetPieChart').getContext('2d');
             new Chart(ctx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
                     labels: labels,
                     datasets: [{
@@ -44,14 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        title: {
-                            font: {
-                                size: 34,
-                                weight: 'bold',
-                            },
-                            display: true,
-                            text: 'Budget Allocation by Business Unit'
-                        },
                         legend: {
                             display: false
                         },
@@ -63,24 +46,27 @@ document.addEventListener('DOMContentLoaded', function () {
                                     return `${tooltipItem.label}: $${formattedValue}`;
                                 }
                             }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Historical Budget Distribution',
+                            color: '#0891b2',
+                            font: {
+                                size: 18,
+                                weight: 'bold',
+                                family: '"Baskerville", sans-serif',
+                            },
+                            padding: {
+                                top: 20,
+                                bottom: 20
+                            },
+                            align: 'center',
+                            fullWidth: true,
+                            fullSize: true
                         }
                     }
                 }
             });
-
-            // Setup another chart if needed
-            // For example: setupAnotherChart();
-
         })
         .catch(error => console.error('Error loading chart data:', error));
-
-    document.getElementById('nextBtn').addEventListener('click', function () {
-        currentIndex = (currentIndex + 1) % canvases.length; // Cycle through canvases
-        updateCanvasVisibility();
-    });
-
-    document.getElementById('prevBtn').addEventListener('click', function () {
-        currentIndex = (currentIndex - 1 + canvases.length) % canvases.length; // Cycle through canvases
-        updateCanvasVisibility();
-    });
 });

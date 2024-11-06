@@ -3,55 +3,44 @@
 <script src="{{url_for('dashboard.static', filename='js/home/chart.js')}}"></script>
 <script src="{{url_for('dashboard.static', filename='js/home/table.js')}}"></script>
 
-{# Charts #}
-<div class="relative overflow-hidden w-full my-5 p-6">
-  <div id="canvasSlider" class="flex transition-transform duration-500 ease-in-out">
-    <div class="flex-shrink-0 w-full">
-      <canvas id="budgetPieChart" width="400" height="400"></canvas>
-    </div>
-    <div class="flex-shrink-0 w-full">
-      <canvas id="anotherChart" width="200" height="200"></canvas>
-    </div>
-    <!-- Add more canvases as needed -->
+<div class="grid grid-cols-2 gap-5" class="shadow-md rounded-md">
+  <div id="chartsCell" class="w-full relative shadow-md rounded-md p-5">
+    <canvas id="budgetPieChart" width="200" height="200" class="mb-10 overflow-auto"></canvas>
+    <button id="prevBtn"
+      class="absolute left-5 bottom-0 transform -translate-y-1/2 text-stone-300 shadow-md bg-white text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:shadow-lg">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <button id="nextBtn"
+      class="absolute right-5 bottom-0 transform -translate-y-1/2 text-stone-300 shadow-md bg-white text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:shadow-lg">
+      <i class="fas fa-arrow-right"></i>
+    </button>
   </div>
-
-  <button id="prevBtn"
-    class="absolute left-0 bottom-0 transform -translate-y-1/2 bg-cyan-500 text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:bg-cyan-600">
-    <i class="fas fa-arrow-left"></i>
-  </button>
-  <button id="nextBtn"
-    class="absolute right-0 bottom-0 transform -translate-y-1/2 bg-cyan-500 text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:bg-cyan-600">
-    <i class="fas fa-arrow-right"></i>
-  </button>
-</div>
-
-{# Selectors #}
-<div>
-  <div class="w-full mb-4 p-4 flex flex-row justify-between gap-4 items-end">
-    <div>
-      <label for="fiscal_year" class="block text-teal-800 font-bold mb-2">Fiscal Year:</label>
-      {{ form.fiscal_year(class='bg-white shadow appearance-none border border-none rounded
-      w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
-      focus:ring-teal-300 focus:border-teal-500') }} {% for error in
-      form.fiscal_year.errors %}
-      <div class="text-red-500 text-sm">{{ error }}</div>
-      {% endfor %}
+  <div id="baseStats" class="shadow-md rounded-md">
+    BASE STATS
+  </div>
+  <div id="tablesCell" class="col-span-2 shadow-md rounded-md p-5">
+    <div class="w-full mb-4 flex flex-row justify-between gap-4 items-end">
+      <div>
+        <label for="fiscal_year" class="block text-teal-800 font-bold mb-2">Fiscal Year:</label>
+        {{ form.fiscal_year(class='bg-white shadow appearance-none border border-none rounded
+        w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
+        focus:ring-teal-300 focus:border-teal-500') }} {% for error in
+        form.fiscal_year.errors %}
+        <div class="text-red-500 text-sm">{{ error }}</div>
+        {% endfor %}
+      </div>
+      <div>
+        <label for="business_unit" class="block text-teal-800 font-bold mb-2">Business Unit:</label>
+        {{ form.business_unit(class='bg-white shadow appearance-none border border-none rounded
+        w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
+        focus:ring-teal-300 focus:border-teal-500') }} {% for error in
+        form.business_unit.errors %}
+        <div class="text-red-500 text-sm">{{ error }}</div>
+        {% endfor %}
+      </div>
     </div>
-    <div>
-      <label for="business_unit" class="block text-teal-800 font-bold mb-2">Business Unit:</label>
-      {{ form.business_unit(class='bg-white shadow appearance-none border border-none rounded
-      w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
-      focus:ring-teal-300 focus:border-teal-500') }} {% for error in
-      form.business_unit.errors %}
-      <div class="text-red-500 text-sm">{{ error }}</div>
-      {% endfor %}
-    </div>
+    <div id="tableContainer"></div>
   </div>
 </div>
-
-
-
-{# Tables #}
-<div id="tableContainer"></div>
 
 {% endblock section %}

@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const errorHtml = `
     <div class="text-center text-3xl bg-gradient-to-r from-rose-300 to-red-600 bg-clip-text text-transparent font-bold">
-    <h1>There was an error loading the data!</h1>
+        <h1>There was an error loading the data!</h1>
     </div>
 `
 
@@ -70,9 +70,11 @@ const handleCopy = (evt) => {
         return;
     }
     const text = getTableText(divider="\t");
-    // The following line doesn't work in CodeSandbox
     navigator.clipboard.writeText(text).then(() => {
         console.log("Copied to clipboard");
+        const copyToolTip = document.getElementById('copyToolTip');
+        copyToolTip.classList.remove('hidden');
+        setTimeout(() => copyToolTip.classList.add('hidden'), 1000);
     });
 };
 
