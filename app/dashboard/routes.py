@@ -9,7 +9,6 @@ from flask import (
     abort,
 )
 from flask_login import login_required, current_user
-import base64
 from io import BytesIO
 from app import db
 from repositories.models import (
