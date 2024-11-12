@@ -7,26 +7,20 @@
   <div class="container flex flex-row text-teal-700">
     <div class="flex-col w-full">
       <div class="h-96 overflow-auto mx-auto p-6">
-        <h1 class="p-2 my-5 text-teal-700 text-3xl border-b border-stone-100">Add Authorized Account Users to Assigned Business Units</h1>
+        <h1 class="p-2 my-5 text-teal-700 text-3xl border-b border-stone-100">
+          Add Users to Assigned Business Units
+        </h1>
         {% if master_emails %}
         <table
           id="masterEmailTable"
-          class="top-0 sticky table table-bordered border-collapse"
+          class="top-0 sticky table table-bordered border-collapse w-full"
         >
           <thead>
             <tr>
-              <th class="p-2 bg-cyan-500 text-white border-x-4 border-white">
-                Email
-              </th>
-              <th class="p-2 bg-cyan-500 text-white border-x-4 border-white">
-                Creator
-              </th>
-              <th class="p-2 bg-cyan-500 text-white border-x-4 border-white">
-                Date Created
-              </th>
-              <th class="p-2 bg-cyan-500 text-white border-x-4 border-white">
-                Action
-              </th>
+              <th class="p-2 bg-cyan-600 text-white">Email</th>
+              <th class="p-2 bg-cyan-600 text-white">Creator</th>
+              <th class="p-2 bg-cyan-600 text-white">Date Created</th>
+              <th class="p-2 bg-cyan-600 text-white">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -68,7 +62,7 @@
       </div>
       <div class="container mx-auto p-6">
         <button
-          id="createButton"
+          create
           type="button"
           class="my-3 flex items-center bg-teal-500 text-white font-semibold py-2 px-4 rounded hover:bg-teal-600 transition duration-300"
         >
@@ -80,8 +74,4 @@
   </div>
 </div>
 
-<div id="deleteModalContainer" class="hidden"></div>
-<div id="createModalContainer" class="hidden"></div>
-<div id="editModalContainer" class="hidden"></div>
-
-{% endblock section %}
+{% if modal_html %} {{ modal_html | safe }} {% endif %} {% endblock section %}

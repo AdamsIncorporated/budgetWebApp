@@ -108,6 +108,35 @@ def home(image_file=None):
     return render_template("homeDashboard.html", image_file=image_file, form=form)
 
 
+def get_download_template_headers(fiscal_year: str) -> str:
+    return [
+        "Unit",
+        "Account",
+        "Project Type",
+        "Project",
+        "Data Type",
+        "Remarks",
+        "",
+        "",
+        f"Oct {int(fiscal_year[-2:]) -1}",
+        f"Nov {int(fiscal_year[-2:]) -1}",
+        f"Dec {int(fiscal_year[-2:]) -1}",
+        f"Jan {fiscal_year[-2:]}",
+        f"Feb {fiscal_year[-2:]}",
+        f"Mar {fiscal_year[-2:]}",
+        f"Apr {fiscal_year[-2:]}",
+        f"May {fiscal_year[-2:]}",
+        f"Jun {fiscal_year[-2:]}",
+        f"Jul {fiscal_year[-2:]}",
+        f"Aug {fiscal_year[-2:]}",
+        f"Sep {fiscal_year[-2:]}",
+        "Project Type",
+        "Project",
+        "Project Type",
+        "Project",
+    ]
+
+
 @dashboard.route("/download-template/<string:fiscal_year>")
 @login_required
 def download_template(fiscal_year):
@@ -127,11 +156,16 @@ def download_template(fiscal_year):
 
     # get the data from the server
     query = queries["multiview_download"]
-    data = db.session.execute(text(query), {"proposed_fy": fiscal_year}).all()
+    data = db.session.execute(text(query), {"current_fiscal_year": fiscal_year}).all()
 
     for row_idx, row in enumerate(data, start=9):
         for col_idx, value in enumerate(row, start=1):
             sheet.cell(row=row_idx, column=col_idx, value=value)
+
+    for col_idx, header in enumerate(
+        get_download_template_headers(fiscal_year), start=1
+    ):
+        sheet.cell(row=8, column=col_idx)
 
     # Save the workbook
     output = BytesIO()
@@ -147,31 +181,58 @@ def download_template(fiscal_year):
     )
 
 
+def get_template_html_headers(fiscal_year: str) -> str:
+    return [
+        "Unit",
+        "Account",
+        "Project",
+        "Project Type",
+        "Data Type",
+        "Remarks",
+        "Blank Col",
+        "Blank Col",
+        f"Oct {int(fiscal_year[-2:]) -1}",
+        f"Nov {int(fiscal_year[-2:]) -1}",
+        f"Dec {int(fiscal_year[-2:]) -1}",
+        f"Jan {fiscal_year[-2:]}",
+        f"Feb {fiscal_year[-2:]}",
+        f"Mar {fiscal_year[-2:]}",
+        f"Apr {fiscal_year[-2:]}",
+        f"May {fiscal_year[-2:]}",
+        f"Jun {fiscal_year[-2:]}",
+        f"Jul {fiscal_year[-2:]}",
+        f"Aug {fiscal_year[-2:]}",
+        f"Sep {fiscal_year[-2:]}",
+    ]
+
+
 @dashboard.route("/template", methods=["GET", "POST"])
 @login_required
 @image_wrapper
 def template(image_file=None):
     form = MultiviewTemplate()
-    current_fiscal_year = get_fiscal_year()
 
     if request.method == "GET":
         query = queries["multiview_download"]
+        current_fiscal_year = get_fiscal_year()
         form.fiscal_year.data = current_fiscal_year
-        results = db.session.execute(
-            text(query), {"proposed_fy": current_fiscal_year}
+        data = db.session.execute(
+            text(query), {"current_fiscal_year": current_fiscal_year}
         ).all()
+        headers = get_template_html_headers(current_fiscal_year)
 
     if request.method == "POST":
         if form.validate_on_submit():
             new_fiscal_year = form.fiscal_year.data
             query = queries["multiview_download"]
-            results = db.session.execute(
-                text(query), {"proposed_fy": new_fiscal_year}
+            data = db.session.execute(
+                text(query), {"current_fiscal_year": new_fiscal_year}
             ).all()
             form.fiscal_year.data = new_fiscal_year
+            headers = get_template_html_headers(new_fiscal_year)
 
     return render_template(
-        "template.html", image_file=image_file, form=form, results=results
+        "template.html", image_file=image_file, form=form, data=data, headers=headers
     )
 
 
@@ -193,20 +254,22 @@ def budget_pie_chart():
 
 @dashboard.route("/add-users")
 @login_required
-def add_users():
+@image_wrapper
+def add_users(image_file=None):
     master_emails = MasterEmail.query.all()
-    image_file = None
-    if current_user.image_file:
-        image_file = base64.b64encode(current_user.image_file).decode("utf-8")
+    modal_html = request.args.get("modal_html", default=None)
 
     return render_template(
-        "addUsers.html", master_emails=master_emails, image_file=image_file
+        "addUsers.html",
+        master_emails=master_emails,
+        image_file=image_file,
+        modal_html=modal_html,
     )
 
 
-@dashboard.route("/create", methods=["GET", "POST"])
+@dashboard.route("/add-users/create", methods=["GET", "POST"])
 @login_required
-def create():
+def add_users_create():
     form = MasterEmailForm()
 
     if request.method == "GET":
@@ -243,22 +306,15 @@ def create():
             flash(f"User rights for {form.email.data} created successfully!", "success")
             return redirect(url_for("dashboard.add_users"))
         else:
-            errors = ". ".join(
-                [
-                    error
-                    for field_errors in form.errors.values()
-                    for error in field_errors
-                ]
-            )
-            flash(errors, "error")
+            flash("Form Errors!", "error")
             return redirect(url_for("dashboard.add_users"))
 
-    return render_template("modal/createModal.html", form=form)
+    return render_template("addUsersModal/createModal.html", form=form)
 
 
-@dashboard.route("/edit", methods=["GET", "POST"])
+@dashboard.route("/add-users/edit", methods=["GET", "POST"])
 @login_required
-def edit():
+def add_users_edit():
     form = UserBusinessUnits()
 
     if request.method == "GET":
@@ -318,22 +374,15 @@ def edit():
 
             return redirect(url_for("dashboard.add_users"))
         else:
-            errors = ". ".join(
-                [
-                    error
-                    for field_errors in form.errors.values()
-                    for error in field_errors
-                ]
-            )
-            flash(errors, "error")
+            flash("Form Errors!", "error")
             return redirect(url_for("dashboard.add_users"))
 
-    return render_template("modal/editModal.html", form=form)
+    return render_template("addUsersModal/editModal.html", form=form)
 
 
-@dashboard.route("/delete", methods=["GET", "POST"])
+@dashboard.route("/add-users/delete", methods=["GET", "POST"])
 @login_required
-def delete():
+def add_users_delete():
     id = int(request.args.get("id"))
     data = MasterEmail.query.filter_by(id=id).first()
 
@@ -352,7 +401,7 @@ def delete():
 
             return redirect(url_for("dashboard.add_users"))
 
-    return render_template("modal/deleteModal.html", data=data)
+    return render_template("addUsersModal/deleteModal.html", data=data)
 
 
 @dashboard.route("/budget-admin-view", methods=["GET", "POST"])

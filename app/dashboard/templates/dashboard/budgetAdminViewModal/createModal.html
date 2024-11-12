@@ -1,23 +1,33 @@
-<div class="z-50 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-lg">
-  <form modal id="createForm" method="POST" action="{{ url_for('dashboard.budget_admin_view_create') }}"
-    class="fade-in-down w-1/2 bg-white p-6 rounded-lg shadow-md">
+<div
+  class="z-50 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-lg"
+>
+  <form
+    modal
+    id="createForm"
+    method="POST"
+    action="{{ url_for('dashboard.budget_admin_view_create') }}"
+    class="fade-in-down w-1/2 bg-white p-6 rounded-lg shadow-md"
+  >
     {{ form.hidden_tag() }}
 
     <div class="w-full mb-4 p-4 flex flex-row justify-between gap-4 items-end">
       <div>
-        <label for="account" class="block text-teal-800 font-bold mb-2">Account:</label>
-        {{ form.account(class='bg-white shadow appearance-none border border-none rounded
-        w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
-        focus:ring-teal-300 focus:border-teal-500') }} {% for error in
-        form.account.errors %}
+        <label for="account" class="block text-teal-800 font-bold mb-2"
+          >Account:</label
+        >
+        {{ form.account(class='bg-white shadow appearance-none border
+        border-none rounded w-full py-2 px-3 text-stone-700 leading-tight
+        focus:outline-none focus:ring focus:ring-teal-300
+        focus:border-teal-500') }} {% for error in form.account.errors %}
         <div class="text-red-500 text-sm">{{ error }}</div>
         {% endfor %}
       </div>
       <div class="flex flex-col items-center justify-center">
-        <label for="is_rad" class="flex-col block text-teal-800 font-bold mb-2">Designate a RAD with Account?</label>
-        {{form.is_rad(class="form-checkbox h-5 w-5 text-cyan-600 border-cyan-600 rounded focus:ring-cyan-500")}}
-        {% for error in
-        form.is_rad.errors %}
+        <label for="is_rad" class="flex-col block text-teal-800 font-bold mb-2"
+          >Designate a RAD with Account?</label
+        >
+        {{form.is_rad(class="form-checkbox h-5 w-5 text-cyan-600 border-cyan-600
+        rounded focus:ring-cyan-500")}} {% for error in form.is_rad.errors %}
         <div class="text-red-500 text-sm">{{ error }}</div>
         {% endfor %}
       </div>
@@ -25,9 +35,9 @@
 
     <div class="w-1/2 mb-4 p-4 hidden">
       <label for="rad" class="block text-teal-800 font-bold mb-2">RAD:</label>
-      {{ form.rad(class='bg-white shadow appearance-none border border-none rounded
-      w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
-      focus:ring-teal-300 focus:border-teal-500') }} {% for error in
+      {{ form.rad(class='bg-white shadow appearance-none border border-none
+      rounded w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none
+      focus:ring focus:ring-teal-300 focus:border-teal-500') }} {% for error in
       form.rad.errors %}
       <div class="text-red-500 text-sm">{{ error }}</div>
       {% endfor %}
@@ -35,36 +45,52 @@
 
     <div class="w-full mb-4 p-4 flex gap-4 justify-between items-end">
       <div class="flex-col w-1/4">
-        <label for="forecast_multiplier" class="block text-teal-800 font-bold mb-2">Forecast Multiplier:</label>
-        {{ form.forecast_multiplier(class='bg-white shadow appearance-none border border-none rounded
-        w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
-        focus:ring-teal-300 focus:border-teal-500', step="0.001", type="number", min="1", placeholder="Enter a number
-        greator than 1")
-        }} {% for error in
+        <label
+          for="forecast_multiplier"
+          class="block text-teal-800 font-bold mb-2"
+          >Forecast Multiplier:</label
+        >
+        {{ form.forecast_multiplier(class='bg-white shadow appearance-none
+        border border-none rounded w-full py-2 px-3 text-stone-700 leading-tight
+        focus:outline-none focus:ring focus:ring-teal-300
+        focus:border-teal-500', step="0.001", type="number", min="1",
+        placeholder="Enter a number greator than 1") }} {% for error in
         form.forecast_multiplier.errors %}
         <div class="text-red-500 text-sm">{{ error }}</div>
         {% endfor %}
       </div>
       <div class="flex-col w-3/4">
-        <label for="forecast_comments" class="block text-teal-800 font-bold mb-2">Multiplier Comments:</label>
-        {{ form.forecast_comments(class='bg-white shadow appearance-none border border-none rounded
-        w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
-        focus:ring-teal-300 focus:border-teal-500') }} {% for error in
-        form.forecast_comments.errors %}
+        <label
+          for="forecast_comments"
+          class="block text-teal-800 font-bold mb-2"
+          >Multiplier Comments:</label
+        >
+        {{ form.forecast_comments(class='bg-white shadow appearance-none border
+        border-none rounded w-full py-2 px-3 text-stone-700 leading-tight
+        focus:outline-none focus:ring focus:ring-teal-300
+        focus:border-teal-500') }} {% for error in form.forecast_comments.errors
+        %}
         <div class="text-red-500 text-sm">{{ error }}</div>
         {% endfor %}
       </div>
     </div>
-    <p class="p-4 mb-4 text-md text-stone-300 italic">The forecast multiplier is the amount that will either be
-      multiplied by
+    <p class="p-4 mb-4 text-md text-stone-300 italic">
+      The forecast multiplier is the amount that will either be multiplied by
       the actual amount for this row when user creates a budget entry
     </p>
     <div class="flex justify-between">
-      <button id="createFormSubmitBtn" type="button" class='bg-teal-500 text-white font-bold py-2 px-4 rounded
-      hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400
-      cursor-pointer'><i class="fas fa-plus mr-2"></i>Create</button>
-      <button id="closeModalBtn" type="button"
-        class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600">
+      <button
+        id="createFormSubmitBtn"
+        type="button"
+        class="bg-teal-500 text-white font-bold py-2 px-4 rounded hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 cursor-pointer"
+      >
+        <i class="fas fa-plus mr-2"></i>Create
+      </button>
+      <button
+        id="closeModalBtn"
+        type="button"
+        class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600"
+      >
         <i class="fas fa-times fa-lg mr-2"></i> Close
       </button>
     </div>

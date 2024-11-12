@@ -387,23 +387,25 @@ queries = {
             '' AS FILLERCOL2,
             '' AS FILLERCOL3,
             pb."ProposedBudget",
-            0 AS FILLERCOL3,
-            0 AS FILLERCOL4,
-            0 AS FILLERCOL5,
-            0 AS FILLERCOL6,
-            0 AS FILLERCOL7,
-            0 AS FILLERCOL8,
-            0 AS FILLERCOL9,
-            0 AS FILLERCOL10,
-            0 AS FILLERCOL11,
-            0 AS FILLERCOL12,
-            0 AS FILLERCOL13
+            '' AS FILLERCOL3,
+            '' AS FILLERCOL4,
+            '' AS FILLERCOL5,
+            '' AS FILLERCOL6,
+            '' AS FILLERCOL7,
+            '' AS FILLERCOL8,
+            '' AS FILLERCOL9,
+            '' AS FILLERCOL10,
+            '' AS FILLERCOL11,
+            '' AS FILLERCOL12,
+            '' AS FILLERCOL13
         FROM
             "ProposedBudget" pb
-            JOIN "Rad" r ON r."RAD" = pb."RAD"
-            JOIN "RadType" rt ON rt."RADTypeId" = r."RADTypeId"
+            JOIN "BudgetEntryAdminView" ba ON ba."RAD" = pb."RAD"
+            LEFT JOIN "Rad" r ON r."RAD" = pb."RAD"
+            LEFT JOIN "RadType" rt ON rt."RADTypeId" = r."RADTypeId"
         WHERE
-            "FiscalYear" = :proposed_fy
+            "FiscalYear" = :current_fiscal_year
+            AND "ProposedBudget" > 0
     """,
     "budget_entry_view": get_budget_entry_view,
     "fetch_all_accounts": """
