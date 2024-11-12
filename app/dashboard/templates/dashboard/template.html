@@ -15,9 +15,7 @@
       {{ form.hidden_tag() }}
       <div class="mb-4">
         <div class="w-fit">
-          {{ form.fiscal_year(class="h-10 shadow appearance-none border rounded
-          w-full py-2 pr-8 pl-3 text-gray-700 leading-tight focus:outline-none
-          focus:shadow-outline bg-white") }}
+          {{ form.fiscal_year(class=macros.drop_down()) }}
         </div>
         {% for error in form.fiscal_year.errors %}
         <span class="text-red-600 text-sm">{{ error }}</span>

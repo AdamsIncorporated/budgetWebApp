@@ -1,5 +1,8 @@
 {% extends "layout.html" %} {% block content %}
-<script defer src="{{ url_for('main.static', filename='js/main.js') }}"></script>
+<script
+  defer
+  src="{{ url_for('main.static', filename='js/main.js') }}"
+></script>
 
 <!-- Nav Bar -->
 <header
@@ -106,7 +109,7 @@
     <select
       id="businessUnit"
       name="businessUnit"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-white"
+      class="{{macros.drop_down()}}"
     >
       <option value="" disabled selected>--Select Business Unit--</option>
       {% for unit in picklist.BUSINESS_UNIT_IDS %}

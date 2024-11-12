@@ -5,44 +5,57 @@
 
 <div class="grid grid-cols-2 gap-5" class="shadow-md rounded-md">
   <div id="chartsCell" class="w-full relative shadow-md rounded-md p-5">
-    <canvas id="budgetPieChart" width="200" height="200" class="mb-10 overflow-auto"></canvas>
-    <button id="prevBtn"
-      class="absolute left-5 bottom-0 transform -translate-y-1/2 text-stone-300 shadow-md bg-white text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:shadow-lg">
+    <canvas
+      id="budgetPieChart"
+      width="200"
+      height="200"
+      class="mb-10 overflow-auto"
+    ></canvas>
+    <button
+      id="prevBtn"
+      class="absolute left-5 bottom-0 transform -translate-y-1/2 text-stone-300 shadow-md bg-white text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:shadow-lg"
+    >
       <i class="fas fa-arrow-left"></i>
     </button>
-    <button id="nextBtn"
-      class="absolute right-5 bottom-0 transform -translate-y-1/2 text-stone-300 shadow-md bg-white text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:shadow-lg">
+    <button
+      id="nextBtn"
+      class="absolute right-5 bottom-0 transform -translate-y-1/2 text-stone-300 shadow-md bg-white text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:shadow-lg"
+    >
       <i class="fas fa-arrow-right"></i>
     </button>
   </div>
   <div id="baseStats" class="shadow-md rounded-md p-5">
     <div class="w-full mb-4">
       <div>
-        <label for="fiscal_year" class="block text-teal-800 font-bold mb-2">Fiscal Year:</label>
-        {{ form.fiscal_year(class='bg-white shadow appearance-none border border-none rounded
-        w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
-        focus:ring-teal-300 focus:border-teal-500') }} {% for error in
+        <label for="fiscal_year" class="block text-teal-800 font-bold mb-2"
+          >Fiscal Year:</label
+        >
+        {{ form.fiscal_year(class=macros.drop_down()) }} {% for error in
         form.fiscal_year.errors %}
         <div class="text-red-500 text-sm">{{ error }}</div>
         {% endfor %}
       </div>
       <div>
-        <label for="business_unit" class="block text-teal-800 font-bold mb-2">Business Unit:</label>
-        {{ form.business_unit(class='bg-white shadow appearance-none border border-none rounded
-        w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
-        focus:ring-teal-300 focus:border-teal-500') }} {% for error in
+        <label for="business_unit" class="block text-teal-800 font-bold mb-2"
+          >Business Unit:</label
+        >
+        {{ form.business_unit(class=macros.drop_down()) }} {% for error in
         form.business_unit.errors %}
         <div class="text-red-500 text-sm">{{ error }}</div>
         {% endfor %}
       </div>
     </div>
     <div class="flex flex-row justify-between">
-      <button id="prevStatsBtn"
-        class="text-stone-300 shadow-md bg-white text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:shadow-lg">
+      <button
+        id="prevStatsBtn"
+        class="text-stone-300 shadow-md bg-white text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:shadow-lg"
+      >
         <i class="fas fa-arrow-left"></i>
       </button>
-      <button id="nextStatsBtn"
-        class="text-stone-300 shadow-md bg-white text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:shadow-lg">
+      <button
+        id="nextStatsBtn"
+        class="text-stone-300 shadow-md bg-white text-white px-4 py-2 rounded transition-colors duration-300 ease-in-out hover:shadow-lg"
+      >
         <i class="fas fa-arrow-right"></i>
       </button>
     </div>
@@ -50,19 +63,19 @@
   <div id="tablesCell" class="col-span-2 shadow-md rounded-md p-5">
     <div class="w-full mb-4 flex flex-row justify-between gap-4 items-end">
       <div>
-        <label for="fiscal_year" class="block text-teal-800 font-bold mb-2">Fiscal Year:</label>
-        {{ form.fiscal_year(class='bg-white shadow appearance-none border border-none rounded
-        w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
-        focus:ring-teal-300 focus:border-teal-500') }} {% for error in
+        <label for="fiscal_year" class="block text-teal-800 font-bold mb-2"
+          >Fiscal Year:</label
+        >
+        {{ form.fiscal_year(class=macros.drop_down()) }} {% for error in
         form.fiscal_year.errors %}
         <div class="text-red-500 text-sm">{{ error }}</div>
         {% endfor %}
       </div>
       <div>
-        <label for="business_unit" class="block text-teal-800 font-bold mb-2">Business Unit:</label>
-        {{ form.business_unit(class='bg-white shadow appearance-none border border-none rounded
-        w-full py-2 px-3 text-stone-700 leading-tight focus:outline-none focus:ring
-        focus:ring-teal-300 focus:border-teal-500') }} {% for error in
+        <label for="business_unit" class="block text-teal-800 font-bold mb-2"
+          >Business Unit:</label
+        >
+        {{ form.business_unit(class=macros.drop_down()) }} {% for error in
         form.business_unit.errors %}
         <div class="text-red-500 text-sm">{{ error }}</div>
         {% endfor %}

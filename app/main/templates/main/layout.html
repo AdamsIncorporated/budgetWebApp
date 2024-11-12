@@ -18,6 +18,9 @@
   <script src="{{url_for('main.static', filename='js/toastr.js')}}"></script>
 </head>
 
+{# Import form components #}
+{% import 'form_component_macros.html' as macros %}
+
 <!-- flashed messages -->
 <div id="flashMessagesContainer">
   {% with messages = get_flashed_messages(with_categories=true) %}

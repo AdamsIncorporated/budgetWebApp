@@ -1,3 +1,5 @@
+{# Import form components #} {% import 'form_component_macros.html' as macros %}
+
 <div
   class="z-50 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-lg"
 >
@@ -13,10 +15,8 @@
       <label for="email" class="block text-teal-800 font-bold mb-2"
         >Email:</label
       >
-      {{ form.email(class='w-full border-none bg-white shadow appearance-none
-      border border-none rounded py-2 px-3 text-stone-700 leading-tight
-      focus:outline-none focus:ring focus:ring-teal-300 focus:border-teal-500')
-      }} {% for error in form.email.errors %}
+      {{ form.email(class=macros.drop_down()) }} {% for error in
+      form.email.errors %}
       <div class="text-red-500 text-sm">{{ error }}</div>
       {% endfor %}
     </div>
