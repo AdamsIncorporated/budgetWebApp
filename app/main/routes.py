@@ -4,6 +4,7 @@ from sqlalchemy import text
 import base64
 from flask_login import current_user
 from repositories.queries import queries
+from services.current_user_image import image_wrapper
 
 main = Blueprint(
     "main",
@@ -19,7 +20,7 @@ def get_all_business_units(user_id=None):
         query = text(
             queries["fetch_all_regular_user_business_unit_ids"](user_id=user_id)
         )
-    else:
+    else:  # admin so query everything
         query = text(queries["fetch_all_business_unit_ids"])
     result = db.session.execute(query).fetchall()
     return result
@@ -27,12 +28,11 @@ def get_all_business_units(user_id=None):
 
 @main.route("/")
 @main.route("/home")
-def home():
+@image_wrapper
+def home(image_file=None):
     picklist = None
-    image_file = None
 
     if current_user.is_authenticated and current_user.image_file:
-        image_file = base64.b64encode(current_user.image_file).decode("utf-8")
 
         if current_user.is_root_user:
             picklist = {

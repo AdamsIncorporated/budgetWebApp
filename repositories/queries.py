@@ -350,26 +350,26 @@ queries = {
             TotalBudgetByDepartment DESC
         LIMIT 5;
     """,
-    "user_business_units": lambda user_id: f"""
+    "user_business_units": """
         SELECT
             (
                 SELECT ub.Id
-                FROM "MasterEmail" me
-                JOIN "User_BusinessUnit" ub ON me."Id" = ub."UserId"
+                FROM "User" u
+                JOIN "User_BusinessUnit" ub ON u."Id" = ub."UserId"
                 WHERE
                     bu."BusinessUnitId" = ub."BusinessUnitId"
-                    AND "UserId" = {user_id}
+                    AND "UserId" = :user_id
             ) AS Id,
             bu."BusinessUnitId",
             bu."BusinessUnit",
             CASE
                 WHEN EXISTS (
                     SELECT 1
-                    FROM "MasterEmail" me
-                    JOIN "User_BusinessUnit" ub ON me."Id" = ub."UserId"
+                    FROM "User" u
+                    JOIN "User_BusinessUnit" ub ON u."Id" = ub."UserId"
                     WHERE
                         bu."BusinessUnitId" = ub."BusinessUnitId"
-                        AND "UserId" = {user_id}
+                        AND "UserId" = :user_id
                 )
                 THEN 1
                 ELSE 0
@@ -503,5 +503,43 @@ queries = {
             COALESCE(b.TotalBudget, 0) <> 0 OR COALESCE(j.TotalActual, 0) <> 0
         ORDER BY 
             a."AccountNo" ASC;
+    """,
+    "sources_and_uses_consolidated": """
+        SELECT SUM(Amount) 
+        FROM Budget 
+        WHERE 
+            BusinessUnitId = :business_unit_id
+            AND FiscalYear = :fiscal_year
+            AND AccountNo = :account_no
+            AND RAD = :rad
+    """,
+    "fetch_non_assigned_regular_user_emails": """
+        SELECT "Email"
+        FROM "User"
+        WHERE 
+            "IsRootUser" = 0
+            AND "Id" NOT IN (
+                SELECT DISTINCT ub."UserId"
+                FROM "User_BusinessUnit" ub
+            )
+        ORDER BY "Email" ASC;
+    """,
+    "fetch_distinct_regular_users": """
+        SELECT DISTINCT
+            u."Id",
+            u."Username",
+            u."Email",
+            u."FirstName" || ' ' || u."LastName" AS Name,
+            u."DateCreated",
+            (SELECT u_ref."FirstName" || ' ' || u_ref."LastName" 
+            FROM "User" u_ref
+            WHERE u."UserCreatorId" = u_ref."Id") AS UserCreatorName,
+            group_concat(bu."BusinessUnit", ', ') AS BusinessUnits
+        FROM "User_BusinessUnit" ub
+        JOIN "User" u ON u."Id" = ub."UserId"
+        JOIN "BusinessUnit" bu ON bu."BusinessUnitId" = ub."BusinessUnitId"
+        WHERE u."IsRootUser" = 0
+        GROUP BY u."Id", u."UserName", u."Email",  u."DateCreated"
+        ORDER BY u."Id" ASC;
     """,
 }

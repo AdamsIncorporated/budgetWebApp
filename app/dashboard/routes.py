@@ -12,7 +12,6 @@ from flask_login import login_required, current_user
 from io import BytesIO
 from app import db
 from repositories.models import (
-    MasterEmail,
     BusinessUnit,
     UserBusinessUnit,
     User,
@@ -20,7 +19,7 @@ from repositories.models import (
     Account,
 )
 from .forms import (
-    MasterEmailForm,
+    UserEmailForm,
     UserBusinessUnits,
     MultiviewTemplate,
     BudgetEntryAdminViewCreateForm,
@@ -47,6 +46,7 @@ dashboard = Blueprint(
 )
 
 
+# HOME SECTION
 @dashboard.route("/home/download-csv-table")
 def download_csv_table():
     fiscal_year = request.args.get("fiscalYear")
@@ -86,6 +86,29 @@ def download_csv_table():
     )
 
 
+@dashboard.route("/account-actuals-timeline")
+def account_actuals_timeline():
+    result = (
+        db.session.execute(text(queries["account_actuals_timeline"])).mappings().all()
+    )
+    result_dicts = [dict(row) for row in result]
+    return jsonify(records=result_dicts)
+
+
+@dashboard.route("/budget-pie-chart")
+def budget_pie_chart():
+    result = db.session.execute(text(queries["budget_pie_chart"])).mappings().all()
+    result_dicts = [dict(row) for row in result]
+    return jsonify(records=result_dicts)
+
+
+@dashboard.route("/sources-and-uses-consolidated")
+def sources_and_uses_consolidated():
+    query = queries["sources_and_uses_consolidated"]
+
+    return render_template("sources_and_uses_consolidated", data=data)
+
+
 @dashboard.route("/home/table")
 def get_table_html():
     fiscal_year = request.args.get("fiscalYear")
@@ -107,6 +130,7 @@ def home(image_file=None):
     return render_template("homeDashboard.html", image_file=image_file, form=form)
 
 
+# TEMPLATE SECTION
 def get_download_template_headers(fiscal_year: str) -> str:
     return [
         "Unit",
@@ -235,32 +259,18 @@ def template(image_file=None):
     )
 
 
-@dashboard.route("/account-actuals-timeline")
-def account_actuals_timeline():
-    result = (
-        db.session.execute(text(queries["account_actuals_timeline"])).mappings().all()
-    )
-    result_dicts = [dict(row) for row in result]
-    return jsonify(records=result_dicts)
-
-
-@dashboard.route("/budget-pie-chart")
-def budget_pie_chart():
-    result = db.session.execute(text(queries["budget_pie_chart"])).mappings().all()
-    result_dicts = [dict(row) for row in result]
-    return jsonify(records=result_dicts)
-
-
+# ADD USERS SECTION
 @dashboard.route("/add-users")
 @login_required
 @image_wrapper
 def add_users(image_file=None):
-    master_emails = MasterEmail.query.all()
+    query = queries["fetch_distinct_regular_users"]
+    users = db.session.execute(text(query)).fetchall()
     modal_html = request.args.get("modal_html", default=None)
 
     return render_template(
         "addUsers.html",
-        master_emails=master_emails,
+        users=users,
         image_file=image_file,
         modal_html=modal_html,
     )
@@ -269,7 +279,7 @@ def add_users(image_file=None):
 @dashboard.route("/add-users/create", methods=["GET", "POST"])
 @login_required
 def add_users_create():
-    form = MasterEmailForm()
+    form = UserEmailForm()
 
     if request.method == "GET":
         query = (
@@ -283,14 +293,6 @@ def add_users_create():
 
     if request.method == "POST":
         if form.validate_on_submit():
-            new_email = MasterEmail(
-                email=form.email.data,
-                user_creator_id=current_user.id,
-            )
-            db.session.add(new_email)
-            db.session.commit()
-
-            # query users to get id
             user_id = User.query.filter_by(email=form.email.data).first_or_404().id
 
             for row in form.user_business_units.data:
@@ -318,15 +320,16 @@ def add_users_edit():
 
     if request.method == "GET":
         user_id = int(request.args.get("id"))
-        master_email = MasterEmail.query.filter_by(id=user_id).first()
-
-        query = queries["user_business_units"](user_id=user_id)
-        user_business_units = db.session.execute(text(query)).fetchall()
+        user_business_units = User.query.filter_by(id=user_id).first_or_404()
+        query = queries["user_business_units"]
+        user_business_units = db.session.execute(
+            text(query), {"user_id": user_id}
+        ).fetchall()
 
         data = {
             "user_id": user_id,
-            "email": master_email.email,
-            "date_created": master_email.date_created,
+            "email": user_business_units.email,
+            "date_created": user_business_units.date_created,
             "user_business_units": [
                 {
                     "id": id,
@@ -383,26 +386,25 @@ def add_users_edit():
 @login_required
 def add_users_delete():
     id = int(request.args.get("id"))
-    data = MasterEmail.query.filter_by(id=id).first()
+    data = User.query.filter_by(id=id).first()
 
     if request.method == "POST":
-        master_email = MasterEmail.query.get(id)
+        user_business_units = UserBusinessUnit.query.filter_by(user_id=id).all()
 
-        if data:
-            db.session.delete(master_email)
+        if user_business_units:
+            for unit in user_business_units:
+                db.session.delete(unit)
             db.session.commit()
             flash("Successfully deleted user!", "success")
-
-            return redirect(url_for("dashboard.add_users"))
-
         else:
-            flash("User not found!", "error")
+            flash("No user business units found to delete.", "error")
 
-            return redirect(url_for("dashboard.add_users"))
+        return redirect(url_for("dashboard.add_users"))
 
     return render_template("addUsersModal/deleteModal.html", data=data)
 
 
+# BUDGET ADMIN VIEW SECTION
 @dashboard.route("/budget-admin-view", methods=["GET", "POST"])
 @login_required
 @image_wrapper

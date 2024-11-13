@@ -27,7 +27,7 @@ from repositories.queries import (
     get_default_historical_fiscal_year,
     get_historical_fiscal_year_picklist,
 )
-from repositories.models import MasterEmail, User
+from repositories.models import User
 from sqlalchemy import text
 
 
@@ -69,7 +69,7 @@ class UserBusinessUnits(FlaskForm):
             raise ValidationError("At least one business unit must be selected")
 
 
-class MasterEmailForm(FlaskForm):
+class UserEmailForm(FlaskForm):
     id = HiddenField()
     email = SelectField("Email", validators=[DataRequired(), Email(), Length(max=120)])
     date_created = DateTimeField(
@@ -83,18 +83,13 @@ class MasterEmailForm(FlaskForm):
     submit = SubmitField("Submit")
 
     def __init__(self, *args, **kwargs):
-        super(MasterEmailForm, self).__init__(*args, **kwargs)
+        super(UserEmailForm, self).__init__(*args, **kwargs)
         self.populate_email_choices()
 
     def populate_email_choices(self):
-        emails = User.query.with_entities(User.email).filter_by(is_root_user=0).all()
+        query = queries["fetch_non_assigned_regular_user_emails"]
+        emails = db.session.execute(text(query))
         self.email.choices = [(email[0]) for email in emails]
-
-    def validate_email(self, field):
-        # Check if the email already exists in the User table
-        existing_user = MasterEmail.query.filter_by(email=field.data).first()
-        if existing_user:
-            raise ValidationError("Email already exists, please use a different email")
 
     def validate_user_business_units(self, field):
         # Check if at least one business unit is selected

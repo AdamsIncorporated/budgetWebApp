@@ -88,23 +88,6 @@ class BusinessUnit(db.Model):
     )
 
 
-class MasterEmail(db.Model):
-    __tablename__ = "MasterEmail"
-
-    id = db.Column("Id", db.Integer, primary_key=True)
-    email = db.Column("Email", db.Text, unique=True, nullable=False)
-    user_creator_id = db.Column(
-        "UserCreatorId", db.Integer, ForeignKey("User.Id"), nullable=False
-    )
-    date_created = db.Column(
-        "DateCreated",
-        db.DateTime,
-        nullable=False,
-        default=db.func.current_timestamp(),
-    )
-    master_email_user = db.relationship("User", backref="master_user")
-
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -127,6 +110,15 @@ class User(db.Model, UserMixin):
         default=db.func.current_timestamp(),
     )
     is_root_user = db.Column("IsRootUser", db.Integer, nullable=False, default=0)
+    user_creator_id = db.Column(
+        "UserCreatorId", db.Integer, nullable=True, default=None
+    )
+
+    @property
+    def formatted_date_created(self):
+        if self.date_created:
+            return self.date_created.strftime("%B %d, %Y")
+        return None
 
     def get_reset_token(self, expires_sec=1800):
         # Create a payload with the user ID and expiration time
