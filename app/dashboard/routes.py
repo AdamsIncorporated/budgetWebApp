@@ -325,11 +325,12 @@ def add_users_edit():
         user_business_units = db.session.execute(
             text(query), {"user_id": user_id}
         ).fetchall()
+        user = User.query.filter_by(id=user_id).first_or_404()
 
         data = {
             "user_id": user_id,
-            "email": user_business_units.email,
-            "date_created": user_business_units.date_created,
+            "email": user.email,
+            "date_created": user.date_created,
             "user_business_units": [
                 {
                     "id": id,
