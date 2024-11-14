@@ -5,6 +5,7 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from datetime import datetime
 
 # Initialize extensions globally
 bcrypt = Bcrypt()
@@ -29,6 +30,9 @@ def create_app():
     login_manager.login_message = None
     login_manager.login_message_category = None
     mail.init_app(app)
+
+    # add some handy functions into jinja
+    app.jinja_env.globals["strftime"] = datetime.strftime
 
     with app.app_context():
         from app.main.routes import main

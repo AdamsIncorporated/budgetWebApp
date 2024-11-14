@@ -1,90 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/main.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css"
-    />
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="{{ url_for('static', filename='assets/favicon.png') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.4.0/dist/forms.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css"
-    />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script
-      defer
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/jquery.inputmask.min.js"
-    ></script>
-    <script
-      defer
-      src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"
-    ></script>
-    <script
-      defer
-      src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"
-    ></script>
-    <script
-      defer
-      src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"
-    ></script>
-    <script
-      defer
-      src="{{url_for('main.static', filename='js/tippy.js')}}"
-    ></script>
-    <script
-      defer
-      src="{{url_for('main.static', filename='js/toastr.js')}}"
-    ></script>
-    <script
-      defer
-      src="//cdn.datatables.net/2.1.8/js/dataTables.min.js"
-    ></script>
-  </head>
 
-  {# Import form components #} {% import 'form_component_macros.html' as macros
-  %}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.png') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.4.0/dist/forms.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/jquery.inputmask.min.js"></script>
+  <script defer src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+  <script defer src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
+  <script defer src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script defer src="//cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+  <script defer src="{{url_for('main.static', filename='js/toastr.js')}}"></script>
+  <script defer src="{{url_for('main.static', filename='js/tippy.js')}}"></script>
+</head>
 
-  <!-- flashed messages -->
-  <div id="flashMessagesContainer">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    <div>
-      {% if messages %} {% for category, message in messages %}
-      <script>
+{# Import form components #} {% import 'form_component_macros.html' as macros
+%}
+
+<!-- flashed messages -->
+<div id="flashMessagesContainer">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  <div>
+    {% if messages %} {% for category, message in messages %}
+    <script defer>
+      document.addEventListener('DOMContentLoaded', () => {
         showToast({{ message| tojson }}, {{ category| tojson }});
-      </script>
-      {% endfor %} {% endif %}
-    </div>
-    {% endwith %}
+      });
+    </script>
+    {% endfor %} {% endif %}
   </div>
+  {% endwith %}
+</div>
 
-  <body class="m-10 p-6">
-    <main role="main">{% block content %}{% endblock %}</main>
-  </body>
+<body class="m-10 p-6">
+  <main role="main">{% block content %}{% endblock %}</main>
+</body>
+
 </html>

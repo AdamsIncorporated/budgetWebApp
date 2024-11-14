@@ -414,19 +414,28 @@ def budget_admin_view(image_file=None):
     modal_html = request.args.get("modal_html", default=None)
 
     if request.method == "GET":
-        data = BudgetEntryAdminView.query.all()
+        data = BudgetEntryAdminView.query.order_by(
+            BudgetEntryAdminView.display_order
+        ).all()
         form.process(data={"budget_entries": data})
 
     if request.method == "POST":
         if form.validate_on_submit():
+            query = queries["reset_budget_admin_display_order"]
+            db.session.execute(text(query))
+
             for sub_form in form.budget_entries:
-                if sub_form.data["is_updated"] == "yes":
-                    id = int(sub_form.data["id"])
-                    row = BudgetEntryAdminView.query.filter_by(id=id).first_or_404()
-                    row.display_order = sub_form.display_order.data
-                    row.forcast_multiplier = sub_form.forecast_multiplier.data
-                    row.forecast_comments = sub_form.forecast_comments.data
-                    db.session.commit()
+                id = int(sub_form.data["id"])
+                row = BudgetEntryAdminView.query.filter_by(id=id).first_or_404()
+                row.display_order = int(sub_form.display_order.data)
+                row.forcast_multiplier = sub_form.forecast_multiplier.data
+                row.forecast_comments = sub_form.forecast_comments.data
+
+            db.session.commit()
+            data = BudgetEntryAdminView.query.order_by(
+                BudgetEntryAdminView.display_order
+            ).all()
+            form.process(data={"budget_entries": data})
             flash("Successfully updated!", "success")
         else:
             flash("Form errors", "error")

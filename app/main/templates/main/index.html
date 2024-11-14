@@ -1,55 +1,31 @@
 {% extends "layout.html" %} {% block content %}
-<script
-  defer
-  src="{{ url_for('main.static', filename='js/main.js') }}"
-></script>
+<script defer src="{{ url_for('main.static', filename='js/main.js') }}"></script>
 
 <!-- Nav Bar -->
-<header
-  id="navbar"
-  class="overflow-hidden fixed h-fit top-0 left-0 w-full bg-gradient-to-r from-cyan-500 to-teal-700 text-white p-4 shadow-lg transform translate-y-0"
->
+<header id="navbar"
+  class="overflow-hidden fixed h-fit top-0 left-0 w-full bg-gradient-to-r from-cyan-500 to-teal-700 text-white p-4 shadow-lg transform translate-y-0">
   <div class="container mx-auto flex justify-between items-end">
     <div class="flex-col shadow-lg rounded-md p-2">
       <h1 class="text-2xl font-bold items-start mb-4">Budget App</h1>
       <ul class="flex items-end space-x-6 w-fit">
-        <li
-          class="transition-transform duration-300 transform hover:translate-y-1"
-        >
-          <a href="#" class="hover:underline"
-            ><i class="fas fa-book"></i> Tutorial</a
-          >
+        <li class="transition-transform duration-300 transform hover:translate-y-1">
+          <a href="#" class="hover:underline"><i class="fas fa-book"></i> Tutorial</a>
         </li>
-        <li
-          class="transition-transform duration-300 transform hover:translate-y-1"
-        >
-          <a href="#" class="hover:underline"
-            ><i class="fas fa-phone"></i> Contact Support</a
-          >
+        <li class="transition-transform duration-300 transform hover:translate-y-1">
+          <a href="#" class="hover:underline"><i class="fas fa-phone"></i> Contact Support</a>
         </li>
         {% if current_user.is_authenticated %}
-        <li
-          class="transition-transform duration-300 transform hover:translate-y-1"
-        >
-          <a href="{{ url_for('auth.logout') }}" class="hover:underline"
-            ><i class="fas fa-sign-out-alt"></i> Logout</a
-          >
+        <li class="transition-transform duration-300 transform hover:translate-y-1">
+          <a href="{{ url_for('auth.logout') }}" class="hover:underline"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </li>
-        <li
-          class="transition-transform duration-300 transform hover:translate-y-1"
-        >
-          <a href="{{ url_for('auth.account') }}" class="hover:underline"
-            ><i class="fas fa-user-circle"></i> Account</a
-          >
+        <li class="transition-transform duration-300 transform hover:translate-y-1">
+          <a href="{{ url_for('auth.account') }}" class="hover:underline"><i class="fas fa-user-circle"></i> Account</a>
         </li>
         <div>
           {% if current_user.is_root_user %}
-          <li
-            class="transition-transform duration-300 transform hover:translate-y-1"
-          >
-            <a href="{{ url_for('dashboard.home') }}" class="hover:underline"
-              ><i class="fas fa-chart-bar"></i> Dashboard</a
-            >
+          <li class="transition-transform duration-300 transform hover:translate-y-1">
+            <a href="{{ url_for('dashboard.home') }}" class="hover:underline"><i class="fas fa-chart-bar"></i>
+              Dashboard</a>
           </li>
           {% endif %}
         </div>
@@ -61,24 +37,18 @@
 
       <div class="flex items-end shadow-md rounded-md p-4">
         <div
-          class="flex justify-center items-center rounded-full w-10 h-10 object-cover mr-4 border-4 border-white bg-cyan-900 text-gray-white"
-        >
-          <img
-            class="rounded-full w-full h-full object-cover text-xs"
-            src="data:image/jpeg;base64,{{ image_file }}"
+          class="flex justify-center items-center rounded-full w-10 h-10 object-cover mr-4 border-4 border-white bg-cyan-900 text-gray-white">
+          <img class="rounded-full w-full h-full object-cover text-xs" src="data:image/jpeg;base64,{{ image_file }}"
             alt="User Image"
-            onerror="this.style.display='none'; this.parentElement.style.fontSize = '8px'; this.parentElement.textContent = 'User';"
-          />
+            onerror="this.style.display='none'; this.parentElement.style.fontSize = '8px'; this.parentElement.textContent = 'User';" />
         </div>
         <div class="flex-col">
           <h2 class="truncate text-lg font-bold whitespace-nowrap">
             {% if current_user.is_root_user == 1 %}
-            <span class="text-amber-400"
-              ><i class="fas fa-crown"></i> {{ current_user.username }}
+            <span class="text-amber-400"><i class="fas fa-crown"></i> {{ current_user.username }}
             </span>
             {% else %}
-            <span class="text-emerald-400"
-              ><i class="fas fa-key"></i> {{ current_user.username }}
+            <span class="text-emerald-400"><i class="fas fa-key"></i> {{ current_user.username }}
             </span>
             {% endif %}
           </h2>
@@ -86,11 +56,9 @@
         </div>
       </div>
       {% else %}
-      <button
-        id="loginBtn"
+      <button id="loginBtn"
         class="bg-cyan-600 text-white font-semibold py-2 px-4 rounded transition duration-300 hover:bg-cyan-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
-        onclick="getLogin()"
-      >
+        onclick="getLogin()">
         <i class="fas fa-sign-in-alt mr-2"></i>
         Login
       </button>
@@ -103,14 +71,9 @@
 <main class="mt-20 container mx-auto py-16 text-center">
   {% if current_user.is_authenticated %}
   <div
-    class="w-1/4 flex flex-col justify-center items-center mx-auto gap-3 border-2 border-stone-50 rounded-md p-4 shadow-md"
-  >
+    class="w-1/4 flex flex-col justify-center items-center mx-auto gap-3 border-2 border-stone-50 rounded-md p-4 shadow-md">
     <label for="businessUnit">Department:</label>
-    <select
-      id="businessUnit"
-      name="businessUnit"
-      class="{{macros.drop_down()}}"
-    >
+    <select id="businessUnit" name="businessUnit" class="{{macros.drop_down()}}">
       <option value="" disabled selected>--Select Business Unit--</option>
       {% for unit in picklist.BUSINESS_UNIT_IDS %}
       <option class="hover:bg-teal-100" value="{{ unit[0] }}">
@@ -119,34 +82,24 @@
       {% endfor %}
     </select>
 
-    <button
-      type="button"
-      class="bg-cyan-500 text-white py-3 px-6 rounded-full shadow-md hover:bg-cyan-600"
-      onclick="getBudgetEntry()"
-    >
+    <button type="button" class="bg-cyan-500 text-white py-3 px-6 rounded-full shadow-md hover:bg-cyan-600"
+      onclick="getBudgetEntry()">
       <i class="fas fa-pencil-alt mr-2"></i> Start Budget
     </button>
   </div>
   {% else %}
   <div>
-    <h1
-      class="font-bold text-5xl bg-gradient-to-r from-teal-900 to-cyan-600 bg-clip-text text-transparent"
-    >
+    <h1 class="font-bold text-5xl bg-gradient-to-r from-teal-900 to-cyan-600 bg-clip-text text-transparent">
       Need an Account?
     </h1>
-    <a
-      href="{{url_for('auth.register')}}"
-      class="text-3xl bg-gradient-to-r from-amber-300 to-amber-600 bg-clip-text text-transparent hover:animate-pulse"
-      >register</a
-    >
+    <a href="{{url_for('auth.register')}}"
+      class="text-3xl bg-gradient-to-r from-amber-300 to-amber-600 bg-clip-text text-transparent hover:animate-pulse">register</a>
   </div>
   {% endif %}
 </main>
 
 <!-- Features Section -->
-<section
-  class="bg-gradient-to-tr from-cyan-100 to-teal-100 to-indigo-600 py-12 rounded-md"
->
+<section class="bg-gradient-to-tr from-cyan-100 to-teal-100 to-indigo-600 py-12 rounded-md">
   <div class="container mx-auto text-center">
     <h3 class="text-3xl text-teal-800 font-semibold mb-8">Why Choose This?</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 p-2">

@@ -542,4 +542,7 @@ queries = {
         GROUP BY u."Id", u."UserName", u."Email",  u."DateCreated"
         ORDER BY u."Id" ASC;
     """,
+    "reset_budget_admin_display_order": """
+        UPDATE BudgetEntryAdminView SET DisplayOrder = NULL;
+    """,
 }

@@ -89,6 +89,32 @@
   }
 }
 
+/* Define cusom toast colors */
+.toast {
+  opacity: 1 !important;
+}
+
+/* Customize background colors for different categories */
+.toast-success {
+  background-color: #10b981 !important;
+  color: #fff !important;
+}
+
+.toast-info {
+  background-color: #06b6d4 !important;
+  color: #fff !important;
+}
+
+.toast-warning {
+  background-color: #eab308 !important;
+  color: #fff !important;
+}
+
+.toast-error {
+  background-color: #f43f5e !important;
+  color: #fff !important;
+}
+
 /* Define custom tooltip theme */
 .tippy-box[data-theme="tippy-custom-theme"] {
   width: fit-content;

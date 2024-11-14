@@ -174,8 +174,7 @@ class BudgetEntryAdminViewCreateForm(FlaskForm):
 
 class BudgetEntryAdminViewForm(FlaskForm):
     id = HiddenField()
-    is_updated = HiddenField(default="no")
-    display_order = IntegerField("Display Order")
+    display_order = StringField("Display Order")
     account_no = StringField("Account No")
     account = StringField("Account")
     rad = StringField("RAD")
