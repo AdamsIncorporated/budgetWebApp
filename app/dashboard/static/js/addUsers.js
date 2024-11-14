@@ -118,4 +118,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+
+  $("#userTable").DataTable({
+    paging: true,
+    searching: true,
+    ordering: true,
+    info: true,
+    lengthMenu: [5, 10, 15, 25],
+    language: {
+      search: "Search:",
+    },
+    search: {
+      smart: true,
+    },
+  });
 });

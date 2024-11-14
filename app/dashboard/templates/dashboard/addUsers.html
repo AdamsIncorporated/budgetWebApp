@@ -12,24 +12,21 @@
           Add Users to Assigned Business Units
         </h1>
         {% if users %}
-        <table
-          id="masterEmailTable"
-          class="top-0 sticky table table-bordered border-collapse w-full"
-        >
+        <table id="userTable" class="{{macros.table()}}">
           <thead>
             <tr>
-              <th class="p-2 bg-cyan-600 text-white">Username</th>
-              <th class="p-2 bg-cyan-600 text-white">Email</th>
-              <th class="p-2 bg-cyan-600 text-white">Name</th>
-              <th class="p-2 bg-cyan-600 text-white">Creator</th>
-              <th class="p-2 bg-cyan-600 text-white">Business Units</th>
-              <th class="p-2 bg-cyan-600 text-white">Date Created</th>
-              <th class="p-2 bg-cyan-600 text-white">Action</th>
+              <th class="{{macros.table_header()}}">Username</th>
+              <th class="{{macros.table_header()}}">Email</th>
+              <th class="{{macros.table_header()}}">Name</th>
+              <th class="{{macros.table_header()}}">Creator</th>
+              <th class="{{macros.table_header()}}">Business Units</th>
+              <th class="{{macros.table_header()}}">Date Created</th>
+              <th class="{{macros.table_header()}}">Action</th>
             </tr>
           </thead>
           <tbody>
             {% for row in users %}
-            <tr>
+            <tr class="{{macros.table_row()}}">
               <td class="whitespace-nowrap px-2 py-1">{{ row.Username }}</td>
               <td class="whitespace-nowrap px-2 py-1">{{ row.Email }}</td>
               <td class="whitespace-nowrap px-2 py-1">{{row.Name}}</td>
@@ -40,7 +37,7 @@
                 <i
                   class="fas fa-business-time"
                   data-tippy-content="{% for value in row.BusinessUnits.split(',') %}
-                  {{value}}
+                  {{value}}<br>
                   {% endfor %}"
                 ></i>
               </td>

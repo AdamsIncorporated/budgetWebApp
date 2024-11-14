@@ -1,4 +1,5 @@
 // tooltip content
 tippy("[data-tippy-content]", {
-    theme: 'tippy-custom-theme'
+    theme: 'tippy-custom-theme',
+    allowHTML: true
 });

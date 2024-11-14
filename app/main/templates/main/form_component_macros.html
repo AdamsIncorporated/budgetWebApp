@@ -1,5 +1,19 @@
 <!-- Form Components macros -->
 
-{% macro drop_down() %} h-10 shadow appearance-none border-none rounded w-full
-py-2 pr-8 pl-3 text-gray-700 leading-tight focus:outline-none focus:ring-4
-focus:ring-teal-400 focus:shadow-outline bg-white {% endmacro %}
+<div>
+  {% macro drop_down() %} h-10 shadow appearance-none border-none rounded w-full
+  py-2 pr-8 pl-3 text-gray-700 leading-tight focus:outline-none focus:ring-4
+  focus:ring-teal-400 focus:shadow-outline bg-white {% endmacro %}
+</div>
+<div>
+  {% macro table() %} outline-none top-0 sticky table table-bordered
+  border-collapse w-full {% endmacro %}
+</div>
+<div>
+  {% macro table_header() %} outline-none cursor-default transition duration-50
+  hover:text-stone-200 p-2 bg-cyan-600 text-white text-nowrap {% endmacro %}
+</div>
+<div>
+  {% macro table_row() %} border-none odd:bg-white even:bg-stone-50 {% endmacro
+  %}
+</div>

@@ -24,11 +24,19 @@
       type="image/x-icon"
       href="{{ url_for('static', filename='assets/favicon.png') }}"
     />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
     <link
       href="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.4.0/dist/forms.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script
       defer
@@ -53,6 +61,10 @@
     <script
       defer
       src="{{url_for('main.static', filename='js/toastr.js')}}"
+    ></script>
+    <script
+      defer
+      src="//cdn.datatables.net/2.1.8/js/dataTables.min.js"
     ></script>
   </head>
 
