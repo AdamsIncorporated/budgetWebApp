@@ -1,18 +1,25 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, jsonify
 from app import db
 from sqlalchemy import text
 import base64
 from flask_login import current_user
 from repositories.queries import queries
 from services.current_user_image import image_wrapper
+from flask_wtf.csrf import generate_csrf
 
 main = Blueprint(
     "main",
     __name__,
     template_folder="templates/main",
     static_folder="static",
-    url_prefix="/",
+    url_prefix="/main",
 )
+
+
+@main.route("/get-csrf-token", methods=["GET"])
+def get_csrf_token():
+    csrf_token = generate_csrf()
+    return jsonify({"csrf_token": csrf_token})
 
 
 def get_all_business_units(user_id=None):

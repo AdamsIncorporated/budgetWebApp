@@ -14,12 +14,11 @@
       "args": ["run", "--debug", "--port", "5000"],
       "justMyCode": true,
       "cwd": "${workspaceFolder}/api",
-      "preLaunchTask": "Start Backend"
     },
     {
       "name": "Debug BudgetWebApp - Frontend",
       "type": "firefox",
-      "request": "launch",
+      "request": "attach",
       "webRoot": "${workspaceFolder}/frontend",
       "url": "http://localhost:3000",
       "preLaunchTask": "Start Frontend"

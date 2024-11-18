@@ -33,6 +33,10 @@ class Config:
     SESSION_USE_SIGNER = True
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
 
+    # CSRF TOKEN SESSION
+    WTF_CSRF_SECRET_KEY = secrets.token_hex(16)
+    WTF_CSRF_ENABLED = True
+
     @staticmethod
     def init_app_logging(app):
         logging.basicConfig(

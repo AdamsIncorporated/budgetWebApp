@@ -1,10 +1,10 @@
-from flask import Flask
+from flask import Flask, jsonify, request, session
 from app.config import Config
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from datetime import datetime
 
 # Initialize extensions globally
@@ -20,7 +20,25 @@ def create_app():
     )
     app.config.from_object(Config)
     Config.init_app_logging(app)
-    CORS(app)
+    csrf = CSRFProtect(app)
+
+    @app.before_request
+    def before_request():
+        state_changing_methods = [
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+        ]
+
+        if request.method in state_changing_methods:
+            csrf.protect()
+
+    @app.route("/get-csrf-token", methods=["GET"])
+    def get_csrf_token():
+        csrf_token = generate_csrf()
+        session["_csrf_token"] = csrf_token
+        return jsonify({"csrf_token": csrf_token})
 
     # Associate extensions with the app
     bcrypt.init_app(app)
