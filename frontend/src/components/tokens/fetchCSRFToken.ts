@@ -1,23 +1,22 @@
 import axios from 'axios';
 
-// Define the type for the response from the API
 interface CsrfTokenResponse {
-  csrfToken: string;
+  csrf_token: string;
 }
 
-// Define the function to fetch CSRF token and store it in localStorage
 const fetchCSRFToken = async (): Promise<void> => {
   try {
-    // Send request to the server to get the CSRF token
-    const response = await axios.get<CsrfTokenResponse>('/api/csrf-token');
-    
-    // Extract the token from the response data
-    const token = response.data.csrfToken;
-    
-    // Store the token in localStorage
-    localStorage.setItem('csrfToken', token);
-    
-    console.log('CSRF token fetched and stored:', token); // Debug log (optional)
+    // Remove any existing CSRF token from localStorage
+    localStorage.removeItem('csrf_token');
+
+    // Fetch the new CSRF token
+    const response = await axios.get<CsrfTokenResponse>('/api/get-csrf-token');
+    const token = response.data.csrf_token;
+
+    // Store the new token in localStorage
+    localStorage.setItem('csrf_token', token);
+
+    console.log('CSRF token fetched and stored:', token);
   } catch (error) {
     console.error('Error fetching CSRF token:', error);
   }

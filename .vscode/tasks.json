@@ -6,7 +6,13 @@
       "type": "shell",
       "command": "npm start",
       "options": {
-        "cwd": "${workspaceFolder}/frontend"
+        "cwd": "${workspaceFolder}/frontend",
+        "env": {
+          "NODE_OPTIONS": "--no-warnings",
+          "BROWSER": "none",
+          "REACT_APP_API_URL": "http://localhost:5000",
+          "NODE_ENV": "development"
+        }
       },
       "isBackground": true,
       "problemMatcher": [],

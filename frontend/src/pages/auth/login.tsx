@@ -22,17 +22,14 @@ const LoginPage: React.FC = () => {
   });
 
   useEffect(() => {
-    const fetchToken = async () => {
-      await fetchCsrfToken(); // This fetches and stores the CSRF token
-    };
-    fetchToken();
+    fetchCsrfToken();
   }, []);
 
   const onSubmit = async (data: LoginFormData) => {
     console.log("Form Submitted", data);
 
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

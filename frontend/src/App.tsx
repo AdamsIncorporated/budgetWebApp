@@ -1,8 +1,7 @@
-import React from 'react';
-import './App.css';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import IndexPage from './pages/index';
-import LoginPage from './pages/auth/login';
+import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import IndexPage from "./pages/index";
+import LoginPage from "./pages/auth/login";
 
 function App() {
   return (

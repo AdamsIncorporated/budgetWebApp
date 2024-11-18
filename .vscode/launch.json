@@ -12,13 +12,13 @@
       },
       "python": "${workspaceFolder}/api/.venv/Scripts/python.exe",
       "args": ["run", "--debug", "--port", "5000"],
-      "justMyCode": true,
+      "justMyCode": false,
       "cwd": "${workspaceFolder}/api",
     },
     {
       "name": "Debug BudgetWebApp - Frontend",
       "type": "firefox",
-      "request": "attach",
+      "request": "launch",
       "webRoot": "${workspaceFolder}/frontend",
       "url": "http://localhost:3000",
       "preLaunchTask": "Start Frontend"

@@ -6,6 +6,7 @@ from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from datetime import datetime
+from flask_cors import CORS
 
 # Initialize extensions globally
 bcrypt = Bcrypt()
@@ -20,6 +21,7 @@ def create_app():
     )
     app.config.from_object(Config)
     Config.init_app_logging(app)
+    CORS(app, origins="http://localhost:3000")
     csrf = CSRFProtect(app)
 
     @app.before_request
