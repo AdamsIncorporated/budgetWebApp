@@ -1,6 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../auth/store';
 
+// Define the structure for the user and auth state
 interface User {
   isAuthenticated: boolean;
   username: string;
@@ -9,26 +12,28 @@ interface User {
   imageFile: string | null;
 }
 
-interface Picklist {
-  BUSINESS_UNIT_IDS: [number, string][];
-}
-
 const IndexPage: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [imageFile, setImageFile] = useState<string | null>(null);
-  const [businessUnit, setBusinessUnit] = useState<string>("");
-  const [businessUnits, setBusinessUnits] = useState<string[]>([]);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Get the auth state from Redux store
+  const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);
+  const user = useSelector((state: any) => state.auth.user);
+  const imageFile = useSelector((state: any) => state.auth.user?.imageFile); // Assuming user image is part of the user object
+
   useEffect(() => {
-    setUser(null);
-    setIsAuthenticated(false);
-    setImageFile(null);
-  }, []);
+    // Resetting user-related data when the component mounts
+    if (!isAuthenticated) {
+      dispatch(logout()); // Clear out any old data when not authenticated
+    }
+  }, [isAuthenticated, dispatch]);
 
   const handleLogin = () => {
     navigate('/login');
+  };
+
+  const handleLogout = () => {
+    dispatch(logout()); // Dispatch the logout action to update the state
   };
 
   const handleBudgetEntry = () => {
@@ -62,9 +67,7 @@ const IndexPage: React.FC = () => {
                     <a
                       href="#"
                       className="hover:underline"
-                      onClick={() => {
-                        /* Handle Logout */
-                      }}
+                      onClick={handleLogout}
                     >
                       <i className="fas fa-sign-out-alt"></i> Logout
                     </a>
@@ -137,8 +140,6 @@ const IndexPage: React.FC = () => {
               id="businessUnit"
               name="businessUnit"
               className="border rounded px-4 py-2"
-              value={businessUnit}
-              onChange={(e) => setBusinessUnit(e.target.value)}
             >
               <option value="" disabled selected>
                 --Select Business Unit--

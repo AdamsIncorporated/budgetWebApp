@@ -1,5 +1,5 @@
 import base64
-from flask import render_template, url_for, flash, redirect, request, Blueprint
+from flask import render_template, url_for, flash, redirect, request, Blueprint, jsonify
 from app import bcrypt, mail
 from app.auth.forms import (
     RegistrationForm,
@@ -58,32 +58,15 @@ def register():
     return render_template("register.html", title="Register", form=form)
 
 
-@auth.route("/login", methods=["GET", "POST"])
+@auth.route("/login", methods=["POST"])
 def login():
-    if current_user.is_authenticated and current_user.is_root_user:
-        return redirect(url_for("dashboard.home"))
+    data = request.get_json()
 
-    form = LoginForm()
-
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
-            next_page = request.args.get("next")
-
-            if user.is_root_user:  # login in as admin login
-                return (
-                    redirect(next_page)
-                    if next_page
-                    else redirect(url_for("dashboard.home"))
-                )
-            else:  # return to next page as normal user
-                return (
-                    redirect(next_page) if next_page else redirect(url_for("main.home"))
-                )
-        else:
-            flash("Login Unsuccessful. Please check email and password", "error")
-    return render_template("login.html", title="Login", form=form)
+    user = User.query.filter_by(email=data["email"]).first()
+    if user and bcrypt.check_password_hash(user.password, data["password"]):
+        login_user(user, remember=data["remember"])
+        return jsonify({"message": "Login successful"}), 200
+    return jsonify({"message": "Invalid credentials"}), 401
 
 
 @auth.route("/logout")

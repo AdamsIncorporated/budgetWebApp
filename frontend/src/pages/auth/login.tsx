@@ -1,5 +1,10 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "./store";
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import fetchCsrfToken from "../../components/tokens/fetchCSRFToken";
 
 interface LoginFormData {
@@ -9,6 +14,9 @@ interface LoginFormData {
 }
 
 const LoginPage: React.FC = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -26,28 +34,29 @@ const LoginPage: React.FC = () => {
   }, []);
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log("Form Submitted", data);
+    console.log("Form Submitted");
 
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRFToken": localStorage.getItem("csrf_token") || "",
         },
         body: JSON.stringify(data),
       });
 
       if (response.ok) {
         const result = await response.json();
-        console.log("Login successful", result);
-        // Handle successful login (e.g., redirect to dashboard)
+        console.log("Login successful");
+        toast.success("Logged in as Sam");
+        dispatch(login(result.user));
+        navigate("/");
       } else {
         console.error("Login failed", response.status);
-        // Handle error (e.g., show error message to user)
       }
     } catch (error) {
       console.error("Error during login:", error);
-      // Handle network or other errors
     }
   };
 
@@ -55,7 +64,7 @@ const LoginPage: React.FC = () => {
     <div className="bg-gradient-to-r from-teal-50 to-teal-200 flex items-center justify-center min-h-screen swirl">
       <div className="bg-white rounded-lg shadow-md p-8 w-full max-w-md">
         <h2 className="text-2xl font-semibold text-center text-teal-600 mb-6">
-          <i className="fas fa-crown"></i> Admin User Login
+          <i className="fas fa-crown"></i> User Login
         </h2>
         <div className="mb-4 text-center">
           <a href="/" className="text-teal-600 hover:underline">

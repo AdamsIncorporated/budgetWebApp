@@ -1,17 +1,25 @@
+import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Provider } from "react-redux";
+import { ToastContainer } from "react-toastify";
+
 import IndexPage from "./pages/index";
 import LoginPage from "./pages/auth/login";
-
-function App() {
+import store from "./pages/auth/store";
+const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<IndexPage />} />
-        <Route path="/login" element={<LoginPage />} />
-      </Routes>
-    </Router>
+    <Provider store={store}>
+      {" "}
+      <Router>
+        <Routes>
+          <Route path="/" element={<IndexPage />} />
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+        <ToastContainer />
+      </Router>
+    </Provider>
   );
-}
+};
 
 export default App;
