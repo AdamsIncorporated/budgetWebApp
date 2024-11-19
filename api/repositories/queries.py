@@ -1,50 +1,45 @@
 import polars as pl
 import sqlite3
 import os
-from app import db
-from sqlalchemy import text
+from repositories.db import Database
 
 
 def get_all_business_units():
     query = queries["fetch_all_business_unit_ids"]
-    data = db.session.execute(text(query)).fetchall()
+    data = Database().read(query)
 
-    return [(item[0], item[1]) for item in data]
+    return data
 
 
 def get_historical_fiscal_year_picklist():
     query = queries["fetch_all_historical_fiscal_years"]
-    data = db.session.execute(text(query))
+    data = Database().read(query)
 
-    return [(item[0]) for item in data]
+    return data
 
 
 def get_proposed_fiscal_year_picklist():
     query = queries["fetch_all_proposed_fiscal_years"]
-    data = db.session.execute(text(query))
+    data = Database().read(query)
 
-    return [(item[0]) for item in data]
+    return data
 
 
 def get_default_historical_fiscal_year():
-    result = db.session.execute(
-        text(queries["fetch_default_historical_fiscal_year"])
-    ).all()
-    value = result[0][0]
-    return value
+    query = queries["fetch_default_historical_fiscal_year"]
+    data = Database().read(query)
+    return data
 
 
 def get_default_proposed_fiscal_year():
-    result = db.session.execute(
-        text(queries["fetch_all_default_proposed_fiscal_year"])
-    ).all()
-    value = result[0][0]
-    return value
+    query = queries["fetch_all_default_proposed_fiscal_year"]
+    data = Database().read(query)
+    return data
 
 
 def get_default_business_unit():
     query = queries["fetch_default_business_unit_id"]
-    data = db.session.execute(text(query)).fetchall()[0][0]
+    data = Database().read(query)
 
     return data
 
