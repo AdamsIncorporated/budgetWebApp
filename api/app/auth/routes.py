@@ -60,9 +60,8 @@ def register():
 @auth.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(email=data["email"].lower()).first()
-    if user and bcrypt.check_password_hash(user.password, data["password"]):
-        login_user(user, remember=data["remember"])
+    user = User.query.filter_by(Email=data["email"].lower()).first()
+    if user and bcrypt.check_password_hash(user.Password, data["password"]):
         return jsonify({"message": "Login successful", "user": user.to_dict()}), 200
     return jsonify({"message": "Invalid credentials"}), 401
 
