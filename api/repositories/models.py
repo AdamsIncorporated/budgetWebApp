@@ -4,12 +4,6 @@ from datetime import datetime
 import base64
 
 
-def encode_field(field_value):
-    if isinstance(field_value, bytes):
-        return base64.b64encode(field_value).decode("utf-8")
-    return field_value
-
-
 @dataclass
 class RadType:
     Id: Optional[int] = None
@@ -89,16 +83,11 @@ class User:
     IsRootUser: Optional[int] = None
     UserCreatorId: Optional[int] = None
 
-    def to_dict(self):
-        result = {
-            field.name: encode_field(getattr(self, field.name))
-            for field in self.__dataclass_fields__.values()
-        }
-        return result
-
-    @property
-    def formattedDateCreated(self):
-        return self.DateCreated.strftime("%B %d, %Y") if self.DateCreated else None
+    def __post_init__(self):
+        """Convert binary image to base64 string if ImageFile is in binary format."""
+        if isinstance(self.ImageFile, bytes):
+            # Convert binary image data to a base64 encoded string
+            self.ImageFile = base64.b64encode(self.ImageFile).decode("utf-8")
 
 
 @dataclass

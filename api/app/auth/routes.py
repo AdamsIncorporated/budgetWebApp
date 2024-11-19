@@ -2,8 +2,10 @@ import base64
 from flask import render_template, url_for, flash, redirect, request, Blueprint, jsonify
 from app import bcrypt, mail
 from repositories.models import User
+from repositories.db import Database
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
+from dataclasses import asdict
 
 auth = Blueprint(
     "auth",
@@ -53,9 +55,12 @@ auth = Blueprint(
 @auth.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(Email=data["email"].lower()).first()
-    if user and bcrypt.check_password_hash(user.Password, data["password"]):
-        return jsonify({"message": "Login successful", "user": user.to_dict()}), 200
+    result = Database().read(
+        "SELECT * FROM User WHERE Email = :email LIMIT 1", {"email": data["email"]}
+    )
+    user = asdict(User(**result))
+    if user and bcrypt.check_password_hash(user["Password"], data["password"]):
+        return jsonify({"message": "Login successful", "user": user}), 200
     return jsonify({"message": "Invalid credentials"}), 401
 
 

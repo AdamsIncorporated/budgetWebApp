@@ -56,15 +56,20 @@ class Database:
         finally:
             conn.close()
 
-    def read(self, sql: str, params: Tuple = ()) -> List[Dict[str, Any]]:
+    def read(self, sql: str, params: Dict = {}) -> List[Dict[str, Any]]:
         """Read records from the database."""
         try:
             conn = self._connect()
             with closing(conn.cursor()) as cursor:
                 cursor.execute(sql, params)
                 rows = cursor.fetchall()
+
                 # Convert rows to a list of dictionaries, where each dictionary is a row
                 results = [dict(row) for row in rows] if rows else []
+
+                if len(results) == 1:
+                    return results[0]
+
                 self._log_execution(sql, params, success=True, result=results)
                 return results
 
