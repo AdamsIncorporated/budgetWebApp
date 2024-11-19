@@ -12,7 +12,7 @@
       },
       "python": "${workspaceFolder}/api/.venv/Scripts/python.exe",
       "args": ["run", "--debug", "--port", "5000"],
-      "justMyCode": false,
+      "justMyCode": true,
       "cwd": "${workspaceFolder}/api",
     },
     {
@@ -21,7 +21,7 @@
       "request": "launch",
       "webRoot": "${workspaceFolder}/frontend",
       "url": "http://localhost:3000",
-      "preLaunchTask": "Start Frontend"
+      "preLaunchTask": "Start Frontend",
     }
   ],
   "compounds": [

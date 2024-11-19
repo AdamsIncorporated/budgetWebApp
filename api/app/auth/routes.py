@@ -3,7 +3,6 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint,
 from app import bcrypt, mail
 from app.auth.forms import (
     RegistrationForm,
-    LoginForm,
     UpdateAccountForm,
     RequestResetForm,
     ResetPasswordForm,
@@ -61,11 +60,10 @@ def register():
 @auth.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-
-    user = User.query.filter_by(email=data["email"]).first()
+    user = User.query.filter_by(email=data["email"].lower()).first()
     if user and bcrypt.check_password_hash(user.password, data["password"]):
         login_user(user, remember=data["remember"])
-        return jsonify({"message": "Login successful"}), 200
+        return jsonify({"message": "Login successful", "user": user.to_dict()}), 200
     return jsonify({"message": "Invalid credentials"}), 401
 
 

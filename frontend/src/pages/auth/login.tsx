@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "./store";
 import { toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import fetchCsrfToken from "../../components/tokens/fetchCSRFToken";
 
 interface LoginFormData {
@@ -53,6 +53,8 @@ const LoginPage: React.FC = () => {
         dispatch(login(result.user));
         navigate("/");
       } else {
+        const result = await response.json();
+        toast.error(`Logged failed: ${result.message}`);
         console.error("Login failed", response.status);
       }
     } catch (error) {
