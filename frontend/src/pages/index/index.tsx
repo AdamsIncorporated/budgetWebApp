@@ -1,7 +1,7 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../auth/store';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { logout } from "../../store/slices/authSlice";
 
 // Define the structure for the user and auth state
 interface User {
@@ -13,27 +13,30 @@ interface User {
 }
 
 const IndexPage: React.FC = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // Get the auth state from Redux store
-  const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);
-  const user = useSelector((state: any) => state.auth.user);
-  const imageFile = useSelector((state: any) => state.auth.user?.imageFile); // Assuming user image is part of the user object
+  // const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);
+  // const user = useSelector((state: any) => state.auth.user);
+  // const imageFile = useSelector((state: any) => state.auth.user?.ImageFile);
+  const isAuthenticated = true;
+  const user = null;
+  const imageFile = null;
 
-  useEffect(() => {
-    // Resetting user-related data when the component mounts
-    if (!isAuthenticated) {
-      dispatch(logout()); // Clear out any old data when not authenticated
-    }
-  }, [isAuthenticated, dispatch]);
+  // useEffect(() => {
+  //   // Resetting user-related data when the component mounts
+  //   if (!isAuthenticated) {
+  //     dispatch(logout());
+  //   }
+  // }, [isAuthenticated, dispatch]);
 
   const handleLogin = () => {
-    navigate('/login');
+    navigate("/login");
   };
 
   const handleLogout = () => {
-    dispatch(logout()); // Dispatch the logout action to update the state
+    // dispatch(logout());
   };
 
   const handleBudgetEntry = () => {
@@ -77,13 +80,13 @@ const IndexPage: React.FC = () => {
                       <i className="fas fa-user-circle"></i> Account
                     </a>
                   </li>
-                  {user?.isRootUser && (
+                  {/* {user?.isRootUser && (
                     <li className="transition-transform duration-300 transform hover:translate-y-1">
                       <a href="#" className="hover:underline">
                         <i className="fas fa-chart-bar"></i> Dashboard
                       </a>
                     </li>
-                  )}
+                  )} */}
                 </>
               )}
             </ul>
@@ -104,7 +107,7 @@ const IndexPage: React.FC = () => {
                   />
                 </div>
                 <div className="flex-col">
-                  <h2 className="truncate text-lg font-bold whitespace-nowrap">
+                  {/* <h2 className="truncate text-lg font-bold whitespace-nowrap">
                     {user?.isRootUser ? (
                       <span className="text-amber-400">
                         <i className="fas fa-crown"></i> {user?.username}
@@ -115,7 +118,7 @@ const IndexPage: React.FC = () => {
                       </span>
                     )}
                   </h2>
-                  <p className="truncate break-words">{user?.email}</p>
+                  <p className="truncate break-words">{user?.email}</p> */}
                 </div>
               </div>
             ) : (

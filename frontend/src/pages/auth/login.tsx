@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { login } from "./store";
+// import { useDispatch } from "react-redux";
+// import { login } from "../../store/slices/authSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import fetchCsrfToken from "../../components/tokens/fetchCSRFToken";
@@ -14,7 +14,7 @@ interface LoginFormData {
 }
 
 const LoginPage: React.FC = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const {
@@ -50,7 +50,7 @@ const LoginPage: React.FC = () => {
         const result = await response.json();
         console.log("Login successful");
         toast.success("Logged in as Sam");
-        dispatch(login(result.user));
+        // dispatch(login(result.user));
         navigate("/");
       } else {
         const result = await response.json();

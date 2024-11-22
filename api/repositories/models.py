@@ -80,7 +80,7 @@ class User:
     FirstName: Optional[str] = None
     LastName: Optional[str] = None
     DateCreated: Optional[datetime] = None
-    IsRootUser: Optional[int] = None
+    IsRootUser: bool = False
     UserCreatorId: Optional[int] = None
 
     def __post_init__(self):
@@ -88,6 +88,9 @@ class User:
         if isinstance(self.ImageFile, bytes):
             # Convert binary image data to a base64 encoded string
             self.ImageFile = base64.b64encode(self.ImageFile).decode("utf-8")
+
+        if isinstance(self.IsRootUser, int):
+            self.IsRootUser = bool(self.IsRootUser)
 
 
 @dataclass

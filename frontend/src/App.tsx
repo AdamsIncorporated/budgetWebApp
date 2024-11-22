@@ -6,11 +6,11 @@ import { ToastContainer } from "react-toastify";
 
 import IndexPage from "./pages/index";
 import LoginPage from "./pages/auth/login";
-import store from "./pages/auth/store";
+import store from "./redux/store";
+
 const App: React.FC = () => {
   return (
     <Provider store={store}>
-      {" "}
       <Router>
         <Routes>
           <Route path="/" element={<IndexPage />} />
