@@ -9,7 +9,7 @@ from flask import (
     current_app,
 )
 from app import bcrypt, mail
-from repositories.models import User
+from repositories.models import User, UserRegistration
 from repositories.db import Database
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
@@ -26,22 +26,28 @@ auth = Blueprint(
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
-    if current_user.is_authenticated:
-        pass
+    if request.method == "GET":
+        return (
+            jsonify({"message": "Cookie generated for CSRF Token"}),
+            200,
+        )
 
-    form = request.form()
-    hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
-    user = User(
-        username=form.username.data,
-        email=form.email.data,
-        first_name=form.first_name.data,
-        last_name=form.last_name.data,
-        password=hashed_password,
-        is_root_user=1 if form.is_root_user.data else 0,
-    )
-    # db.session.add(user)
-    # db.session.commit()
-    return jsonify({"message": "User created."}), 200
+    if request.method == "POST":
+        data = request.get_json()
+        user = UserRegistration(**data)
+
+        try:
+            user.validate()
+        except ValueError as e:
+            return jsonify({"message": str(e)}), 409
+
+        hashed_password = bcrypt.generate_password_hash(data["password"])
+        data["password"] = hashed_password
+        data.pop("confirm_password")
+        insert_data = asdict(User(**data))
+        insert_data.pop("id")
+        Database().create(table="user", data=insert_data)
+        return jsonify({"message": "User created."}), 200
 
 
 @auth.route("/login", methods=["GET", "POST"])

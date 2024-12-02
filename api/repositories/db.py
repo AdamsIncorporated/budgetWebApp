@@ -47,9 +47,7 @@ class Database:
         try:
             columns = ", ".join(data.keys())
             placeholders = ", ".join(["%s"] * len(data))
-            sql = (
-                f"INSERT INTO {table} ({columns}) VALUES ({placeholders}) RETURNING id"
-            )
+            sql = f'INSERT INTO "{table}" ({columns}) VALUES ({placeholders}) RETURNING id'
             params = tuple(data.values())
 
             conn = self._connect()

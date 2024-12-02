@@ -9,6 +9,7 @@ import IndexPage from "./pages/index";
 import LoginPage from "./pages/auth/login";
 import AccountPage from "./pages/auth/account";
 import RegisterPage from "./pages/auth/register";
+import ResetPasswordPage from "./pages/auth/resetPassword";
 import { store, persistor } from "./redux/store";
 
 const App: React.FC = () => {
@@ -21,6 +22,7 @@ const App: React.FC = () => {
             <Route path="/auth/login" element={<LoginPage />} />
             <Route path="/auth/account" element={<AccountPage />} />
             <Route path="/auth/register" element={<RegisterPage />} />
+            <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
           </Routes>
           <ToastContainer />
         </Router>

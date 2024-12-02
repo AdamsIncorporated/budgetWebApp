@@ -1,15 +1,18 @@
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axiosInstance from "../../axiosConfig";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface FormValues {
-  isRootUser: boolean;
+  is_root_user: boolean;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   password: string;
-  confirmPassword: string;
+  confirm_password: string;
 }
 
 const RegisterPage: React.FC = () => {
@@ -21,6 +24,7 @@ const RegisterPage: React.FC = () => {
   } = useForm<FormValues>();
   const passwordComplexityRule =
     /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,9 +39,20 @@ const RegisterPage: React.FC = () => {
     fetchData();
   }, []);
 
-  const onSubmit = (data: FormValues) => {
-    // Handle form submission logic
-    console.log("Form submitted", data);
+  const onSubmit = async (data: FormValues) => {
+    try {
+      const response = await axiosInstance.post("/auth/register", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      toast.success(`${data.username} created!`);
+      navigate('/auth/login');
+    } catch (error: any) {
+      const result = error.response?.data || {};
+      toast.error(`User creation failed: ${result.message}`);
+      console.error("User creation failed", error.response.status);
+    }
   };
 
   return (
@@ -53,7 +68,7 @@ const RegisterPage: React.FC = () => {
                 <input
                   type="checkbox"
                   id="is_root_user"
-                  {...register("isRootUser")}
+                  {...register("is_root_user")}
                   className="form-checkbox h-5 w-5 text-stone-700 transition duration-150 ease-in-out"
                 />
                 <span className="ml-2 text-stone-700">Create an Admin</span>
@@ -105,16 +120,16 @@ const RegisterPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                {...register("firstName", {
+                {...register("first_name", {
                   required: "First name is required",
                 })}
                 className={`mt-1 block w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                  errors.firstName ? "border-red-500" : "border-gray-300"
+                  errors.first_name ? "border-red-500" : "border-gray-300"
                 }`}
               />
-              {errors.firstName && (
+              {errors.first_name && (
                 <div className="text-red-500 mt-1 text-sm">
-                  {errors.firstName.message}
+                  {errors.first_name.message}
                 </div>
               )}
             </div>
@@ -126,14 +141,16 @@ const RegisterPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                {...register("lastName", { required: "Last name is required" })}
+                {...register("last_name", {
+                  required: "Last name is required",
+                })}
                 className={`mt-1 block w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                  errors.lastName ? "border-red-500" : "border-gray-300"
+                  errors.last_name ? "border-red-500" : "border-gray-300"
                 }`}
               />
-              {errors.lastName && (
+              {errors.last_name && (
                 <div className="text-red-500 mt-1 text-sm">
-                  {errors.lastName.message}
+                  {errors.last_name.message}
                 </div>
               )}
             </div>
@@ -171,18 +188,18 @@ const RegisterPage: React.FC = () => {
               </label>
               <input
                 type="password"
-                {...register("confirmPassword", {
+                {...register("confirm_password", {
                   required: "Please confirm your password",
                   validate: (value) =>
                     value === getValues("password") || "Passwords must match",
                 })}
                 className={`mt-1 block w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                  errors.confirmPassword ? "border-red-500" : "border-gray-300"
+                  errors.confirm_password ? "border-red-500" : "border-gray-300"
                 }`}
               />
-              {errors.confirmPassword && (
+              {errors.confirm_password && (
                 <div className="text-red-500 mt-1 text-sm">
-                  {errors.confirmPassword.message}
+                  {errors.confirm_password.message}
                 </div>
               )}
             </div>

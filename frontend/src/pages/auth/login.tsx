@@ -143,7 +143,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ redirectUrl }) => {
               </div>
             )}
             <div className="mt-1 text-sm text-teal-600 hover:underline">
-              <a href="/auth/reset_request">Forgot Password?</a>
+              <a href="/auth/reset-password">Forgot Password?</a>
             </div>
           </div>
 

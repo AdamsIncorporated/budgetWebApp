@@ -85,29 +85,62 @@ def load_user(user_id):
 
 @dataclass
 class User(UserMixin):
-    Id: Optional[int] = None
-    Username: Optional[str] = None
-    Email: Optional[str] = None
-    Password: Optional[str] = None
-    ImageFile: Optional[bytes] = None
-    FirstName: Optional[str] = None
-    LastName: Optional[str] = None
-    DateCreated: Optional[datetime] = None
-    IsRootUser: bool = False
-    UserCreatorId: Optional[int] = None
+    id: Optional[int] = None
+    username: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    image_file: Optional[bytes] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    date_created: Optional[datetime] = None
+    is_root_user: bool = False
+    user_creator_id: Optional[int] = None
 
     def __post_init__(self):
-        """Convert binary image to base64 string if ImageFile is in binary format."""
-        if isinstance(self.ImageFile, bytes):
+        """Convert binary image to base64 string if image_file is in binary format."""
+        if isinstance(self.image_file, bytes):
             # Convert binary image data to a base64 encoded string
-            self.ImageFile = base64.b64encode(self.ImageFile).decode("utf-8")
+            self.image_file = base64.b64encode(self.image_file).decode("utf-8")
 
-        if isinstance(self.IsRootUser, int):
-            self.IsRootUser = bool(self.IsRootUser)
+        if isinstance(self.is_root_user, int):
+            self.is_root_user = bool(self.is_root_user)
 
     # Implement the method required by Flask-Login to get the user ID
     def get_id(self):
-        return str(self.Id) if self.Id else None
+        return str(self.id) if self.id else None
+
+
+@dataclass
+class UserRegistration:
+    username: str = None
+    email: str = None
+    password: str = None
+    confirm_password: str = None
+    first_name: str = None
+    last_name: str = None
+    is_root_user: bool = False
+    user_creator_id: int = None
+
+    def validate(self):
+        # Check if email is already taken
+        result = Database().read(
+            sql='SELECT * FROM "user" WHERE email = %s LIMIT 1;',
+            params=(self.email,),
+        )
+        if result:
+            raise ValueError("Email already taken!")
+
+        # Check if username is already taken
+        result = Database().read(
+            sql='SELECT * FROM "user" WHERE username = %s LIMIT 1;',
+            params=(self.username,),
+        )
+        if result:
+            raise ValueError("Username already taken!")
+
+        # Check if passwords match
+        if self.password != self.confirm_password:
+            raise ValueError("Passwords do not match!")
 
 
 @dataclass
