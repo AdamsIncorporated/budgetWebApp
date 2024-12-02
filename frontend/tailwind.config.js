@@ -5,4 +5,6 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  mode: 'jit', // Ensure JIT mode is enabled
+  purge: ['./src/**/*.{html,js,jsx,ts,tsx}', './public/index.html'],
 };

@@ -29,6 +29,7 @@ class Config:
     SESSION_PERMANENT = True
     SESSION_USE_SIGNER = True
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+    SESSION_COOKIE_SAMESITE = "Strict"
 
     # CSRF TOKEN SESSION
     WTF_CSRF_SECRET_KEY = secrets.token_hex(16)

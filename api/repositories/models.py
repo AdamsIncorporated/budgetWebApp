@@ -1,9 +1,11 @@
 from app import login_manager
 from repositories.db import Database
 from flask_login import UserMixin
-from dataclasses import dataclass, field
-from typing import Optional, List
+from flask import current_app
+from dataclasses import dataclass
+from typing import Optional
 from datetime import datetime
+from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
 import base64
 
 
@@ -108,6 +110,24 @@ class User(UserMixin):
     # Implement the method required by Flask-Login to get the user ID
     def get_id(self):
         return str(self.id) if self.id else None
+
+    def get_reset_token(self, expires_sec=1800):
+        s = Serializer(current_app.config["SECRET_KEY"], expires_sec)
+        return s.dumps({"user_id": self.id}).decode("utf-8")
+
+    @staticmethod
+    def verify_reset_token(token):
+        s = Serializer(current_app.config["SECRET_KEY"])
+        try:
+            user_id = s.loads(token)["user_id"]
+        except:
+            return None
+
+        user = Database().read(
+            'SELECT * FROM "user" WHERE id = %s LIMIT 1',
+            {"id": user_id},
+        )
+        return user
 
 
 @dataclass

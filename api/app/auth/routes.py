@@ -1,5 +1,4 @@
 from flask import (
-    render_template,
     url_for,
     flash,
     redirect,
@@ -64,7 +63,10 @@ def login():
         if current_user.is_authenticated:
             user_data = current_user.to_dict()
             user_data.pop("Password", None)
-            return jsonify({"message": "User authenticated", "user": user_data}), 200
+            return (
+                jsonify({"message": "User already authenticated", "user": user_data}),
+                200,
+            )
 
         else:
             result = Database().read(
@@ -125,8 +127,8 @@ def account():
         last_name = form.last_name.data
 
 
-def send_reset_email(user):
-    token = user.get_reset_token()
+def send_reset_email(user: User):
+    token = user.get_reset_token
     msg = Message(
         "Password Reset Request",
         sender="samuel.grant.adams@gmail.com",
@@ -140,45 +142,59 @@ def send_reset_email(user):
     mail.send(msg)
 
 
-@auth.route("/reset_password", methods=["GET", "POST"])
+@auth.route("/reset-password", methods=["GET", "POST"])
 def reset_request():
-    if current_user.is_authenticated:
-        return redirect(url_for("dashboard.home"))
-
-    form = request.form()
-
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        send_reset_email(user)
-        flash(
-            "An email has been sent with instructions to reset your password.",
-            "success",
+    if request.method == "GET":
+        return (
+            jsonify({"message": "Cookie generated for CSRF Token"}),
+            200,
         )
 
-        return redirect(url_for("auth.login"))
+    if request.method == "POST":
+        data = request.get_json()
+        result = Database().read(
+            'SELECT * FROM "user" WHERE email = %s LIMIT 1',
+            {"email": data["email"]},
+        )
 
-    return render_template("reset_request.html", title="Reset Password", form=form)
+        if not result:
+            return jsonify({"message": "User not found"}), 404
+
+        user = asdict(User(**result))
+        send_reset_email(user)
+
+        return (
+            jsonify({"message": "Email sent for authentification"}),
+            200,
+        )
 
 
 @auth.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_token(token):
-    if current_user.is_authenticated:
-        return redirect(url_for("dashboard.home"))
-
     user = User.verify_reset_token(token)
 
     if user is None:
-        flash("That is an invalid or expired token", "error")
-
-        return redirect(url_for("auth.reset_request"))
-
-    form = request.form()
-
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode(
-            "utf-8"
+        return (
+            jsonify({"message": "That is an invalid or expired token"}),
+            200,
         )
-        user.password = hashed_password
-        return redirect(url_for("auth.login"))
 
-    return render_template("reset_token.html", title="Reset Password", form=form)
+    if request.method == "GET":
+        return (
+            jsonify({"message": "Cookie generated for CSRF Token"}),
+            200,
+        )
+
+    if request.method == "POST":
+        data = request.get_json()
+        hashed_password = bcrypt.generate_password_hash(data["password"])
+        Database().update(
+            table="user",
+            data={"password": hashed_password},
+            where="id = %s",
+            where_params=(user.id,),
+        )
+        return (
+            jsonify({"message": "Cookie generated for CSRF Token"}),
+            200,
+        )
