@@ -1,3 +1,6 @@
+from app import login_manager
+from repositories.db import Database
+from flask_login import UserMixin
 from dataclasses import dataclass, field
 from typing import Optional, List
 from datetime import datetime
@@ -70,8 +73,18 @@ class BusinessUnit:
     DateCreated: Optional[datetime] = None
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    user = Database().read(
+        sql="SELECT * FROM User WHERE Id = :Id;", params={"Id": user_id}
+    )
+    if user:
+        return user
+    return None
+
+
 @dataclass
-class User:
+class User(UserMixin):
     Id: Optional[int] = None
     Username: Optional[str] = None
     Email: Optional[str] = None
@@ -91,6 +104,10 @@ class User:
 
         if isinstance(self.IsRootUser, int):
             self.IsRootUser = bool(self.IsRootUser)
+
+    # Implement the method required by Flask-Login to get the user ID
+    def get_id(self):
+        return str(self.Id) if self.Id else None
 
 
 @dataclass

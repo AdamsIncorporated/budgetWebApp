@@ -5,7 +5,8 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_cors import CORS
-from datetime import time
+from datetime import datetime, timedelta
+import json
 
 # Initialize extensions globally
 bcrypt = Bcrypt()
@@ -23,23 +24,17 @@ def create_app():
 
     @app.after_request
     def after_request(response):
-        # Only set the CSRF token cookie if it's not already set
         if "csrf_token" not in request.cookies:
             csrf_token = generate_csrf()
-            response.set_cookie(
-                "csrf_token",
-                csrf_token,
-                httponly=True,
-                secure=False,
-                samesite="Strict",
-                max_age=3600,  # Cookie valid for 1 hour
-                expires=time.time() + 3600,  # Expire in 1 hour
-            )
+            response.headers["X-CSRFToken"] = csrf_token
+            request.csrf_included = True
+
         return response
 
     # Associate extensions with the app
     bcrypt.init_app(app)
     login_manager.init_app(app)
+    login_manager.login_view = "auth.login"
     mail.init_app(app)
 
     with app.app_context():

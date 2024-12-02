@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2
 import logging
 from contextlib import closing
 from typing import Any, List, Tuple, Dict
@@ -7,15 +7,25 @@ import os
 
 class Database:
     def __init__(self):
-        self.db_file = os.getenv("DB_PATH")
+        self.dbname = os.getenv("DB_NAME")
+        self.user = os.getenv("USER")
+        self.password = os.getenv("PASSWORD")
+        self.host = os.getenv("HOST")
+        self.port = os.getenv("PORT")
 
     def _connect(self):
         """Establish a database connection."""
         try:
-            conn = sqlite3.connect(self.db_file)
-            conn.row_factory = sqlite3.Row
+            conn = psycopg2.connect(
+                dbname=self.dbname,
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port,
+            )
+            conn.autocommit = False  # Disable autocommit to control transactions
             return conn
-        except sqlite3.Error as e:
+        except psycopg2.Error as e:
             logging.error(f"Database connection error: {e}")
             raise
 
@@ -36,18 +46,21 @@ class Database:
         """Create a new record in the specified table."""
         try:
             columns = ", ".join(data.keys())
-            placeholders = ", ".join(["?"] * len(data))
-            sql = f"INSERT INTO [{table}] ({columns}) VALUES ({placeholders})"
+            placeholders = ", ".join(["%s"] * len(data))
+            sql = (
+                f"INSERT INTO {table} ({columns}) VALUES ({placeholders}) RETURNING id"
+            )
             params = tuple(data.values())
 
             conn = self._connect()
             with closing(conn.cursor()) as cursor:
                 cursor.execute(sql, params)
                 conn.commit()
-                self._log_execution(sql, params, success=True, result=cursor.lastrowid)
-                return cursor.lastrowid  # Return the ID of the inserted row
+                new_id = cursor.fetchone()[0]  # Get the returned ID
+                self._log_execution(sql, params, success=True, result=new_id)
+                return new_id
 
-        except sqlite3.Error as e:
+        except psycopg2.Error as e:
             logging.error(f"Error in 'create' operation: {e}")
             conn.rollback()
             self._log_execution(sql, params, success=False, result=e)
@@ -56,7 +69,7 @@ class Database:
         finally:
             conn.close()
 
-    def read(self, sql: str, params: Dict = {}) -> List[Dict[str, Any]]:
+    def read(self, sql: str, params: Tuple = ()) -> List[Dict[str, Any]]:
         """Read records from the database."""
         try:
             conn = self._connect()
@@ -64,16 +77,20 @@ class Database:
                 cursor.execute(sql, params)
                 rows = cursor.fetchall()
 
-                # Convert rows to a list of dictionaries, where each dictionary is a row
-                results = [dict(row) for row in rows] if rows else []
-
-                if len(results) == 1:
-                    return results[0]
+                # Convert rows to a list of dictionaries
+                results = (
+                    [
+                        dict(zip([desc[0] for desc in cursor.description], row))
+                        for row in rows
+                    ]
+                    if rows
+                    else []
+                )
 
                 self._log_execution(sql, params, success=True, result=results)
                 return results
 
-        except sqlite3.Error as e:
+        except psycopg2.Error as e:
             logging.error(f"Error in 'read' operation: {e}")
             self._log_execution(sql, params, success=False, result=e)
             raise
@@ -86,7 +103,7 @@ class Database:
     ) -> int:
         """Update existing records in the specified table."""
         try:
-            set_clause = ", ".join([f"{col} = ?" for col in data.keys()])
+            set_clause = ", ".join([f"{col} = %s" for col in data.keys()])
             sql = f"UPDATE {table} SET {set_clause} WHERE {where}"
             params = tuple(data.values()) + where_params
 
@@ -94,10 +111,11 @@ class Database:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(sql, params)
                 conn.commit()
-                self._log_execution(sql, params, success=True, result=cursor.rowcount)
-                return cursor.rowcount  # Return number of rows affected
+                rowcount = cursor.rowcount
+                self._log_execution(sql, params, success=True, result=rowcount)
+                return rowcount
 
-        except sqlite3.Error as e:
+        except psycopg2.Error as e:
             logging.error(f"Error in 'update' operation: {e}")
             conn.rollback()
             self._log_execution(sql, params, success=False, result=e)
@@ -109,17 +127,16 @@ class Database:
     def delete(self, table: str, where: str, where_params: Tuple) -> int:
         """Delete records from the specified table."""
         try:
-            sql = f"DELETE FROM [{table}] WHERE {where}"
+            sql = f"DELETE FROM {table} WHERE {where}"
             conn = self._connect()
             with closing(conn.cursor()) as cursor:
                 cursor.execute(sql, where_params)
                 conn.commit()
-                self._log_execution(
-                    sql, where_params, success=True, result=cursor.rowcount
-                )
-                return cursor.rowcount
+                rowcount = cursor.rowcount
+                self._log_execution(sql, where_params, success=True, result=rowcount)
+                return rowcount
 
-        except sqlite3.Error as e:
+        except psycopg2.Error as e:
             logging.error(f"Error in 'delete' operation: {e}")
             conn.rollback()
             self._log_execution(sql, where_params, success=False, result=e)
@@ -136,20 +153,23 @@ class Database:
                 cursor.execute(sql, params)
                 if sql.strip().lower().startswith("select"):
                     rows = cursor.fetchall()
-                    # Convert rows to a list of dictionaries, where each dictionary is a row
-                    results = [dict(row) for row in rows] if rows else []
+                    results = (
+                        [
+                            dict(zip([desc[0] for desc in cursor.description], row))
+                            for row in rows
+                        ]
+                        if rows
+                        else []
+                    )
                     self._log_execution(sql, params, success=True, result=results)
                     return results
                 else:
                     conn.commit()
-                    self._log_execution(
-                        sql, params, success=True, result=cursor.rowcount
-                    )
-                    return (
-                        cursor.rowcount
-                    )  # Return number of rows affected for non-SELECT queries
+                    rowcount = cursor.rowcount
+                    self._log_execution(sql, params, success=True, result=rowcount)
+                    return rowcount
 
-        except sqlite3.Error as e:
+        except psycopg2.Error as e:
             logging.error(f"Error in 'execute_sql' operation: {e}")
             conn.rollback()
             self._log_execution(sql, params, success=False, result=e)

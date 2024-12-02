@@ -1,51 +1,48 @@
 import { useNavigate } from "react-router-dom";
 import React, { useEffect } from "react";
-// import { useDispatch, useSelector } from 'react-redux';
-// import { logout } from "../../store/slices/authSlice";
-
-// Define the structure for the user and auth state
-interface User {
-  isAuthenticated: boolean;
-  username: string;
-  email: string;
-  isRootUser: boolean;
-  imageFile: string | null;
-}
+import { useDispatch, useSelector } from "react-redux";
+import { logOut } from "../../redux/slices";
+import { selectCurrentUser } from "../../redux/store";
 
 const IndexPage: React.FC = () => {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // Get the auth state from Redux store
-  // const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);
-  // const user = useSelector((state: any) => state.auth.user);
-  // const imageFile = useSelector((state: any) => state.auth.user?.ImageFile);
-  const isAuthenticated = true;
-  const user = null;
-  const imageFile = null;
+  const isAuthenticated = useSelector(
+    (state: any) => state.auth.isAuthenticated
+  );
+  const currentUser = useSelector(selectCurrentUser);
+  const imageUrl =
+    currentUser?.ImageFile instanceof Blob
+      ? URL.createObjectURL(currentUser.ImageFile)
+      : "default-avatar.png";
 
-  // useEffect(() => {
-  //   // Resetting user-related data when the component mounts
-  //   if (!isAuthenticated) {
-  //     dispatch(logout());
-  //   }
-  // }, [isAuthenticated, dispatch]);
+  useEffect(() => {
+    // Resetting user-related data when the component mounts
+    if (!isAuthenticated) {
+      dispatch(logOut());
+    }
+  }, [isAuthenticated, dispatch]);
 
   const handleLogin = () => {
-    navigate("/login");
+    navigate("/auth/login");
   };
 
   const handleLogout = () => {
-    // dispatch(logout());
+    dispatch(logOut());
   };
 
   const handleBudgetEntry = () => {
     // Handle start budget logic here
   };
 
+  const handleAccount = () => {
+    navigate("/account");
+  };
+
   return (
     <div>
-      {/* Nav Bar */}
       <header
         id="navbar"
         className="overflow-hidden fixed h-fit top-0 left-0 w-full bg-gradient-to-r from-cyan-500 to-teal-700 text-white p-4 shadow-lg transform translate-y-0"
@@ -76,17 +73,21 @@ const IndexPage: React.FC = () => {
                     </a>
                   </li>
                   <li className="transition-transform duration-300 transform hover:translate-y-1">
-                    <a href="#" className="hover:underline">
+                    <a
+                      href="#"
+                      className="hover:underline"
+                      onClick={handleAccount}
+                    >
                       <i className="fas fa-user-circle"></i> Account
                     </a>
                   </li>
-                  {/* {user?.isRootUser && (
+                  {currentUser?.IsRootUser && (
                     <li className="transition-transform duration-300 transform hover:translate-y-1">
                       <a href="#" className="hover:underline">
                         <i className="fas fa-chart-bar"></i> Dashboard
                       </a>
                     </li>
-                  )} */}
+                  )}
                 </>
               )}
             </ul>
@@ -97,7 +98,7 @@ const IndexPage: React.FC = () => {
                 <div className="flex justify-center items-center rounded-full w-10 h-10 object-cover mr-4 border-4 border-white bg-cyan-900 text-gray-white">
                   <img
                     className="rounded-full w-full h-full object-cover text-xs"
-                    src={imageFile || "default-avatar.png"} // Add fallback image
+                    src={imageUrl}
                     alt="User Image"
                     onError={(e) => {
                       // Type assertion to HTMLImageElement
@@ -107,18 +108,18 @@ const IndexPage: React.FC = () => {
                   />
                 </div>
                 <div className="flex-col">
-                  {/* <h2 className="truncate text-lg font-bold whitespace-nowrap">
-                    {user?.isRootUser ? (
+                  <h2 className="truncate text-lg font-bold whitespace-nowrap">
+                    {currentUser?.IsRootUser ? (
                       <span className="text-amber-400">
-                        <i className="fas fa-crown"></i> {user?.username}
+                        <i className="fas fa-crown"></i> {currentUser?.Username}
                       </span>
                     ) : (
                       <span className="text-emerald-400">
-                        <i className="fas fa-key"></i> {user?.username}
+                        <i className="fas fa-key"></i> {currentUser?.Username}
                       </span>
                     )}
                   </h2>
-                  <p className="truncate break-words">{user?.email}</p> */}
+                  <p className="truncate break-words">{currentUser?.Email}</p>
                 </div>
               </div>
             ) : (

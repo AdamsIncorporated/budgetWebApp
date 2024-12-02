@@ -24,9 +24,6 @@ class Config:
     MAIL_USERNAME = os.environ.get("EMAIL_USER")
     MAIL_PASSWORD = os.environ.get("EMAIL_PASS")
 
-    # Flask-SQLAlchemy
-    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.environ.get("DB_PATH")
-
     # Flask-Session
     SESSION_TYPE = "redis"
     SESSION_PERMANENT = True

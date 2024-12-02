@@ -74,7 +74,7 @@ def get_budget_entry_view(
             accounts = accounts.with_columns(
                 [
                     pl.col("AccountNo").cast(pl.Utf8).fill_null(""),
-                    pl.col("FiscalYear").cast(pl.Utf8).fill_null(""),
+                    pl.col("fiscal_year").cast(pl.Utf8).fill_null(""),
                     pl.col("BusinessUnitId")
                     .cast(pl.Utf8)
                     .fill_null("")
@@ -82,7 +82,7 @@ def get_budget_entry_view(
                 ]
             )
             accounts = accounts.filter(
-                (pl.col("FiscalYear") == fiscal_year)
+                (pl.col("fiscal_year") == fiscal_year)
                 & (pl.col("BusinessUnitId") == business_unit_id)
             )
 
@@ -95,7 +95,7 @@ def get_budget_entry_view(
             # next get the rads
             query = f"""
                 SELECT
-                    master.FiscalYear,
+                    master.fiscal_year,
                     master.BusinessUnitId,
                     master.AccountNo,
                     master.Amount,
@@ -106,11 +106,11 @@ def get_budget_entry_view(
             """
             rads = pl.read_database(query, conn, infer_schema_length=None)
             rads = rads.with_columns(
-                rads["FiscalYear"].cast(pl.String),
+                rads["fiscal_year"].cast(pl.String),
                 rads["BusinessUnitId"].cast(pl.String),
             )
             rads = rads.filter(
-                (pl.col("FiscalYear") == fiscal_year)
+                (pl.col("fiscal_year") == fiscal_year)
                 & (pl.col("BusinessUnitId") == business_unit_id)
             )
             rads_group = rads.group_by("RAD").agg(pl.sum("Amount").alias("Amount"))
@@ -133,7 +133,7 @@ def get_budget_entry_view(
         )
 
         actuals = get_sub_totaled_dataframe(
-            table_name="JournalEntry",
+            table_name="journal_entry",
             column_name="Actuals",
             fiscal_year=fiscal_year,
             business_unit_id=business_unit_id,
@@ -153,7 +153,7 @@ def get_budget_entry_view(
 
         query = f"""
             SELECT * FROM ProposedBudget
-            WHERE FiscalYear = '{proposed_fiscal_year}'
+            WHERE fiscal_year = '{proposed_fiscal_year}'
             AND BusinessUnitId = '{business_unit_id}';
         """
         proposed_budget = pl.read_database(query, conn, infer_schema_length=None)
@@ -242,7 +242,7 @@ def get_budget_entry_view(
                 (pl.col("BusinessCaseAmount") + pl.col("ProposedBudget")).alias(
                     "TotalBudget"
                 ),
-                pl.lit(proposed_fiscal_year).alias("FiscalYear"),
+                pl.lit(proposed_fiscal_year).alias("fiscal_year"),
                 pl.lit(business_unit_id).alias("BusinessUnitId"),
             ]
         )
@@ -251,7 +251,7 @@ def get_budget_entry_view(
             "IsSubTotal",
             "DisplayOrder",
             "BusinessUnitId",
-            "FiscalYear",
+            "fiscal_year",
             "AccountNo",
             "Account",
             "RAD",
@@ -283,17 +283,18 @@ queries = {
         SELECT DISTINCT BusinessUnitId, BusinessUnit 
         FROM BusinessUnit ORDER BY BusinessUnitId;
     """,
-    "fetch_all_historical_fiscal_years": "SELECT DISTINCT FiscalYear FROM JournalEntry ORDER BY FiscalYear DESC;",
+    "fetch_all_historical_fiscal_years": "SELECT DISTINCT fiscal_year FROM journal_entry ORDER BY fiscal_year DESC;",
     "fetch_all_proposed_fiscal_years": """
         SELECT DISTINCT 
-            'FY' || (CAST(SUBSTR(FiscalYear, 3) AS INTEGER) + 1) AS FiscalYear
+            'FY' || (CAST(SUBSTRING(fiscal_year FROM 3 FOR LENGTH(fiscal_year) - 2) AS INTEGER) + 1) AS fiscal_year
         FROM 
-            JournalEntry 
+                    "journal_entry"
         UNION
-        SELECT DISTINCT FiscalYear
-        FROM "JournalEntry"
+        SELECT DISTINCT fiscal_year
+        FROM "journal_entry"
         ORDER BY 
-            FiscalYear DESC 
+                    fiscal_year DESC;
+
     """,
     "fetch_default_business_unit": """
         SELECT BusinessUnitId, BusinessUnit FROM BusinessUnit ORDER BY BusinessUnitId ASC LIMIT 1;
@@ -303,20 +304,20 @@ queries = {
     """,
     "fetch_default_historical_fiscal_year": """
         SELECT DISTINCT 
-            FiscalYear 
+            fiscal_year 
         FROM 
-            JournalEntry 
+            journal_entry 
         ORDER BY 
-            FiscalYear DESC 
+            fiscal_year DESC 
         LIMIT 1;
     """,
     "fetch_all_default_proposed_fiscal_year": """
         SELECT DISTINCT 
-            'FY' || (CAST(SUBSTR(FiscalYear, 3) AS INTEGER) + 1) AS FiscalYear
+            'FY' || (CAST(SUBSTR(fiscal_year, 3) AS INTEGER) + 1) AS fiscal_year
         FROM 
-            JournalEntry 
+            journal_entry 
         ORDER BY 
-            FiscalYear DESC 
+            fiscal_year DESC 
         LIMIT 1;
     """,
     "fetch_all_business_units": "SELECT DISTINCT BusinessUnitId, BusinessUnit FROM BusinessUnit ORDER BY BusinessUnit ASC;",
@@ -326,7 +327,7 @@ queries = {
             a."Account",
             j."AccountingDate",
             SUM(j."Amount") AS ActualTotal
-        FROM "JournalEntry" j JOIN "Account" a ON a."AccountNo" = j."AccountNo"
+        FROM "journal_entry" j JOIN "Account" a ON a."AccountNo" = j."AccountNo"
         WHERE
             "Amount" != 0
         GROUP BY 
@@ -338,7 +339,7 @@ queries = {
             "BusinessUnit",
             SUM(ABS(b."Amount")) AS TotalBudgetByDepartment
         FROM "Budget" b JOIN "BusinessUnit" bu ON bu."BusinessUnitId" = b."BusinessUnitId"
-        WHERE "FiscalYear" = 'FY24'
+        WHERE "fiscal_year" = 'FY24'
         GROUP BY 
             bu."BusinessUnit"
         ORDER BY 
@@ -399,7 +400,7 @@ queries = {
             LEFT JOIN "Rad" r ON r."RAD" = pb."RAD"
             LEFT JOIN "RadType" rt ON rt."RADTypeId" = r."RADTypeId"
         WHERE
-            "FiscalYear" = :current_fiscal_year
+            "fiscal_year" = :current_fiscal_year
             AND "ProposedBudget" > 0
     """,
     "budget_entry_view": get_budget_entry_view,
@@ -461,7 +462,7 @@ queries = {
         WITH 
             VARIABLES AS (
                 SELECT 
-                    '{fiscal_year}' AS FiscalYear,
+                    '{fiscal_year}' AS fiscal_year,
                     '{business_unit_id}' AS BusinessUnitId
             )
         SELECT 
@@ -479,7 +480,7 @@ queries = {
             FROM 
                 "Budget" b
             JOIN 
-                VARIABLES v ON b."BusinessUnitId" = v."BusinessUnitId" AND b."FiscalYear" = v."FiscalYear"
+                VARIABLES v ON b."BusinessUnitId" = v."BusinessUnitId" AND b."fiscal_year" = v."fiscal_year"
             GROUP BY 
                 b."AccountNo"
         ) b ON a."AccountNo" = b."AccountNo"
@@ -488,9 +489,9 @@ queries = {
                 j."AccountNo", 
                 SUM(j."Amount") AS TotalActual
             FROM 
-                "JournalEntry" j
+                "journal_entry" j
             JOIN 
-                VARIABLES v ON j."BusinessUnitId" = v."BusinessUnitId" AND j."FiscalYear" = v."FiscalYear"
+                VARIABLES v ON j."BusinessUnitId" = v."BusinessUnitId" AND j."fiscal_year" = v."fiscal_year"
             GROUP BY 
                 j."AccountNo"
         ) j ON a."AccountNo" = j."AccountNo"
@@ -504,7 +505,7 @@ queries = {
         FROM Budget 
         WHERE 
             BusinessUnitId = :business_unit_id
-            AND FiscalYear = :fiscal_year
+            AND fiscal_year = :fiscal_year
             AND AccountNo = :account_no
             AND RAD = :rad
     """,

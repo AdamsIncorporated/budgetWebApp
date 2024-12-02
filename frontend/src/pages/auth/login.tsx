@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-// import { useDispatch } from "react-redux";
-// import { login } from "../../store/slices/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { logIn, setUser } from "../../redux/slices";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import fetchCsrfToken from "../../components/tokens/fetchCSRFToken";
+import axiosInstance from "../../axiosConfig";
 
 interface LoginFormData {
   email: string;
@@ -13,9 +13,14 @@ interface LoginFormData {
   remember: boolean;
 }
 
-const LoginPage: React.FC = () => {
-  // const dispatch = useDispatch();
+interface LoginPageProps {
+  redirectUrl?: string | null;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ redirectUrl }) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const id = useSelector((state: any) => state.user.Id);
 
   const {
     register,
@@ -30,35 +35,57 @@ const LoginPage: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchCsrfToken();
+    const fetchData = async () => {
+      try {
+        // First GET request
+        await axiosInstance.get("/auth/login");
+
+        if (redirectUrl) {
+          // POST request with data
+          const data = { Id: id };
+          const response = await axiosInstance.post("/auth/login", data, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const result = response.data;
+          dispatch(logIn(result.user));
+          navigate(redirectUrl);
+        }
+      } catch (error) {
+        console.error("Error during login process:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const onSubmit = async (data: LoginFormData) => {
     console.log("Form Submitted");
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
+      const response = await axiosInstance.post("/auth/login", data, {
         headers: {
           "Content-Type": "application/json",
-          "X-CSRFToken": localStorage.getItem("csrf_token") || "",
         },
-        body: JSON.stringify(data),
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Login successful");
-        toast.success("Logged in as Sam");
-        // dispatch(login(result.user));
-        navigate("/");
+      const result = response.data;
+      console.log("Login successful");
+      toast.success(`Logged in as ${result.user.FirstName}`);
+      dispatch(logIn(result.user));
+      dispatch(setUser(result.user));
+      navigate("/");
+    } catch (error: any) {
+      if (error.response) {
+        const result = error.response.data;
+        toast.error(`Login failed: ${result.message}`);
+        console.error("Login failed", error.response.status);
       } else {
-        const result = await response.json();
-        toast.error(`Logged failed: ${result.message}`);
-        console.error("Login failed", response.status);
+        toast.error("An error occurred during login");
+        console.error("Error during login:", error);
       }
-    } catch (error) {
-      console.error("Error during login:", error);
     }
   };
 

@@ -72,10 +72,10 @@ class Budget(FlaskForm):
 class Budgets(FlaskForm):
     budgets = FieldList(FormField(Budget), min_entries=1)
     historical_fiscal_year_picklist = SelectField(
-        validators=[Optional()], choices=get_historical_fiscal_year_picklist()
+        validators=[Optional()], choices=[]  # get_historical_fiscal_year_picklist()
     )
     proposed_fiscal_year_picklist = SelectField(
-        validators=[Optional()], choices=get_proposed_fiscal_year_picklist()
+        validators=[Optional()], choices=[]  # get_proposed_fiscal_year_picklist()
     )
     business_unit_picklist = SelectField(validators=[Optional()])
     submit = SubmitField("Submit Budget")

@@ -2,22 +2,29 @@ import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
 import { ToastContainer } from "react-toastify";
 
 import IndexPage from "./pages/index";
 import LoginPage from "./pages/auth/login";
-import store from "./redux/store";
+import AccountPage from "./pages/auth/account";
+import RegisterPage from "./pages/auth/register";
+import { store, persistor } from "./redux/store";
 
 const App: React.FC = () => {
   return (
     <Provider store={store}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<IndexPage />} />
-          <Route path="/login" element={<LoginPage />} />
-        </Routes>
-        <ToastContainer />
-      </Router>
+      <PersistGate loading={null} persistor={persistor}>
+        <Router>
+          <Routes>
+            <Route path="/" element={<IndexPage />} />
+            <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/auth/account" element={<AccountPage />} />
+            <Route path="/auth/register" element={<RegisterPage />} />
+          </Routes>
+          <ToastContainer />
+        </Router>
+      </PersistGate>
     </Provider>
   );
 };

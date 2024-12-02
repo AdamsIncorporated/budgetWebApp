@@ -1,11 +1,20 @@
-import base64
-from flask import render_template, url_for, flash, redirect, request, Blueprint, jsonify
+from flask import (
+    render_template,
+    url_for,
+    flash,
+    redirect,
+    request,
+    Blueprint,
+    jsonify,
+    current_app,
+)
 from app import bcrypt, mail
 from repositories.models import User
 from repositories.db import Database
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 from dataclasses import asdict
+from datetime import timedelta
 
 
 auth = Blueprint(
@@ -35,16 +44,40 @@ def register():
     return jsonify({"message": "User created."}), 200
 
 
-@auth.route("/login", methods=["POST"])
+@auth.route("/login", methods=["GET", "POST"])
 def login():
-    data = request.get_json()
-    result = Database().read(
-        "SELECT * FROM User WHERE Email = :email LIMIT 1", {"email": data["email"]}
-    )
-    user = asdict(User(**result))
-    if user and bcrypt.check_password_hash(user["Password"], data["password"]):
-        return jsonify({"message": "Login successful", "user": user}), 200
-    return jsonify({"message": "Invalid credentials"}), 401
+    if request.method == "GET":
+        return (
+            jsonify({"message": "Cookie generated for CSRF Token"}),
+            200,
+        )
+
+    elif request.method == "POST":
+        data = request.get_json()
+
+        if current_user.is_authenticated:
+            user_data = current_user.to_dict()
+            user_data.pop("Password", None)
+            return jsonify({"message": "User authenticated", "user": user_data}), 200
+
+        else:
+            result = Database().read(
+                "SELECT * FROM User WHERE Email = :email LIMIT 1",
+                {"email": data["email"]},
+            )
+            user = asdict(User(**result))
+
+            if not user:
+                return jsonify({"message": "user not found"}), 404
+
+            if bcrypt.check_password_hash(user["Password"], data["password"]):
+                duration = timedelta(weeks=current_app["PERMANENT_SESSION_LIFETIME"])
+                login_user(user, duration=duration)
+                user_data = current_user.to_dict()
+                user_data.pop("Password", None)
+                return jsonify({"message": "Login successful", "user": user_data}), 200
+
+            return jsonify({"message": "Invalid credentials"}), 401
 
 
 @auth.route("/logout")
@@ -53,25 +86,37 @@ def logout():
     return jsonify({"message": "User logged out."}), 200
 
 
-@auth.route("/account", methods=["POST"])
+@auth.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
-    form = request.form
+    if request.method == "GET":
+        id = request.data.get("Id")
 
-    if form.picture.data:
-        picture = form.picture.data
-        binary_data = picture.read()
+        if not id:
+            return jsonify({"message": "Id not provided"}), 500
 
-        if len(binary_data) > 1 * 1024 * 1024:
-            flash("", "error")
-            return jsonify({"message": "File size exceeds the 1MB limit."}), 413
+        query = "SELECT UserName, Email, FirstName, LastName, ImageFile FROM User WHERE Id = :Id"
+        result = Database().read(sql=query, params={"Id": id})
+        user = asdict(User(**result))
+        return jsonify({"message": "User data response", "user": user}), 200
 
-        image_file = binary_data
+    if request.method == "POST":
+        form = request.form
 
-    username = form.username.data
-    email = form.email.data
-    first_name = form.first_name.data
-    last_name = form.last_name.data
+        if form.picture.data:
+            picture = form.picture.data
+            binary_data = picture.read()
+
+            if len(binary_data) > 1 * 1024 * 1024:
+                flash("", "error")
+                return jsonify({"message": "File size exceeds the 1MB limit."}), 413
+
+            image_file = binary_data
+
+        username = form.username.data
+        email = form.email.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data
 
 
 def send_reset_email(user):
