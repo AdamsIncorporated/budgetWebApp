@@ -56,8 +56,8 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-fit overflow-hidden p-2">
-      <div className="flex-col content-section p-6 bg-white rounded-lg shadow-md w-1/3 flex justify-center">
+    <div className="w-full flex justify-center items-center h-fit overflow-hidden p-2">
+      <div className="flex-col p-6 bg-white rounded-lg shadow-md flex justify-center">
         <form onSubmit={handleSubmit(onSubmit)}>
           <fieldset className="mb-4">
             <legend className="w-full text-3xl text-cyan-700 font-bold border-b pb-2">

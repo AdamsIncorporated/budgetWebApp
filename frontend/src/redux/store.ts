@@ -3,6 +3,13 @@ import { authReducer, csrfReducer, userReducer, resetStore } from "./slices";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // Uses localStorage as default storage
 
+declare global {
+  interface Window {
+    __REDUX_DEVTOOLS_EXTENSION__: any;
+  }
+}
+
+
 // Combine reducers
 const combinedReducer = combineReducers({
   auth: authReducer,
@@ -41,8 +48,11 @@ const store = configureStore({
         ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
       },
     }),
+  devTools:
+    process.env.NODE_ENV !== "production" && window.__REDUX_DEVTOOLS_EXTENSION__
+      ? window.__REDUX_DEVTOOLS_EXTENSION__()
+      : undefined,
 });
-
 
 // Persistor for the store
 const persistor = persistStore(store);
