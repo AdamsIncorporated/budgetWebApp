@@ -67,7 +67,9 @@ class Database:
         finally:
             conn.close()
 
-    def read(self, sql: str, params: Tuple = ()) -> List[Dict[str, Any]]:
+    def read(
+        self, sql: str, params: Tuple = ()
+    ) -> List[Dict[str, Any]] | Dict[str, Any]:
         """Read records from the database."""
         try:
             conn = self._connect()
@@ -76,14 +78,20 @@ class Database:
                 rows = cursor.fetchall()
 
                 # Convert rows to a list of dictionaries
-                results = (
-                    [
-                        dict(zip([desc[0] for desc in cursor.description], row))
-                        for row in rows
-                    ]
-                    if rows
-                    else []
-                )
+                if rows:
+                    if len(rows) == 1:
+                        # If there is exactly one row, return it as a dictionary
+                        results = dict(
+                            zip([desc[0] for desc in cursor.description], rows[0])
+                        )
+                    else:
+                        # Otherwise, return as a list of dictionaries
+                        results = [
+                            dict(zip([desc[0] for desc in cursor.description], row))
+                            for row in rows
+                        ]
+                else:
+                    results = []
 
                 self._log_execution(sql, params, success=True, result=results)
                 return results

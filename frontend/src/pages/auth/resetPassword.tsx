@@ -24,13 +24,23 @@ const ResetPasswordPage: React.FC = () => {
     fetchData();
   }, []);
 
-  const onFormSubmit: SubmitHandler<{ email: string }> = (data) => {
-    // Continue the form submission logic
+  const onSubmit: SubmitHandler<{ email: string }> = async (data) => {
+    try {
+      await axiosInstance.post("/auth/reset-password", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      toast.success(`${data.email} created!`);
+    } catch (error: any) {
+      toast.error('Error in sending reset email');
+      console.error("User creation failed", error.response.status);
+    }
   };
 
   return (
     <div className="m-10 p-6 bg-white rounded-lg shadow-md text-cyan-600">
-      <form onSubmit={handleSubmit(onFormSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <fieldset className="mb-4">
           <legend className="text-3xl font-bold border-b pb-2">
             Reset Password

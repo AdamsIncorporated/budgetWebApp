@@ -5,7 +5,8 @@ from flask import current_app
 from dataclasses import dataclass
 from typing import Optional
 from datetime import datetime
-from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
+import jwt
+import time
 import base64
 
 
@@ -112,15 +113,21 @@ class User(UserMixin):
         return str(self.id) if self.id else None
 
     def get_reset_token(self, expires_sec=1800):
-        s = Serializer(current_app.config["SECRET_KEY"], expires_sec)
-        return s.dumps({"user_id": self.id}).decode("utf-8")
+        payload = {
+            "user_id": self.id,
+            "exp": time.time() + expires_sec,
+        }
+        token = jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
+        return token
 
     @staticmethod
     def verify_reset_token(token):
-        s = Serializer(current_app.config["SECRET_KEY"])
-        try:
-            user_id = s.loads(token)["user_id"]
-        except:
+        decoded_data = jwt.decode(
+            token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+        )
+        user_id = decoded_data.get("user_id")
+
+        if user_id is None:
             return None
 
         user = Database().read(

@@ -128,7 +128,7 @@ def account():
 
 
 def send_reset_email(user: User):
-    token = user.get_reset_token
+    token = user.get_reset_token()
     msg = Message(
         "Password Reset Request",
         sender="samuel.grant.adams@gmail.com",
@@ -153,14 +153,14 @@ def reset_request():
     if request.method == "POST":
         data = request.get_json()
         result = Database().read(
-            'SELECT * FROM "user" WHERE email = %s LIMIT 1',
-            {"email": data["email"]},
+            sql='SELECT * FROM "user" WHERE email = %s LIMIT 1',
+            params=(data["email"],),
         )
 
         if not result:
             return jsonify({"message": "User not found"}), 404
 
-        user = asdict(User(**result))
+        user = User(**result)
         send_reset_email(user)
 
         return (
