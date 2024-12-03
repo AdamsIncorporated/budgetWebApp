@@ -131,8 +131,8 @@ class User(UserMixin):
             return None
 
         user = Database().read(
-            'SELECT * FROM "user" WHERE id = %s LIMIT 1',
-            {"id": user_id},
+            sql='SELECT * FROM "user" WHERE id = %s LIMIT 1',
+            params=(user_id,),
         )
         return user
 

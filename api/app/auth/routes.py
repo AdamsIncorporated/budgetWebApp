@@ -1,7 +1,6 @@
 from flask import (
     url_for,
     flash,
-    redirect,
     request,
     Blueprint,
     jsonify,
@@ -169,7 +168,7 @@ def reset_request():
         )
 
 
-@auth.route("/reset_password/<token>", methods=["GET", "POST"])
+@auth.route("/reset-password-token/<token>", methods=["GET", "POST"])
 def reset_token(token):
     user = User.verify_reset_token(token)
 

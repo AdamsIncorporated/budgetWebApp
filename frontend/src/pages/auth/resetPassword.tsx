@@ -1,84 +1,86 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import axiosInstance from "../../axiosConfig";
 
-const ResetPasswordPage: React.FC = () => {
+interface ResetPasswordFormInputs {
+  password: string;
+  confirmPassword: string;
+}
+
+const ResetPasswordForm: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors: formErrors },
-  } = useForm<{ email: string }>();
+    watch,
+    formState: { errors },
+  } = useForm<ResetPasswordFormInputs>();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await axiosInstance.get("/auth/reset-password");
-      } catch (error) {
-        console.error("Error during login process:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const onSubmit: SubmitHandler<{ email: string }> = async (data) => {
-    try {
-      await axiosInstance.post("/auth/reset-password", data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      toast.success(`${data.email} created!`);
-    } catch (error: any) {
-      toast.error('Error in sending reset email');
-      console.error("User creation failed", error.response.status);
-    }
+  const onSubmit: SubmitHandler<ResetPasswordFormInputs> = (data) => {
+    console.log(data); // Replace with actual form submission logic
   };
 
   return (
-    <div className="m-10 p-6 bg-white rounded-lg shadow-md text-cyan-600">
+    <div className="content-section p-6 bg-white rounded-lg shadow-md">
       <form onSubmit={handleSubmit(onSubmit)}>
         <fieldset className="mb-4">
-          <legend className="text-3xl font-bold border-b pb-2">
+          <legend className="text-lg font-bold border-b pb-2">
             Reset Password
           </legend>
+
           <div className="mb-4">
             <label
-              className="block text-stone-700 font-bold my-2"
-              htmlFor="email"
+              htmlFor="password"
+              className="block text-gray-700 text-sm font-bold mb-2"
             >
-              Email
+              Password
             </label>
             <input
-              id="email"
-              type="email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,
-                  message: "Invalid email format",
-                },
-              })}
-              className={`text-stone-700 mt-1 block w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                formErrors.email ? "border-red-500" : "border-gray-300"
-              }`}
+              type="password"
+              id="password"
+              {...register("password", { required: "Password is required" })}
+              className={`mt-1 block w-full p-2 border ${
+                errors.password ? "border-red-500" : "border-gray-300"
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400`}
             />
-            {formErrors.email && (
+            {errors.password && (
               <div className="text-red-500 mt-1 text-sm">
-                <span>{formErrors.email.message}</span>
+                <span>{errors.password.message}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-gray-700 text-sm font-bold mb-2"
+            >
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              {...register("confirmPassword", {
+                required: "Confirm Password is required",
+                validate: (value) =>
+                  value === watch("password") || "Passwords do not match",
+              })}
+              className={`mt-1 block w-full p-2 border ${
+                errors.confirmPassword ? "border-red-500" : "border-gray-300"
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400`}
+            />
+            {errors.confirmPassword && (
+              <div className="text-red-500 mt-1 text-sm">
+                <span>{errors.confirmPassword.message}</span>
               </div>
             )}
           </div>
         </fieldset>
+
         <div>
           <button
             type="submit"
             className="bg-teal-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400"
           >
-            Reset Password
+            Submit
           </button>
         </div>
       </form>
@@ -86,4 +88,4 @@ const ResetPasswordPage: React.FC = () => {
   );
 };
 
-export default ResetPasswordPage;
+export default ResetPasswordForm;
