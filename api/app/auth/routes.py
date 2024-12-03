@@ -1,5 +1,4 @@
 from flask import (
-    url_for,
     flash,
     request,
     Blueprint,
@@ -133,15 +132,20 @@ def send_reset_email(user: User):
         sender="samuel.grant.adams@gmail.com",
         recipients=[user.email],
     )
-    msg.body = f"""To reset your password, visit the following link:
-    {url_for('auth.reset_token', token=token, _external=True)}
+    react_url = (
+        f"{current_app.config['REACT_APP_URL']}/auth/reset-password-token/{token}"
+    )
+    msg.body = f"""
+    To reset your password, visit the following link:
+    
+    {react_url}
 
     If you did not make this request then simply ignore this email and no changes will be made.
     """
     mail.send(msg)
 
 
-@auth.route("/reset-password", methods=["GET", "POST"])
+@auth.route("/request-reset-password", methods=["GET", "POST"])
 def reset_request():
     if request.method == "GET":
         return (
@@ -168,14 +172,14 @@ def reset_request():
         )
 
 
-@auth.route("/reset-password-token/<token>", methods=["GET", "POST"])
+@auth.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_token(token):
     user = User.verify_reset_token(token)
 
     if user is None:
         return (
             jsonify({"message": "That is an invalid or expired token"}),
-            200,
+            401,
         )
 
     if request.method == "GET":

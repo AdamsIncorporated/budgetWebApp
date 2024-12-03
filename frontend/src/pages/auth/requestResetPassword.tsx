@@ -14,7 +14,7 @@ const RequestResetPasswordPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await axiosInstance.get("/auth/reset-password");
+        await axiosInstance.get("/auth/request-reset-password");
       } catch (error) {
         console.error("Error during login process:", error);
       }
@@ -25,7 +25,7 @@ const RequestResetPasswordPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<{ email: string }> = async (data) => {
     try {
-      const response = await axiosInstance.post("/auth/reset-password", data, {
+      const response = await axiosInstance.post("/auth/request-reset-password", data, {
         headers: {
           "Content-Type": "application/json",
         },
