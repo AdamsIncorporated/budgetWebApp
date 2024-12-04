@@ -110,7 +110,7 @@ class Database:
         """Update existing records in the specified table."""
         try:
             set_clause = ", ".join([f"{col} = %s" for col in data.keys()])
-            sql = f"UPDATE {table} SET {set_clause} WHERE {where}"
+            sql = f'UPDATE "{table}" SET {set_clause} WHERE {where}'
             params = tuple(data.values()) + where_params
 
             conn = self._connect()

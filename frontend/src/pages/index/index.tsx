@@ -14,8 +14,8 @@ const IndexPage: React.FC = () => {
   );
   const currentUser = useSelector(selectCurrentUser);
   const imageUrl =
-    currentUser?.ImageFile instanceof Blob
-      ? URL.createObjectURL(currentUser.ImageFile)
+    currentUser?.image_file instanceof Blob
+      ? URL.createObjectURL(currentUser.image_file)
       : "default-avatar.png";
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const IndexPage: React.FC = () => {
                       <i className="fas fa-user-circle"></i> Account
                     </a>
                   </li>
-                  {currentUser?.IsRootUser && (
+                  {currentUser?.is_root_user && (
                     <li className="transition-transform duration-300 transform hover:translate-y-1">
                       <a href="#" className="hover:underline">
                         <i className="fas fa-chart-bar"></i> Dashboard
@@ -109,17 +109,17 @@ const IndexPage: React.FC = () => {
                 </div>
                 <div className="flex-col">
                   <h2 className="truncate text-lg font-bold whitespace-nowrap">
-                    {currentUser?.IsRootUser ? (
+                    {currentUser?.is_root_user ? (
                       <span className="text-amber-400">
-                        <i className="fas fa-crown"></i> {currentUser?.Username}
+                        <i className="fas fa-crown"></i> {currentUser?.username}
                       </span>
                     ) : (
                       <span className="text-emerald-400">
-                        <i className="fas fa-key"></i> {currentUser?.Username}
+                        <i className="fas fa-key"></i> {currentUser?.username}
                       </span>
                     )}
                   </h2>
-                  <p className="truncate break-words">{currentUser?.Email}</p>
+                  <p className="truncate break-words">{currentUser?.email}</p>
                 </div>
               </div>
             ) : (

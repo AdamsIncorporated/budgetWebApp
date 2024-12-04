@@ -155,7 +155,6 @@ const RegisterPage: React.FC = () => {
               )}
             </div>
 
-            {/* Password field */}
             <div className="mb-4">
               <label className="block text-stone-700 text-sm font-bold mb-2">
                 Password
@@ -181,7 +180,6 @@ const RegisterPage: React.FC = () => {
               )}
             </div>
 
-            {/* Confirm Password field */}
             <div className="mb-4">
               <label className="block text-stone-700 text-sm font-bold mb-2">
                 Confirm Password

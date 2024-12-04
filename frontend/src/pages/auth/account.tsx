@@ -13,7 +13,7 @@ interface FormData {
 
 const AccountSettings: React.FC = () => {
   const currentUser = useSelector(selectCurrentUser);
-  const id = currentUser?.Id
+  const id = currentUser?.id
 
   const [formData, setFormData] = useState<FormData>({
     username: "",
@@ -76,10 +76,10 @@ const AccountSettings: React.FC = () => {
               <span className="text-amber-400">
                 <i className="fas fa-crown"></i> Admin
               </span>
-              <div>{currentUser?.Username}</div>
+              <div>{currentUser?.username}</div>
             </h2>
             <p className="truncate text-stone-500 break-words">
-              {currentUser?.Email}
+              {currentUser?.email}
             </p>
           </div>
         </div>

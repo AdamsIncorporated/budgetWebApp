@@ -1,28 +1,35 @@
 import React, { useLayoutEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import axiosInstance from "../../axiosConfig";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface ResetPasswordFormInputs {
   password: string;
-  confirmPassword: string;
+  confirm_password: string;
 }
 
 const ResetPasswordPage: React.FC = () => {
-  const [error, setError] = useState<string | null>(null); // Track error state
-  const [isPageReady, setIsPageReady] = useState<boolean>(false); // Track if page is ready
-
+  const [error, setError] = useState<string | null>(null);
+  const [isPageReady, setIsPageReady] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false); // Track password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Track confirm password visibility
+  const passwordComplexityRule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])\S{8,16}$/
+  const navigate = useNavigate();
+  const pathParts = window.location.pathname.split("/");
+  const token = pathParts[pathParts.length - 1];
   const {
     register,
     handleSubmit,
-    watch,
+    getValues,
     formState: { errors },
   } = useForm<ResetPasswordFormInputs>();
 
   useLayoutEffect(() => {
     const fetchData = async () => {
       try {
-        const pathParts = window.location.pathname.split("/");
-        const token = pathParts[pathParts.length - 1];
         await axiosInstance.get(`/auth/reset-password/${token}`);
         setIsPageReady(true); // Data fetched successfully, set page as ready
       } catch (error) {
@@ -35,17 +42,29 @@ const ResetPasswordPage: React.FC = () => {
     fetchData();
   }, []);
 
-  const onSubmit: SubmitHandler<ResetPasswordFormInputs> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<ResetPasswordFormInputs> = async (data) => {
+    try {
+      const response = await axiosInstance.post(`/auth/reset-password/${token}`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      toast.success("Password reset!");
+      navigate("/auth/login");
+    } catch (error: any) {
+      const result = error.response?.data || {};
+      toast.error(`Password reset failed ${result.message}`);
+      console.error("Password reset failed", error.response.status);
+    }
   };
 
   // Only render content after the data is fetched and page is ready
-  if (!isPageReady) return null; // Don't render anything until ready
+  if (!isPageReady) return null;
 
   return (
     <div className="m-10 p-6 bg-white rounded-lg shadow-md">
       {error ? (
-        <div className="text-red-500 mb-4">
+        <div className="text-3xl font-bold text-rose-500 mb-4">
           <span>{error}</span>
         </div>
       ) : (
@@ -56,49 +75,68 @@ const ResetPasswordPage: React.FC = () => {
             </legend>
 
             <div className="mb-4">
-              <label
-                htmlFor="password"
-                className="block text-gray-700 text-sm font-bold mb-2"
-              >
+              <label className="block text-stone-700 text-sm font-bold mb-2">
                 Password
               </label>
-              <input
-                type="password"
-                id="password"
-                {...register("password", { required: "Password is required" })}
-                className={`mt-1 block w-full p-2 border ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                } rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400`}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"} // Toggle type based on state
+                  {...register("password", {
+                    required: "Password is required",
+                    pattern: {
+                      value: passwordComplexityRule,
+                      message:
+                        "The password must contain at least one lowercase letter, one uppercase letter, one digit, one special character, and is between eight and sixteen characters in length.",
+                    },
+                  })}
+                  className={`mt-1 block w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                    errors.password ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-teal-500"
+                  onClick={() => setShowPassword((prev) => !prev)} // Toggle password visibility
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
               {errors.password && (
                 <div className="text-red-500 mt-1 text-sm">
-                  <span>{errors.password.message}</span>
+                  {errors.password.message}
                 </div>
               )}
             </div>
 
             <div className="mb-4">
-              <label
-                htmlFor="confirmPassword"
-                className="block text-gray-700 text-sm font-bold mb-2"
-              >
+              <label className="block text-stone-700 text-sm font-bold mb-2">
                 Confirm Password
               </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                {...register("confirmPassword", {
-                  required: "Confirm Password is required",
-                  validate: (value) =>
-                    value === watch("password") || "Passwords do not match",
-                })}
-                className={`mt-1 block w-full p-2 border ${
-                  errors.confirmPassword ? "border-red-500" : "border-gray-300"
-                } rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400`}
-              />
-              {errors.confirmPassword && (
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"} // Toggle type based on state
+                  {...register("confirm_password", {
+                    required: "Please confirm your password",
+                    validate: (value) =>
+                      value === getValues("password") || "Passwords must match",
+                  })}
+                  className={`mt-1 block w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                    errors.confirm_password
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-teal-500"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)} // Toggle confirm password visibility
+                >
+                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+              {errors.confirm_password && (
                 <div className="text-red-500 mt-1 text-sm">
-                  <span>{errors.confirmPassword.message}</span>
+                  {errors.confirm_password.message}
                 </div>
               )}
             </div>

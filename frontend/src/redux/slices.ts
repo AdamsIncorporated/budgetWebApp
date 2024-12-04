@@ -18,13 +18,13 @@ const authSlice = createSlice({
 });
 
 export interface User {
-  Id: number,
-  Username: string;
-  Email: string;
-  ImageFile: Blob;
-  FirstName: string;
-  LastName: string;
-  IsRootUser: boolean;
+  id: number;
+  username: string;
+  email: string;
+  image_file: Blob;
+  first_name: string;
+  last_name: string;
+  is_root_user: boolean;
 }
 
 export interface UserState {
@@ -41,16 +41,16 @@ const userSlice = createSlice({
   reducers: {
     setUser(state, action: PayloadAction<Partial<User>>) {
       state.user = {
-        Id: action.payload.Id ?? 0,
-        Username: action.payload.Username ?? "",
-        Email: action.payload.Email ?? "",
-        ImageFile:
-          action.payload.ImageFile instanceof Blob
-            ? action.payload.ImageFile
+        id: action.payload.id ?? 0,
+        username: action.payload.username ?? "",
+        email: action.payload.email ?? "",
+        image_file:
+          action.payload.image_file instanceof Blob
+            ? action.payload.image_file
             : new Blob([]),
-        FirstName: action.payload.FirstName ?? "",
-        LastName: action.payload.LastName ?? "",
-        IsRootUser: action.payload.IsRootUser ?? false,
+        first_name: action.payload.first_name ?? "",
+        last_name: action.payload.last_name ?? "",
+        is_root_user: action.payload.is_root_user ?? false,
       };
     },
     clearUser(state) {

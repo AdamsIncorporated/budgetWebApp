@@ -38,7 +38,9 @@ def register():
         except ValueError as e:
             return jsonify({"message": str(e)}), 409
 
-        hashed_password = bcrypt.generate_password_hash(data["password"])
+        hashed_password = bcrypt.generate_password_hash(data["password"]).decode(
+            "utf-8"
+        )
         data["password"] = hashed_password
         data.pop("confirm_password")
         insert_data = asdict(User(**data))
@@ -59,8 +61,8 @@ def login():
         data = request.get_json()
 
         if current_user.is_authenticated:
-            user_data = current_user.to_dict()
-            user_data.pop("Password", None)
+            user_data = current_user.__dict__
+            user_data.pop("password")  # we dont want client to have any sensitive info
             return (
                 jsonify({"message": "User already authenticated", "user": user_data}),
                 200,
@@ -68,19 +70,21 @@ def login():
 
         else:
             result = Database().read(
-                "SELECT * FROM User WHERE Email = :email LIMIT 1",
-                {"email": data["email"]},
+                'SELECT * FROM "user" WHERE email = %s LIMIT 1',
+                (data["email"],),
             )
-            user = asdict(User(**result))
+            user = User(**result)
 
             if not user:
                 return jsonify({"message": "user not found"}), 404
 
-            if bcrypt.check_password_hash(user["Password"], data["password"]):
-                duration = timedelta(weeks=current_app["PERMANENT_SESSION_LIFETIME"])
-                login_user(user, duration=duration)
-                user_data = current_user.to_dict()
-                user_data.pop("Password", None)
+            if bcrypt.check_password_hash(user.password, data["password"]):
+                duration = current_app.config["PERMANENT_SESSION_LIFETIME"]
+                login_user(user, duration=duration, remember=data["remember"])
+                user_data = current_user.__dict__
+                user_data.pop(
+                    "password"
+                )  # we dont want client to have any sensitive info
                 return jsonify({"message": "Login successful", "user": user_data}), 200
 
             return jsonify({"message": "Invalid credentials"}), 401
@@ -190,12 +194,14 @@ def reset_token(token):
 
     if request.method == "POST":
         data = request.get_json()
-        hashed_password = bcrypt.generate_password_hash(data["password"])
+        hashed_password = bcrypt.generate_password_hash(data["password"]).decode(
+            "utf-8"
+        )
         Database().update(
             table="user",
             data={"password": hashed_password},
             where="id = %s",
-            where_params=(user.id,),
+            where_params=(user["id"],),
         )
         return (
             jsonify({"message": "Cookie generated for CSRF Token"}),
