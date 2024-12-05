@@ -24,6 +24,7 @@ class Config:
     MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get("EMAIL_USER")
     MAIL_PASSWORD = os.environ.get("EMAIL_PASS")
+    ROOT_EMAIL_USER = os.environ.get("ROOT_EMAIL_USER")
 
     # Flask-Session
     SESSION_TYPE = "redis"

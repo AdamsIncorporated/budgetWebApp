@@ -5,20 +5,50 @@ from flask import (
     jsonify,
     current_app,
 )
-from app import bcrypt, mail
+from app import bcrypt
 from repositories.models import User, UserRegistration
 from repositories.db import Database
 from flask_login import login_user, current_user, logout_user, login_required
-from flask_mail import Message
 from dataclasses import asdict
-from datetime import timedelta
-
+import jwt
+from app.auth.utils import (
+    convert_user_registration_data_to_insert_data,
+    send_admin_registration_email,
+    send_reset_email,
+)
 
 auth = Blueprint(
     name="auth",
     import_name=__name__,
     url_prefix="/auth",
 )
+
+
+@auth.route("/register-admin/<token>", methods=["GET", "POST"])
+def register_admin(token):
+    decoded_data = jwt.decode(
+        token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+    )
+    decoded_user = decoded_data.get("user")
+
+    if request.method == "GET":
+        return (
+            jsonify({"message": "Cookie generated for CSRF Token"}),
+            200,
+        )
+
+    if request.method == "POST":
+        user_registration = UserRegistration(**decoded_user)
+
+        try:
+            user_registration.validate()
+        except ValueError as e:
+            return jsonify({"message": str(e)}), 409
+
+        insert_data = convert_user_registration_data_to_insert_data(user_registration)
+        Database().create(table="user", data=insert_data)
+
+        return jsonify({"message": "User created."}), 200
 
 
 @auth.route("/register", methods=["GET", "POST"])
@@ -31,21 +61,29 @@ def register():
 
     if request.method == "POST":
         data = request.get_json()
-        user = UserRegistration(**data)
+
+        user_registration = UserRegistration(**data)
 
         try:
-            user.validate()
+            user_registration.validate()
         except ValueError as e:
             return jsonify({"message": str(e)}), 409
 
-        hashed_password = bcrypt.generate_password_hash(data["password"]).decode(
-            "utf-8"
-        )
-        data["password"] = hashed_password
-        data.pop("confirm_password")
-        insert_data = asdict(User(**data))
-        insert_data.pop("id")
+        # if they selected admin then verify and exit endpoint
+        if user_registration.is_root_user:
+            send_admin_registration_email(user_registration)
+            return (
+                jsonify(
+                    {
+                        "message": "Admin registration email sent for validation. Check your root email user account for the email"
+                    }
+                ),
+                200,
+            )
+
+        insert_data = convert_user_registration_data_to_insert_data(user_registration)
         Database().create(table="user", data=insert_data)
+
         return jsonify({"message": "User created."}), 200
 
 
@@ -94,59 +132,6 @@ def login():
 def logout():
     logout_user()
     return jsonify({"message": "User logged out."}), 200
-
-
-@auth.route("/account", methods=["GET", "POST"])
-@login_required
-def account():
-    if request.method == "GET":
-        id = request.data.get("Id")
-
-        if not id:
-            return jsonify({"message": "Id not provided"}), 500
-
-        query = "SELECT UserName, Email, FirstName, LastName, ImageFile FROM User WHERE Id = :Id"
-        result = Database().read(sql=query, params={"Id": id})
-        user = asdict(User(**result))
-        return jsonify({"message": "User data response", "user": user}), 200
-
-    if request.method == "POST":
-        form = request.form
-
-        if form.picture.data:
-            picture = form.picture.data
-            binary_data = picture.read()
-
-            if len(binary_data) > 1 * 1024 * 1024:
-                flash("", "error")
-                return jsonify({"message": "File size exceeds the 1MB limit."}), 413
-
-            image_file = binary_data
-
-        username = form.username.data
-        email = form.email.data
-        first_name = form.first_name.data
-        last_name = form.last_name.data
-
-
-def send_reset_email(user: User):
-    token = user.get_reset_token()
-    msg = Message(
-        "Password Reset Request",
-        sender="samuel.grant.adams@gmail.com",
-        recipients=[user.email],
-    )
-    react_url = (
-        f"{current_app.config['REACT_APP_URL']}/auth/reset-password-token/{token}"
-    )
-    msg.body = f"""
-    To reset your password, visit the following link:
-    
-    {react_url}
-
-    If you did not make this request then simply ignore this email and no changes will be made.
-    """
-    mail.send(msg)
 
 
 @auth.route("/request-reset-password", methods=["GET", "POST"])
@@ -207,3 +192,36 @@ def reset_token(token):
             jsonify({"message": "Cookie generated for CSRF Token"}),
             200,
         )
+
+
+@auth.route("/account", methods=["GET", "POST"])
+@login_required
+def account():
+    if request.method == "GET":
+        id = request.data.get("Id")
+
+        if not id:
+            return jsonify({"message": "Id not provided"}), 500
+
+        query = "SELECT UserName, Email, FirstName, LastName, ImageFile FROM User WHERE Id = :Id"
+        result = Database().read(sql=query, params={"Id": id})
+        user = asdict(User(**result))
+        return jsonify({"message": "User data response", "user": user}), 200
+
+    if request.method == "POST":
+        form = request.form
+
+        if form.picture.data:
+            picture = form.picture.data
+            binary_data = picture.read()
+
+            if len(binary_data) > 1 * 1024 * 1024:
+                flash("", "error")
+                return jsonify({"message": "File size exceeds the 1MB limit."}), 413
+
+            image_file = binary_data
+
+        username = form.username.data
+        email = form.email.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data

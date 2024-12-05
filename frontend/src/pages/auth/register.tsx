@@ -22,8 +22,7 @@ const RegisterPage: React.FC = () => {
     formState: { errors },
     getValues,
   } = useForm<FormValues>();
-  const passwordComplexityRule =
-    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+  const passwordComplexityRule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])\S{8,16}$/
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,8 +45,12 @@ const RegisterPage: React.FC = () => {
           "Content-Type": "application/json",
         },
       });
-      toast.success(`${data.username} created!`);
-      navigate('/auth/login');
+
+      toast.success(`${response?.data.message}`);
+      
+      if (!data.is_root_user) {
+        navigate('/auth/login');
+      }
     } catch (error: any) {
       const result = error.response?.data || {};
       toast.error(`User creation failed: ${result.message}`);

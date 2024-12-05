@@ -164,7 +164,7 @@ const IndexPage: React.FC = () => {
               Need an Account?
             </h1>
             <a
-              href="#"
+              href="/auth/register"
               className="text-3xl bg-gradient-to-r from-amber-300 to-amber-600 bg-clip-text text-transparent hover:animate-pulse"
             >
               Register

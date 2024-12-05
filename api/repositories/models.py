@@ -78,9 +78,11 @@ class BusinessUnit:
 
 @login_manager.user_loader
 def load_user(user_id):
-    user = Database().read(
-        sql="SELECT * FROM User WHERE Id = :Id;", params={"Id": user_id}
+    user_data = Database().read(
+        sql='SELECT * FROM "user" WHERE id = %s;', params=(user_id,)
     )
+    user = User(**user_data)
+
     if user:
         return user
     return None

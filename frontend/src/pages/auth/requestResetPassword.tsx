@@ -10,6 +10,8 @@ const RequestResetPasswordPage: React.FC = () => {
     handleSubmit,
     formState: { errors: formErrors },
   } = useForm<{ email: string }>();
+  const passwordComplexityRule =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])\S{8,16}$/;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,11 +27,15 @@ const RequestResetPasswordPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<{ email: string }> = async (data) => {
     try {
-      const response = await axiosInstance.post("/auth/request-reset-password", data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axiosInstance.post(
+        "/auth/request-reset-password",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       toast.success(`${response?.data?.message}`);
     } catch (error: any) {
       const errorMessage =
@@ -59,7 +65,7 @@ const RequestResetPasswordPage: React.FC = () => {
               {...register("email", {
                 required: "Email is required",
                 pattern: {
-                  value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,
+                  value: passwordComplexityRule,
                   message: "Invalid email format",
                 },
               })}
