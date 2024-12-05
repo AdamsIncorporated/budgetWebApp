@@ -33,7 +33,9 @@ def register_admin(token):
 
     if request.method == "GET":
         return (
-            jsonify({"message": "Cookie generated for CSRF Token"}),
+            jsonify(
+                {"message": "Cookie generated for CSRF Token", "user": decoded_user}
+            ),
             200,
         )
 

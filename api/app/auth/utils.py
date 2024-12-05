@@ -49,6 +49,10 @@ def send_admin_registration_email(proposed_user: User):
     )
     react_url = f"{current_app.config['REACT_APP_URL']}/auth/register-admin/{token}"
     msg.body = f"""
+
+    🚨THIS EMAIL WAS SENT BY THE USER ACCOUNT SAMUEL.GRANT.ADAMS@GMAIL.COM SMTP SERVER
+    PLEASE IGNORE AS THIS IS FOR TESTING ADMIN CREATION🚨
+
     To fully register the admin user, visit the following link:
     
     {react_url}
