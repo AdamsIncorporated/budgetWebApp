@@ -114,8 +114,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ redirectUrl }) => {
               id="email"
               {...register("email", {
                 required: "Email is required",
-                validate: (value) =>
-                  isPasswordComplex(value) || passwordErrorValidationMessage,
               })}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
             />

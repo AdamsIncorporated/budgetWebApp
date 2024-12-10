@@ -1,11 +1,10 @@
 from repositories.models import User, UserRegistration
 from flask import current_app
-from flask_bcrypt import bcrypt
 from flask_login import current_user
 from dataclasses import asdict
 from flask_mail import Message
 import time
-from app import mail
+from app import mail, bcrypt
 import jwt
 
 
