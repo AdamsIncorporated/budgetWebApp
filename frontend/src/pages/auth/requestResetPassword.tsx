@@ -3,7 +3,10 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../axiosConfig";
-import { isPasswordComplex, passwordErrorValidationMessage } from "../../utils/passwordComplexity";
+import {
+  isPasswordComplex,
+  passwordErrorValidationMessage,
+} from "../../utils/passwordComplexity";
 
 const RequestResetPasswordPage: React.FC = () => {
   const {
@@ -11,7 +14,7 @@ const RequestResetPasswordPage: React.FC = () => {
     handleSubmit,
     formState: { errors: formErrors },
   } = useForm<{ email: string }>();
- 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
