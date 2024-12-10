@@ -3,10 +3,6 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../axiosConfig";
-import {
-  isPasswordComplex,
-  passwordErrorValidationMessage,
-} from "../../utils/passwordComplexity";
 
 const RequestResetPasswordPage: React.FC = () => {
   const {
@@ -66,8 +62,6 @@ const RequestResetPasswordPage: React.FC = () => {
               type="email"
               {...register("email", {
                 required: "Email is required",
-                validate: (value) =>
-                  isPasswordComplex(value) || passwordErrorValidationMessage,
               })}
               className={`text-stone-700 mt-1 block w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                 formErrors.email ? "border-red-500" : "border-gray-300"

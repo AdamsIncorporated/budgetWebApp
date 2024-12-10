@@ -8,6 +8,7 @@ from datetime import datetime
 import jwt
 import time
 import base64
+from repositories.utils import is_password_complex
 
 
 @dataclass
@@ -170,6 +171,9 @@ class UserRegistration:
         # Check if passwords match
         if self.password != self.confirm_password:
             raise ValueError("Passwords do not match!")
+
+        if not is_password_complex(self.password):
+            raise ValueError("Password is not complex!")
 
 
 @dataclass
