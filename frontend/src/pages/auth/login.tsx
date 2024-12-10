@@ -6,6 +6,7 @@ import { logIn, setUser } from "../../redux/slices";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../axiosConfig";
+import { isPasswordComplex, passwordErrorValidationMessage } from "../../utils/passwordComplexity";
 
 interface LoginFormData {
   email: string;
@@ -113,7 +114,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ redirectUrl }) => {
               id="email"
               {...register("email", {
                 required: "Email is required",
-                pattern: { value: /^\S+@\S+\.\S+$/, message: "Invalid email" },
+                validate: (value) =>
+                  isPasswordComplex(value) || passwordErrorValidationMessage,
               })}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
             />

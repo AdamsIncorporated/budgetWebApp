@@ -28,7 +28,7 @@ class Config:
 
     # Flask-Session
     SESSION_TYPE = "redis"
-    SESSION_PERMANENT = True
+    SESSION_PERMANENT = False
     SESSION_USE_SIGNER = True
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
     SESSION_COOKIE_SAMESITE = "Strict"

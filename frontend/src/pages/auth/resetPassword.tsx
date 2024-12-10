@@ -5,6 +5,10 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  isPasswordComplex,
+  passwordErrorValidationMessage,
+} from "../../utils/passwordComplexity";
 
 interface ResetPasswordFormInputs {
   password: string;
@@ -14,9 +18,8 @@ interface ResetPasswordFormInputs {
 const ResetPasswordPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isPageReady, setIsPageReady] = useState<boolean>(false);
-  const [showPassword, setShowPassword] = useState(false); // Track password visibility
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Track confirm password visibility
-  const passwordComplexityRule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])\S{8,16}$/
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const pathParts = window.location.pathname.split("/");
   const token = pathParts[pathParts.length - 1];
@@ -44,11 +47,15 @@ const ResetPasswordPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<ResetPasswordFormInputs> = async (data) => {
     try {
-      const response = await axiosInstance.post(`/auth/reset-password/${token}`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axiosInstance.post(
+        `/auth/reset-password/${token}`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       toast.success("Password reset!");
       navigate("/auth/login");
     } catch (error: any) {
@@ -80,14 +87,12 @@ const ResetPasswordPage: React.FC = () => {
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"} // Toggle type based on state
+                  type={showPassword ? "text" : "password"}
                   {...register("password", {
                     required: "Password is required",
-                    pattern: {
-                      value: passwordComplexityRule,
-                      message:
-                        "The password must contain at least one lowercase letter, one uppercase letter, one digit, one special character, and is between eight and sixteen characters in length.",
-                    },
+                    validate: (value) =>
+                      isPasswordComplex(value) ||
+                      passwordErrorValidationMessage,
                   })}
                   className={`mt-1 block w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                     errors.password ? "border-red-500" : "border-gray-300"
@@ -96,7 +101,7 @@ const ResetPasswordPage: React.FC = () => {
                 <button
                   type="button"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 text-teal-500"
-                  onClick={() => setShowPassword((prev) => !prev)} // Toggle password visibility
+                  onClick={() => setShowPassword((prev) => !prev)}
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>

@@ -4,6 +4,10 @@ import { useForm } from "react-hook-form";
 import axiosInstance from "../../axiosConfig";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  isPasswordComplex,
+  passwordErrorValidationMessage,
+} from "../../utils/passwordComplexity";
 
 interface FormValues {
   is_root_user: boolean;
@@ -22,7 +26,6 @@ const RegisterPage: React.FC = () => {
     formState: { errors },
     getValues,
   } = useForm<FormValues>();
-  const passwordComplexityRule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])\S{8,16}$/
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,9 +50,9 @@ const RegisterPage: React.FC = () => {
       });
 
       toast.success(`${response?.data.message}`);
-      
+
       if (!data.is_root_user) {
-        navigate('/auth/login');
+        navigate("/auth/login");
       }
     } catch (error: any) {
       const result = error.response?.data || {};
@@ -166,11 +169,8 @@ const RegisterPage: React.FC = () => {
                 type="password"
                 {...register("password", {
                   required: "Password is required",
-                  pattern: {
-                    value: passwordComplexityRule,
-                    message:
-                      "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.",
-                  },
+                  validate: (value) =>
+                    isPasswordComplex(value) || passwordErrorValidationMessage,
                 })}
                 className={`mt-1 block w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                   errors.password ? "border-red-500" : "border-gray-300"
