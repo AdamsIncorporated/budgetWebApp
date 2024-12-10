@@ -73,7 +73,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ redirectUrl }) => {
       });
 
       const result = response.data;
-      console.log("Login successful");
       toast.success(`Logged in as ${result.user.FirstName}`);
       dispatch(logIn(result.user));
       dispatch(setUser(result.user));

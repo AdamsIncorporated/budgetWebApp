@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logOut } from "../../redux/slices";
 import { selectCurrentUser } from "../../redux/store";
+import SelectComponent from "../../components/selects/selectComponent";
 
 const IndexPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -40,6 +41,16 @@ const IndexPage: React.FC = () => {
   const handleAccount = () => {
     navigate("/account");
   };
+
+  const handleBusinessUnitChange = (value: string | number) => {
+    console.log("Selected business unit:", value);
+  };
+
+  const businessUnitOptions = [
+    { value: "bu1", label: "Business Unit 1" },
+    { value: "bu2", label: "Business Unit 2" },
+    { value: "bu3", label: "Business Unit 3" },
+  ];
 
   return (
     <div>
@@ -101,7 +112,6 @@ const IndexPage: React.FC = () => {
                     src={imageUrl}
                     alt="User Image"
                     onError={(e) => {
-                      // Type assertion to HTMLImageElement
                       const target = e.target as HTMLImageElement;
                       target.style.display = "none";
                     }}
@@ -138,17 +148,16 @@ const IndexPage: React.FC = () => {
       {/* Main Section */}
       <main className="mt-20 container mx-auto py-16 text-center">
         {isAuthenticated ? (
-          <div className="w-1/4 flex flex-col justify-center items-center mx-auto gap-3 border-2 border-stone-50 rounded-md p-4 shadow-md">
-            <label htmlFor="businessUnit">Department:</label>
-            <select
+          <div className="w-fit flex flex-col justify-center mx-auto gap-3 border-2 border-stone-50 rounded-md p-4 shadow-md">
+            <label htmlFor="businessUnit" className="text-2xl font-bold text-stone-500 py-2 border-b border-stone-100">Department</label>
+            <SelectComponent
               id="businessUnit"
               name="businessUnit"
-              className="border rounded px-4 py-2"
-            >
-              <option value="" disabled selected>
-                --Select Business Unit--
-              </option>
-            </select>
+              options={businessUnitOptions}
+              defaultValue="bu1"
+              placeholder="Select Business Unit"
+              onChange={handleBusinessUnitChange}
+            />
 
             <button
               type="button"
