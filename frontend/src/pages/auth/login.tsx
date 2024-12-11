@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logIn, setUser } from "../../redux/slices";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axiosInstance from "../../axiosConfig";
+import interceptor from "../../axiosConfig";
 import { isPasswordComplex, passwordErrorValidationMessage } from "../../utils/passwordComplexity";
 
 interface LoginFormData {
@@ -39,12 +39,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ redirectUrl }) => {
     const fetchData = async () => {
       try {
         // First GET request
-        await axiosInstance.get("/auth/login");
+        await interceptor.get("/auth/login");
 
         if (redirectUrl) {
           // POST request with data
           const data = { Id: id };
-          const response = await axiosInstance.post("/auth/login", data, {
+          const response = await interceptor.post("/auth/login", data, {
             headers: {
               "Content-Type": "application/json",
             },
@@ -66,7 +66,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ redirectUrl }) => {
     console.log("Form Submitted");
 
     try {
-      const response = await axiosInstance.post("/auth/login", data, {
+      const response = await interceptor.post("/auth/login", data, {
         headers: {
           "Content-Type": "application/json",
         },

@@ -9,13 +9,13 @@ const getCsrfTokenFromStore = (): string | null => {
 };
 
 // Create an Axios instance
-const axiosInstance = axios.create({
+const interceptor = axios.create({
   baseURL: "/api",
   withCredentials: true,
 });
 
 // Add the CSRF token to request headers before each request
-axiosInstance.interceptors.request.use(
+interceptor.interceptors.request.use(
   (config) => {
     const csrfToken = getCsrfTokenFromStore();
 
@@ -31,7 +31,7 @@ axiosInstance.interceptors.request.use(
 );
 
 // Add a response interceptor to handle CSRF token in the response headers
-axiosInstance.interceptors.response.use(
+interceptor.interceptors.response.use(
   (response) => {
     // Check if the CSRF token is present in the response headers
     const csrfToken = response.headers["x-csrftoken"];
@@ -53,4 +53,4 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-export default axiosInstance;
+export default interceptor;

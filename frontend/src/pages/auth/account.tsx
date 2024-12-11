@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectCurrentUser } from "../../redux/store";
-import axiosInstance from "../../axiosConfig";
+import interceptor from "../../axiosConfig";
 
 interface FormData {
   username: string;
@@ -42,7 +42,7 @@ const AccountSettings: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await axiosInstance.get("/auth/account", { params: { Id: id } });
+        await interceptor.get("/auth/account", { params: { Id: id } });
       } catch (error) {
         console.error("Error during login process:", error);
       }

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import axiosInstance from "../../axiosConfig";
+import interceptor from "../../axiosConfig";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -32,7 +32,7 @@ const RegisterPage: React.FC = () => {
     const fetchData = async () => {
       try {
         // First GET request
-        await axiosInstance.get("/auth/register");
+        await interceptor.get("/auth/register");
       } catch (error) {
         console.error("Error during login process:", error);
       }
@@ -43,7 +43,7 @@ const RegisterPage: React.FC = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      const response = await axiosInstance.post("/auth/register", data, {
+      const response = await interceptor.post("/auth/register", data, {
         headers: {
           "Content-Type": "application/json",
         },

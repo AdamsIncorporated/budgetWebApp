@@ -9,16 +9,13 @@
         "cwd": "${workspaceFolder}/frontend",
         "env": {
           "NODE_OPTIONS": "--no-warnings",
-          "BROWSER": "none",
+          "BROWSER": "None",
           "REACT_APP_API_URL": "http://localhost:5000",
           "NODE_ENV": "development"
         }
       },
       "isBackground": true,
       "problemMatcher": [],
-      "presentation": {
-        "reveal": "silent"
-      },
     }
   ]
 }

@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import axiosInstance from "../../axiosConfig";
+import interceptor from "../../axiosConfig";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -33,7 +33,7 @@ const ResetPasswordPage: React.FC = () => {
   useLayoutEffect(() => {
     const fetchData = async () => {
       try {
-        await axiosInstance.get(`/auth/reset-password/${token}`);
+        await interceptor.get(`/auth/reset-password/${token}`);
         setIsPageReady(true); // Data fetched successfully, set page as ready
       } catch (error) {
         console.error("Error during password reset process:", error);
@@ -47,7 +47,7 @@ const ResetPasswordPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<ResetPasswordFormInputs> = async (data) => {
     try {
-      const response = await axiosInstance.post(
+      const response = await interceptor.post(
         `/auth/reset-password/${token}`,
         data,
         {

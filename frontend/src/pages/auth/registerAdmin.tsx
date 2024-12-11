@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosInstance from "../../axiosConfig";
+import interceptor from "../../axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,7 +20,7 @@ const RegisterAdminPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get(
+        const response = await interceptor.get(
           `/auth/register-admin/${token}`
         );
         const user = response?.data.user;
@@ -37,7 +37,7 @@ const RegisterAdminPage: React.FC = () => {
 
   const onSubmit = async () => {
     try {
-      await axiosInstance.post(`/auth/register-admin/${token}`, {
+      await interceptor.post(`/auth/register-admin/${token}`, {
         headers: {
           "Content-Type": "application/json",
         },

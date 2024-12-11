@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axiosInstance from "../../axiosConfig";
+import interceptor from "../../axiosConfig";
 
 const RequestResetPasswordPage: React.FC = () => {
   const {
@@ -14,7 +14,7 @@ const RequestResetPasswordPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await axiosInstance.get("/auth/request-reset-password");
+        await interceptor.get("/auth/request-reset-password");
       } catch (error) {
         console.error("Error during login process:", error);
       }
@@ -25,7 +25,7 @@ const RequestResetPasswordPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<{ email: string }> = async (data) => {
     try {
-      const response = await axiosInstance.post(
+      const response = await interceptor.post(
         "/auth/request-reset-password",
         data,
         {
