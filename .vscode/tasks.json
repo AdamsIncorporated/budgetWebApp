@@ -9,13 +9,13 @@
         "cwd": "${workspaceFolder}/frontend",
         "env": {
           "NODE_OPTIONS": "--no-warnings",
-          "BROWSER": "None",
           "REACT_APP_API_URL": "http://localhost:5000",
-          "NODE_ENV": "development"
+          "NODE_ENV": "development",
+          "PORT": "8080"
         }
       },
       "isBackground": true,
-      "problemMatcher": [],
+      "problemMatcher": []
     }
   ]
 }

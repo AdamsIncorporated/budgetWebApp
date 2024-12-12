@@ -11,7 +11,7 @@ class Config:
     # General Config
     FLASK_APP = "run.py"
     SECRET_KEY = secrets.token_hex(16)
-    REACT_APP_URL = os.getenv("REACT_APP_URL", "http://localhost:3000")
+    REACT_APP_URL = os.getenv("REACT_APP_URL", "http://localhost:8080")
 
     # Flask Logging
     LOGGING_LEVEL = logging.DEBUG

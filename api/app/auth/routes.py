@@ -24,6 +24,21 @@ auth = Blueprint(
 )
 
 
+@auth.route("/is-authenticated")
+def is_authenticated():
+
+    if current_user.is_authenticated:
+        return (
+            jsonify({"message": "User is authenticated"}),
+            200,
+        )
+    else:
+        return (
+            jsonify({"message": "User is not authenticated. Login required."}),
+            401,
+        )
+
+
 @auth.route("/register-admin/<token>", methods=["GET", "POST"])
 def register_admin(token):
     decoded_data = jwt.decode(

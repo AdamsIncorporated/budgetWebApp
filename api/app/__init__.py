@@ -20,7 +20,7 @@ def create_app():
     Config.init_app_logging(app)
     csrf = CSRFProtect(app)
     csrf.init_app(app)
-    CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+    CORS(app, origins=["http://localhost:8080"], supports_credentials=True)
 
     @app.after_request
     def after_request(response):

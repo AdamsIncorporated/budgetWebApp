@@ -18,9 +18,9 @@
     {
       "name": "Debug BudgetWebApp - Frontend",
       "type": "chrome",
-      "request": "launch",
+      "request": "attach",
       "webRoot": "${workspaceFolder}/frontend",
-      "url": "http://127.0.0.1:3000",
+      "url": "http://localhost:8080",
       "preLaunchTask": "Start Frontend"
     }
   ],
