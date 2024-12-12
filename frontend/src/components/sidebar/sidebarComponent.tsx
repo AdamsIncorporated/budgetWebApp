@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { FaHome, FaUser, FaCog } from "react-icons/fa";
-import { useDispatch } from "react-redux";
 import NavbarComponent from "../navbar/navbarComponent";
 
 export interface SidebarItem {
@@ -16,7 +15,6 @@ const sidebarItems: SidebarItem[] = [
 ];
 
 const SidebarComponent: React.FC = () => {
-  const dispatch = useDispatch();
 
   const handleAccount = () => {
     
@@ -92,7 +90,6 @@ const SidebarComponent: React.FC = () => {
           isExpanded ? "ml-64" : "ml-0"
         }`}
       >
-        <NavbarComponent/>
       </div>
     </div>
   );

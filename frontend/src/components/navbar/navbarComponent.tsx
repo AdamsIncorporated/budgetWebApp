@@ -32,7 +32,7 @@ const NavbarComponent: React.FC = () => {
       className="fixed h-fit top-0 left-0 w-full bg-gradient-to-r from-cyan-500 to-teal-700 text-white p-4 shadow-lg transform translate-y-0"
     >
       <div className="mx-auto flex justify-between items-end">
-        {/* <SidebarComponent /> */}
+        <SidebarComponent />
         <div className="flex-col">
           {isAuthenticated ? (
             <div className="flex items-end shadow-md rounded-md p-4">
