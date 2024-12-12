@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import Navbar from "../components/navbar/Navbar";
 
 import HomePage from "../pages/index/home";
 import LoginPage from "../pages/auth/login";
@@ -14,6 +15,7 @@ const Router = () => (
   <BrowserRouter
     future={{ v7_relativeSplatPath: true, v7_startTransition: true }}
   >
+    <Navbar />
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/auth" >
