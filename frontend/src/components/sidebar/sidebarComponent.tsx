@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { FaHome, FaUser, FaCog } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import NavbarComponent from "../navbar/navbarComponent";
 
 export interface SidebarItem {
@@ -17,11 +16,10 @@ const sidebarItems: SidebarItem[] = [
 ];
 
 const SidebarComponent: React.FC = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleAccount = () => {
-    navigate("/account");
+    
   };
 
   const [isExpanded, setIsExpanded] = useState(false);

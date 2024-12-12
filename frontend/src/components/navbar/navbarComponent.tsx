@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logOut } from "../../redux/slices";
 import { selectCurrentUser } from "../../redux/store";
-import { useNavigate } from "react-router-dom";
 import SidebarComponent from "../sidebar/sidebarComponent";
 
-const NavbarComponent: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+const NavbarComponent: React.FC = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   // Get the auth state from Redux store
   const isAuthenticated = useSelector(
@@ -26,9 +24,7 @@ const NavbarComponent: React.FC<{ children?: React.ReactNode }> = ({ children })
     }
   }, [isAuthenticated, dispatch]);
 
-  const handleLogin = () => {
-    navigate("/auth/login");
-  };
+  const handleLogin = () => {};
 
   return (
     <header
@@ -36,7 +32,7 @@ const NavbarComponent: React.FC<{ children?: React.ReactNode }> = ({ children })
       className="fixed h-fit top-0 left-0 w-full bg-gradient-to-r from-cyan-500 to-teal-700 text-white p-4 shadow-lg transform translate-y-0"
     >
       <div className="mx-auto flex justify-between items-end">
-        <SidebarComponent />
+        {/* <SidebarComponent /> */}
         <div className="flex-col">
           {isAuthenticated ? (
             <div className="flex items-end shadow-md rounded-md p-4">
@@ -77,7 +73,6 @@ const NavbarComponent: React.FC<{ children?: React.ReactNode }> = ({ children })
           )}
         </div>
       </div>
-      {children}
     </header>
   );
 };

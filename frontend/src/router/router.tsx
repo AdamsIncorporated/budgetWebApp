@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
-import IndexPage from "../pages/index";
 import HomePage from "../pages/index/home";
 import LoginPage from "../pages/auth/login";
 import AccountPage from "../pages/auth/login";
@@ -16,11 +15,8 @@ const Router = () => (
     future={{ v7_relativeSplatPath: true, v7_startTransition: true }}
   >
     <Routes>
-      <Route path="/" element={<IndexPage />}>
-        <Route index element={<HomePage />} />
-        <Route path="/home" element={<HomePage />} />
-      </Route>
-      <Route path="/auth" element={<IndexPage />}>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/auth" >
         <Route path="login" element={<LoginPage />} />
         <Route path="account" element={<AccountPage />} />
         <Route path="register" element={<RegisterPage />} />

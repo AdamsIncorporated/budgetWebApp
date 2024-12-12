@@ -4,11 +4,13 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./redux/store";
 import Router from "./router/router";
+import NavbarComponent from "./components/navbar/navbarComponent";
 
 const App: React.FC = () => {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
+          <NavbarComponent />
           <Router/>
       </PersistGate>
     </Provider>
