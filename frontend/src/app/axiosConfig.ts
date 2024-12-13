@@ -1,6 +1,6 @@
 import axios from "axios";
 import { setToken, clearToken } from "../stores/slices";
-import {store, RootState } from "../stores/store";
+import { store, RootState } from "../stores/store";
 
 // Function to get the CSRF token from the Redux store
 const getCsrfTokenFromStore = (): string | null => {

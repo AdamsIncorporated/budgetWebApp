@@ -2,11 +2,13 @@
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {fontFamily: {
-      sans: ["Poppins", "sans-serif"]
-    }},
+    extend: {
+      fontFamily: {
+        sans: ["Poppins", "sans-serif"],
+      },
+    },
   },
   plugins: [],
-  mode: 'jit', // Ensure JIT mode is enabled
-  purge: ['./src/**/*.{html,js,jsx,ts,tsx}', './src/assets/index.html'],
+  mode: "jit", // Ensure JIT mode is enabled
+  purge: ["./src/**/*.{html,js,jsx,ts,tsx}", "./src/assets/index.html"],
 };

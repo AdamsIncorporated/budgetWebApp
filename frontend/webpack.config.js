@@ -1,28 +1,59 @@
 const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   mode: "development",
   entry: "./src/app/index.tsx",
+  devtool: "source-map",
+  devServer: {
+    static: {
+      directory: path.join(__dirname, "public"),
+    },
+    historyApiFallback: true,
+    proxy: [
+      {
+        context: ["/api"],
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        pathRewrite: {
+          "^/api": "",
+        },
+        logLevel: "debug",
+      },
+    ],
+  },
   output: {
     filename: "bundle.js",
     path: path.resolve(__dirname, "dist"),
-    publicPath: process.env.PUBLIC_URL || "/", // Define publicPath dynamically
+    publicPath: "/",
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js"],
+    extensions: [".tsx", ".ts", ".js", ".css"],
   },
   module: {
     rules: [
       {
-        test: /\.css$/, // This rule targets files ending with .css
-        use: ["css-loader"], // Use css-loader to process them
-      },
-      {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
         use: "babel-loader",
+      },
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"],
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        use: [
+          {
+            loader: "file-loader", // or 'url-loader'
+            options: {
+              name: "[name].[ext]",
+              outputPath: "assets/",
+            },
+          },
+        ],
       },
     ],
   },
@@ -31,7 +62,11 @@ module.exports = {
       template: "./src/app/index.html",
     }),
     new webpack.DefinePlugin({
-      "process.env.PUBLIC_URL": JSON.stringify(process.env.PUBLIC_URL || "/"),
+      "process.env.PUBLIC_URL": JSON.stringify("/"),
+    }),
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
+      chunkFilename: "[id].css",
     }),
   ],
 };

@@ -36,7 +36,11 @@ const Select: React.FC<SelectProps> = ({
       className="bg-white shadow-md text-stone-700 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"
     >
       {options.map((option) => (
-        <option key={option.value} value={option.value} className="bg-white text-stone-500 ">
+        <option
+          key={option.value}
+          value={option.value}
+          className="bg-white text-stone-500 "
+        >
           {option.label}
         </option>
       ))}

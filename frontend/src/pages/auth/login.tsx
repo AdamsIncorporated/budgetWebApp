@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logIn, setUser } from "../../stores/slices";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import interceptor from "../../config/axiosConfig";
+import interceptor from "../../app/axiosConfig";
 import { isPasswordComplex, passwordErrorValidationMessage } from "../../utils/passwordComplexity";
 
 interface LoginFormData {
