@@ -2,10 +2,10 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logIn, setUser } from "../../redux/slices";
+import { logIn, setUser } from "../../stores/slices";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import interceptor from "../../axiosConfig";
+import interceptor from "../../config/axiosConfig";
 import { isPasswordComplex, passwordErrorValidationMessage } from "../../utils/passwordComplexity";
 
 interface LoginFormData {

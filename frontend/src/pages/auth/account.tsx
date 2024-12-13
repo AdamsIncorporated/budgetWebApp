@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectCurrentUser } from "../../redux/store";
-import interceptor from "../../axiosConfig";
+import { selectCurrentUser } from "../../stores/store";
+import interceptor from "../../config/axiosConfig";
 
 interface FormData {
   username: string;

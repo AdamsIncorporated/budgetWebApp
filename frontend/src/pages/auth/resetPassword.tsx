@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import interceptor from "../../axiosConfig";
+import interceptor from "../../config/axiosConfig";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
