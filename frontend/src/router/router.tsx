@@ -1,7 +1,9 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 import Header from "../components/navbar/Header";
+import Footer from "../components/footer/Footer";
+import { ToastContainer } from "react-toastify";
+
 
 import HomePage from "../pages/index/home";
 import LoginPage from "../pages/auth/login";
@@ -34,6 +36,7 @@ const Router = () => (
       </Routes>
     </div>
     <ToastContainer />
+    <Footer/>
   </BrowserRouter>
 );
 
