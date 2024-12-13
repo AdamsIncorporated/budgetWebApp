@@ -1,17 +1,18 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Header from "../components/navbar/Header";
+import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
 import { ToastContainer } from "react-toastify";
 
 
-import HomePage from "../pages/index/home";
+import HomePage from "../pages/index/HomePage";
 import LoginPage from "../pages/auth/login";
 import AccountPage from "../pages/auth/login";
 import RegisterPage from "../pages/auth/register";
 import RegisterAdminPage from "../pages/auth/registerAdmin";
 import RequestResetPasswordPage from "../pages/auth/requestResetPassword";
 import ResetPasswordPage from "../pages/auth/resetPassword";
+import BudgetPage from "../pages/budget/BudgetPage";
 
 // Layout elements must be placed within BrowserRouter element such as Navbar and ToastContainer
 const Router = () => (
@@ -32,6 +33,9 @@ const Router = () => (
             element={<ResetPasswordPage />}
           />
           <Route path="register-admin/:token" element={<RegisterAdminPage />} />
+        </Route>
+        <Route path="/budget">
+          <Route path="" element={<BudgetPage />} />
         </Route>
       </Routes>
     </div>

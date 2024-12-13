@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaHome, FaUser, FaSignInAlt, FaUserPlus, FaKey, FaCrown } from 'react-icons/fa';
+import { FaCalculator } from "react-icons/fa";
+
 
 interface LinksProps {
     toggleIsOpen: () => void;
@@ -31,6 +33,10 @@ const Links: React.FC<LinksProps> = ({toggleIsOpen}) => (
     <li className="flex items-center hover:text-stone-800 transition ease-in duration-50" onClick={toggleIsOpen}>
       <FaCrown className="mr-2" /> 
       <Link to="/auth/register-admin/:token">Register Admin</Link>
+    </li>
+    <li className="flex items-center hover:text-stone-800 transition ease-in duration-50" onClick={toggleIsOpen}>
+      <FaCalculator className="mr-2" /> 
+      <Link to="/budget/">Budget</Link>
     </li>
   </ul>
 );

@@ -45,21 +45,14 @@ module.exports = {
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
-        use: [
-          {
-            loader: "file-loader", // or 'url-loader'
-            options: {
-              name: "[name].[ext]",
-              outputPath: "assets/",
-            },
-          },
-        ],
+        use: ["file-loader?name=[name].[ext]"],
       },
     ],
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/app/index.html",
+      favicon: "./src/assets/favicon.png",
     }),
     new webpack.DefinePlugin({
       "process.env.PUBLIC_URL": JSON.stringify("/"),

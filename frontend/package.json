@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ag-grid-community/client-side-row-model": "^32.3.3",
+    "@ag-grid-community/csv-export": "^32.3.3",
+    "@ag-grid-community/react": "^32.3.3",
+    "@ag-grid-community/styles": "^33.0.2",
     "@react-spring/web": "^9.7.5",
     "@reduxjs/toolkit": "^2.3.0",
     "@testing-library/jest-dom": "^5.17.0",
@@ -12,6 +16,7 @@
     "@types/node": "^16.18.119",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "ag-grid-community": "^33.0.2",
     "axios": "^1.7.7",
     "dotenv-webpack": "^8.1.0",
     "http-proxy-middleware": "^3.0.3",
