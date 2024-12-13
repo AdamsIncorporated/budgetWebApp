@@ -41,14 +41,14 @@ export default function Footer() {
                 src="/logo-large-white.png"
                 alt="Central Health Logo"
                 style={{
-                  width: "30%",
-                  height: "30%",
+                  width: "10%",
+                  height: "10%",
                   objectFit: "cover",
                 }}
               />
             </a>
           </div>
-          <div className="my-1 p-2 grid grid-rows-1 grid-flow-col gap-4 w-full border-t">
+          <div className="my-1 p-2 grid grid-rows-1 grid-flow-col gap-4 w-full text-sm">
             <div>
               <h3 className="font-bold">Location</h3>
               <p>
@@ -69,8 +69,8 @@ export default function Footer() {
               </ul>
             </div>
           </div>
-          <div className="border-t border-white my-1 p-2 w-full sm:flex sm:items-center sm:justify-between">
-            <p className="text-sm">
+          <div className="border-t border-white my-1 p-2 w-full sm:flex sm:items-center sm:justify-between text-sm">
+            <p>
               Copyright © {currentYear} Central Health. All rights reserved.
             </p>
             <div className="mt-4 flex space-x-6 sm:mt-0 sm:justify-center">
