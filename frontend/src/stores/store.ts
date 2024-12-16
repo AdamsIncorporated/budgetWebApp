@@ -1,5 +1,10 @@
-import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import { authReducer, csrfReducer, userReducer, resetStore } from "./slices";
+import {
+  configureStore,
+  combineReducers,
+  createAction,
+} from "@reduxjs/toolkit";
+import authReducer from "./slices/authSlice";
+import csrfReducer from "./slices/csrfSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // Uses localStorage as default storage
 
@@ -9,13 +14,14 @@ declare global {
   }
 }
 
-
 // Combine reducers
 const combinedReducer = combineReducers({
   auth: authReducer,
-  user: userReducer,
   csrf: csrfReducer,
 });
+
+// Define the resetStore action
+export const resetStore = createAction("resetStore");
 
 // Root reducer to handle resetting the entire store
 const rootReducer = (
@@ -57,7 +63,4 @@ const store = configureStore({
 // Persistor for the store
 const persistor = persistStore(store);
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
 export { store, persistor };
-export const selectCurrentUser = (state: RootState) => state.user.user;

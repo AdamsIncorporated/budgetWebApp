@@ -12,7 +12,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../stores/store";
 import interceptor from "../../app/axiosConfig";
-import { logOut } from "../../stores/slices";
+import { logOut, clearUser } from "../../stores/slices";
 
 interface LinksProps {
   toggleIsOpen: () => void;
@@ -28,6 +28,7 @@ const Links: React.FC<LinksProps> = ({ toggleIsOpen }) => {
     try {
       await interceptor.get("/auth/logout");
       dispatch(logOut());
+      dispatch(clearUser());
     } catch (error: any) {
       console.error("Logout failed:", error);
     }
