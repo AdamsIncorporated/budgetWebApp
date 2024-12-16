@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectCurrentUser } from "../../stores/store";
+import { selectCurrentUser } from "../../stores/slices/authSlice";
 import interceptor from "../../app/axiosConfig";
 
 interface FormData {

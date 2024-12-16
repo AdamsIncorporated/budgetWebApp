@@ -2,11 +2,10 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logIn, setUser } from "../../stores/slices";
+import { logIn, selectCurrentUser } from "../../stores/slices/authSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import interceptor from "../../app/axiosConfig";
-import { isPasswordComplex, passwordErrorValidationMessage } from "../../utils/passwordComplexity";
 
 interface LoginFormData {
   email: string;
@@ -21,7 +20,7 @@ interface LoginPageProps {
 const LoginPage: React.FC<LoginPageProps> = ({ redirectUrl }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const id = useSelector((state: any) => state.user.Id);
+  const id = useSelector(selectCurrentUser)?.id;
 
   const {
     register,
@@ -73,9 +72,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ redirectUrl }) => {
       });
 
       const result = response.data;
-      toast.success(`Logged in as ${result.user.FirstName}`);
+      toast.success(`Logged in as ${result.user.first_name}`);
       dispatch(logIn(result.user));
-      dispatch(setUser(result.user));
       navigate("/");
     } catch (error: any) {
       if (error.response) {

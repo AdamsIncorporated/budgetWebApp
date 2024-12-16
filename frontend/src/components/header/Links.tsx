@@ -10,9 +10,8 @@ import {
   FaCalculator,
 } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../stores/store";
 import interceptor from "../../app/axiosConfig";
-import { logOut, clearUser } from "../../stores/slices";
+import { logOut, selectIsAuthenticated } from "../../stores/slices/authSlice";
 
 interface LinksProps {
   toggleIsOpen: () => void;
@@ -20,15 +19,12 @@ interface LinksProps {
 
 const Links: React.FC<LinksProps> = ({ toggleIsOpen }) => {
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
-  );
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const logout = async () => {
     try {
       await interceptor.get("/auth/logout");
       dispatch(logOut());
-      dispatch(clearUser());
     } catch (error: any) {
       console.error("Logout failed:", error);
     }
@@ -51,7 +47,9 @@ const Links: React.FC<LinksProps> = ({ toggleIsOpen }) => {
             onClick={toggleIsOpen}
           >
             <FaSignInAlt className="mr-2" />
-            <Link to="#" onClick={logout}>Logout</Link>
+            <Link to="#" onClick={logout}>
+              Logout
+            </Link>
           </li>
           <li
             className="flex items-center hover:text-stone-800 transition ease-in duration-50"

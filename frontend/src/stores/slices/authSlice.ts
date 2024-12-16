@@ -1,4 +1,9 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createAsyncThunk,
+  createSelector,
+} from "@reduxjs/toolkit";
+import { stat } from "fs";
 
 export interface User {
   id: number;
@@ -15,52 +20,37 @@ export interface AuthState {
   user: User | null;
 }
 
+interface RootState {
+  auth: AuthState;
+}
+
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
 };
 
-export const fetchUser = createAsyncThunk(
-  "auth/fetchUser",
-  async (userId: number) => {
-    const response = await fetch(`/api/users/${userId}`);
-    const user = await response.json();
-    return user;
-  }
-);
-
 export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logIn(state) {
+    logIn(state, action) {
       state.isAuthenticated = true;
-      state.user = {
-        id: 0,
-        username: "",
-        email: "",
-        image_file: new Blob([]),
-        first_name: "",
-        last_name: "",
-        is_root_user: false,
-      };
+      state.user = action.payload;
     },
     logOut(state) {
       state.isAuthenticated = false;
       state.user = null;
     },
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-      })
-      .addCase(fetchUser.rejected, (state, action) => {
-        // Handle error, e.g., show error message
-        console.error("Failed to fetch user:", action.error);
-      });
-  },
 });
 
 export const { logIn, logOut } = authSlice.actions;
+export const selectIsAuthenticated = createSelector(
+  (state: RootState) => state.auth,
+  (auth) => auth.isAuthenticated
+);
+export const selectCurrentUser = createSelector(
+  (state: RootState) => state.auth,
+  (auth) => auth.user
+);
 export default authSlice.reducer;
