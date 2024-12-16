@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { BsFacebook, BsInstagram, BsTwitter, BsYoutube } from "react-icons/bs";
-import logo from '/src/assets/logo-large-white.png';
 
 export default function Footer() {
   const [showFooter, setShowFooter] = useState(false);
@@ -39,7 +38,7 @@ export default function Footer() {
               aria-label="Central Health Logo"
             >
               <img
-                src={logo}
+                src="/assets/images/logo-large-white.png"
                 alt="Central Health Logo"
                 style={{
                   width: "10%",

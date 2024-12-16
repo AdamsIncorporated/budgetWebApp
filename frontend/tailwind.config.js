@@ -9,6 +9,6 @@ module.exports = {
     },
   },
   plugins: [],
-  mode: "jit", // Ensure JIT mode is enabled
+  mode: "jit",
   purge: ["./src/**/*.{html,js,jsx,ts,tsx}", "./src/assets/index.html"],
 };

@@ -9,7 +9,8 @@ module.exports = {
   devtool: "source-map",
   devServer: {
     static: {
-      directory: path.join(__dirname, "public"),
+      directory: path.join(__dirname, "src", "assets"),
+      publicPath: "/assets",
     },
     historyApiFallback: true,
     proxy: [
@@ -34,15 +35,18 @@ module.exports = {
   },
   module: {
     rules: [
+      // load and compile ts and tsx files
       {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
         use: "babel-loader",
       },
+      // load and compile css files
       {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"],
       },
+      // load and compile asset files which is optional since assets folder is the static folder
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
         use: ["file-loader?name=[name].[ext]"],
@@ -52,7 +56,6 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/app/index.html",
-      favicon: "./src/assets/favicon.png",
     }),
     new webpack.DefinePlugin({
       "process.env.PUBLIC_URL": JSON.stringify("/"),
