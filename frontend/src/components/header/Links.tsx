@@ -38,6 +38,10 @@ const Links: React.FC<LinksProps> = ({toggleIsOpen}) => (
       <FaCalculator className="mr-2" /> 
       <Link to="/budget/">Budget</Link>
     </li>
+    <li className="flex items-center hover:text-stone-800 transition ease-in duration-50" onClick={toggleIsOpen}>
+      <FaCalculator className="mr-2" /> 
+      <Link to="/admin-dahsboard/">Admin Dashboard</Link>
+    </li>
   </ul>
 );
 

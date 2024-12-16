@@ -1,4 +1,3 @@
-// TableComponent.tsx
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import { BsDownload, BsArrowClockwise } from "react-icons/bs";
@@ -13,21 +12,20 @@ ModuleRegistry.registerModules([ClientSideRowModelModule, CsvExportModule]);
 
 // Define the type of vendor data you expect to receive
 interface Vendor {
-  Id: number;
-  FiscalYear: string;
-  VendorName: string;
-  InvoiceNumber: number;
-  Amount: number;
-  CheckDate: string;
-  CheckNumber: number;
-  DateCashed: Date;
-  VoucherStatus: string;
-  PostingStatus: string;
+  Account: string;
+  Actual: number;
+  Variance: number;
+  ForecastedAmount: number;
+  ProposedBudget: number;
+  BusinessCaseName: string;
+  BusinessCaseAmount: number;
+  Comments: string;
+  TotalBudget: number;
 }
 
 export default function BudgetPage() {
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);  // Add loading state
+  const [budgets, setBudgets] = useState<Vendor[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const gridRef = useRef<AgGridReact | null>(null);
 
   useEffect(() => {
@@ -35,18 +33,18 @@ export default function BudgetPage() {
   }, []);
 
   const fetchVendors = async () => {
-    setLoading(true);  // Start loading
+    setLoading(true);
     try {
-      const response = await fetch("/api/vendors");
+      const response = await fetch("/api/budget/entry");
       if (!response.ok) {
         throw new Error("Failed to fetch vendor data");
       }
       const data = await response.json();
-      setVendors(data);  // Update state with fetched vendor data
+      setBudgets(data);
     } catch (error) {
       console.error("Error fetching vendor data:", error);
     } finally {
-      setLoading(false);  // End loading
+      setLoading(false);
     }
   };
 
@@ -65,13 +63,6 @@ export default function BudgetPage() {
     []
   );
 
-  const defaultColDef = useMemo(() => {
-    return {
-      filter: "agTextColumnFilter",
-      floatingFilter: true,
-    };
-  }, []);
-
   function onBtnExport() {
     const gridApi = gridRef.current?.api;
     if (gridApi) {
@@ -80,7 +71,7 @@ export default function BudgetPage() {
   }
 
   return (
-    <div className="mt-48">
+    <div className="p-24">
       <div className="flex flex-row justify-end my-4 space-x-4">
         <button
           onClick={onBtnExport}
@@ -97,16 +88,12 @@ export default function BudgetPage() {
       </div>
 
       <div className="ag-theme-quartz" style={{ height: 500 }}>
-        {/* Conditionally render the LoadingOverlay */}
         {loading && <LoadingOverlay />}
         <AgGridReact
           ref={gridRef}
-          rowData={vendors}
+          rowData={budgets}
           columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          pagination={true}
-          paginationPageSize={10}
-          paginationPageSizeSelector={[10, 25, 50]}
+          pagination={false}
         />
       </div>
     </div>
